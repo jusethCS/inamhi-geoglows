@@ -1,0 +1,5 @@
+config.sh
+activate.bat
+*.env
+database/data/*
+*data.xlsx
