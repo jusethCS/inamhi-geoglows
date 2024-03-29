@@ -1,0 +1,36 @@
+<div class="d-flex justify-content-end">
+  <div class="auth-component">
+    <div class="auth-title d-flex justify-content-end">
+      <div>LOGIN</div>
+    </div>
+    <br>
+    <mat-form-field appearance="outline" class="dark-mode auth-component">
+      <mat-label>Correo electrónico institucional</mat-label>
+      <input matInput
+             placeholder="usuario@institucion.org"
+             [formControl]="email"
+             (blur)="updateErrorMessage()"
+             required>
+      @if (email.invalid) {
+        <mat-error>{{errorMessage}}</mat-error>
+      }
+    </mat-form-field>
+    <br>
+    <mat-form-field appearance="outline" class="dark-mode auth-component">
+      <mat-label>Contraseña</mat-label>
+      <input matInput [type]="hide ? 'password' : 'text'">
+      <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+        <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+      </button>
+    </mat-form-field>
+    <br>
+    <div class="d-flex justify-content-between">
+      <button mat-stroked-button class="dark-mode auth-button" (click)="redirectToRegister()">Registrarse</button>
+      <button mat-flat-button class="auth-button">Iniciar sesión</button>
+    </div>
+    <br>
+    <div class="auth-text d-flex justify-content-end">
+      <div style="color: white;">Olvidó su contraseña?</div>
+    </div>
+  </div>
+</div>

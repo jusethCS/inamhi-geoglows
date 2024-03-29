@@ -1,0 +1,27 @@
+.header{
+  position: fixed;
+  top:0;
+  left: 0;
+  width: 100vw;
+  z-index: 100;
+}
+
+.transparent-header {
+  background-color: transparent !important;
+  transition: all 2s ease;
+}
+
+.transparent-header img {
+  transition: all 2s ease;
+  height: 95px;
+}
+
+.scrolled-header {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  transition: all 2s ease;
+}
+
+.scrolled-header img{
+  transition: all 2s ease;
+  height: 65px;
+}
