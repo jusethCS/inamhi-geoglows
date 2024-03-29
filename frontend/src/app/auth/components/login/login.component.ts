@@ -10,7 +10,7 @@ import {FormControl, Validators, FormsModule, ReactiveFormsModule} from '@angula
 import {merge} from 'rxjs';
 
 @Component({
-  selector: 'app-auth',
+  selector: 'app-login',
   standalone: true,
   imports: [
     MatSelectModule,
@@ -21,10 +21,10 @@ import {merge} from 'rxjs';
     FormsModule,
     ReactiveFormsModule
   ],
-  templateUrl: './auth.component.html',
-  styleUrl: './auth.component.css'
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.css'
 })
-export class AuthComponent {
+export class LoginComponent {
   email = new FormControl('', [Validators.required, Validators.email]);
   errorMessage = '';
   hide = true;
