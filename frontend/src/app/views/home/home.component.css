@@ -6,12 +6,75 @@
 .home-login-container{
   width: 100vw;
   height: 100vh;
-  background-image: url("/assets/img/background.jpg");
+  background-image: url("/assets/img/background.png");
   background-size: cover;
   background-position: center;
 }
 
-.home-about-container{
+.home-login-background{
   width: 100vw;
   height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.home-about-container{
+  width: 100vw;
+  height: 55vh;
+  background-image: url("/assets/img/background2.png");
+  background-size: cover;
+  background-color: #EAEAEA;
+}
+
+.home-about-background{
+  width: 100vw;
+  height: 55vh;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.home-content-container{
+  width: 100vw;
+}
+
+
+.home-title{
+  color: white;
+  font-size: 3.5rem;
+  font-weight: bold;
+}
+
+.home-subtitle{
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.home-title-description{
+  color: white;
+  font-size: 1.4rem;
+}
+
+.home-content{
+  width: 100vw;
+}
+
+
+.about-description{
+  font-size: 1.4rem;
+  color: white;
+}
+
+.home-content-title{
+  color: #1765A5;
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.home-content-subtitle{
+  color: #1765A5;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.home-content-text1{
+  font-size: 1.2rem;
 }

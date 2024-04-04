@@ -13,3 +13,12 @@
   padding-right: 10px;
   padding-left: 10px;
 }
+
+::ng-deep {
+  .mat-form-field-infix {
+      border: 0px !important;
+  }
+  .mat-form-field-appearance-outline .mat-select-arrow-wrapper {
+      transform: none !important;
+  }
+}

@@ -14,7 +14,7 @@ import { HeaderComponent } from '../../shared/components/header/header.component
 
 export class HomeComponent {
 
-  @ViewChild('second') myScrollContainer!: ElementRef;
+  @ViewChild('about') myScrollContainer!: ElementRef;
 
   scrollToElement(): void {
     const element = this.myScrollContainer.nativeElement;
