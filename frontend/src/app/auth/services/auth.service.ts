@@ -4,6 +4,11 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
 
+import { Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,10 +18,17 @@ export class AuthService {
 
   // Service attributes
   private auth = false;
-  private token = "";
 
   // Constructor
-  constructor(private http:HttpClient) { }
+  constructor(private http:HttpClient, @Inject(DOCUMENT) private document: Document) {
+    const localStorage = document.defaultView?.localStorage;
+    if (localStorage) {
+      const localtoken = localStorage.getItem('token');
+      if(localtoken){
+        this.auth = true;
+      }
+    }
+   }
 
   // Retrieve JWT token for user authentication
   get_token(email:string, password:string):Observable<any>{
@@ -38,15 +50,13 @@ export class AuthService {
 
   // User authentication
   login(tokenData:string): void {
-    this.token = tokenData;
-    if(this.token !== ""){
-      this.auth = true;
-    }
+    localStorage.setItem("token", tokenData)
+    this.auth = true;
   }
 
   // Finish session
   logout(): void {
-    this.token = "";
+    localStorage.clear();
     this.auth = false;
   }
 
