@@ -18,9 +18,13 @@
     <br>
     <mat-form-field appearance="outline" class="dark-mode auth-component">
       <mat-label>Contraseña</mat-label>
-      <input matInput [formControl]="password" [type]="hide ? 'password' : 'text'">
+      <input
+        matInput
+        [formControl]="password"
+        [type]="hide ? 'password' : 'text'"
+        required>
       @if (password.invalid) {
-        <mat-error>{{errorMessagePassword}}</mat-error>
+        <mat-error>Debe ingresar una Contraseña</mat-error>
       }
       <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
         <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>

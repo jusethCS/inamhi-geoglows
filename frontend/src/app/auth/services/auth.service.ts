@@ -24,6 +24,18 @@ export class AuthService {
     return this.http.get(url)
   }
 
+  // Register user
+  register_user(data:any):Observable<any>{
+    const url = environment.urlAPI +
+                  "register?email=" + data.email +
+                  "&pass=" + data.pass +
+                  "&firstname=" + data.firstname +
+                  "&lastname=" + data.lastname +
+                  "&institution=" + data.institution +
+                  "&position=" + data.position
+    return this.http.get(url)
+  }
+
   // User authentication
   login(tokenData:string): void {
     this.token = tokenData;

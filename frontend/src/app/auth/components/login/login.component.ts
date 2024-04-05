@@ -26,10 +26,10 @@ export class LoginComponent {
 
   // Form variables and error messages
   email = new FormControl('', [Validators.required, Validators.email]);
+  password = new FormControl('', [Validators.required]);
+
   errorMessageEmail = '';
 
-  password = new FormControl('', [Validators.required]);
-  errorMessagePassword = '';
 
   // State varible to hide or show password
   hide = true;
@@ -42,10 +42,6 @@ export class LoginComponent {
     this.email.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessageEmail());
-
-    this.password.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.updateErrorMessagePassword());
   }
 
 
@@ -58,11 +54,6 @@ export class LoginComponent {
       : this.email.hasError('email')
         ? 'Correo no válido'
         : '';
-  }
-  updateErrorMessagePassword() {
-    this.errorMessagePassword = this.password.hasError('required')
-      ? 'Debe ingresar una contraseña'
-      : '';
   }
 
 
