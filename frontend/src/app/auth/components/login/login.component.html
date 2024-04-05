@@ -9,16 +9,19 @@
       <input matInput
              placeholder="usuario@institucion.org"
              [formControl]="email"
-             (blur)="updateErrorMessage()"
+             (blur)="updateErrorMessageEmail()"
              required>
       @if (email.invalid) {
-        <mat-error>{{errorMessage}}</mat-error>
+        <mat-error>{{errorMessageEmail}}</mat-error>
       }
     </mat-form-field>
     <br>
     <mat-form-field appearance="outline" class="dark-mode auth-component">
       <mat-label>Contraseña</mat-label>
-      <input matInput [type]="hide ? 'password' : 'text'">
+      <input matInput [formControl]="password" [type]="hide ? 'password' : 'text'">
+      @if (password.invalid) {
+        <mat-error>{{errorMessagePassword}}</mat-error>
+      }
       <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
         <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
       </button>
@@ -26,7 +29,7 @@
     <br>
     <div class="d-flex justify-content-between">
       <button mat-stroked-button class="dark-mode auth-button" (click)="redirectToRegister()">Registrarse</button>
-      <button mat-flat-button class="auth-button">Iniciar sesión</button>
+      <button mat-flat-button class="auth-button" (click)="login()">Iniciar sesión</button>
     </div>
     <br>
     <div class="auth-text d-flex justify-content-end">
