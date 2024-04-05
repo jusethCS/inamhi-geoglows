@@ -3,3 +3,5 @@ activate.bat
 *.env
 database/data/*
 *data.csv
+*.sqlite3
+environment*ts
