@@ -8,30 +8,37 @@ import { environment } from '../../../environments/environment.development';
   providedIn: 'root'
 })
 
+
 export class AuthService {
 
+  // Service attributes
   private auth = false;
   private token = "";
 
+  // Constructor
   constructor(private http:HttpClient) { }
 
-
+  // Retrieve JWT token for user authentication
   get_token(email:string, password:string):Observable<any>{
-    return this.http.get( environment.urlAPI + "login?user=" + email + "&pass=" + password)
+    const url = environment.urlAPI + "login?user=" + email + "&pass=" + password;
+    return this.http.get(url)
   }
 
-  login(tokenData:string) {
+  // User authentication
+  login(tokenData:string): void {
     this.token = tokenData;
     if(this.token !== ""){
       this.auth = true;
     }
   }
 
-  logout() {
+  // Finish session
+  logout(): void {
     this.token = "";
     this.auth = false;
   }
 
+  // Determine if user is authenticated
   isAuth(): boolean {
     return this.auth;
   }
