@@ -27,12 +27,13 @@ export class LoginComponent {
   // Form variables and error messages
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', [Validators.required]);
-
   errorMessageEmail = '';
-
 
   // State varible to hide or show password
   hide = true;
+
+  // Authentication error variable
+  authErr = false;
 
 
   // -------------------------------------------------------------------- //
@@ -73,12 +74,14 @@ export class LoginComponent {
     const password = this.password.value;
 
     if (email && password) {
+      this.authErr = false;
       this.authService.get_token(email, password).subscribe({
         next: (token) => {
           this.authService.login(token.token);
         },
         error: (err) => {
           console.error("Error during login:", err);
+          this.authErr = true;
         },
         complete: () =>{
           console.log("Login successfully");
