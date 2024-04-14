@@ -1,0 +1,28 @@
+.dashboard-container{
+  width: 100vw;
+  height: 100vh;
+  background-image: url("/assets/img/background.png");
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.dashboard-container-background{
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.welcome{
+  color: white;
+  font-size: 1rem;
+}
+
+.title{
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.header img {
+  height: 70px;
+}

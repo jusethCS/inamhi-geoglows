@@ -18,6 +18,7 @@ export class AuthService {
 
   // Service attributes
   private auth = false;
+  private token;
 
   // Constructor
   constructor(private http:HttpClient, @Inject(DOCUMENT) private document: Document) {
@@ -26,6 +27,7 @@ export class AuthService {
       const localtoken = localStorage.getItem('token');
       if(localtoken){
         this.auth = true;
+        this.token = localtoken;
       }
     }
    }
@@ -52,6 +54,7 @@ export class AuthService {
   login(tokenData:string): void {
     localStorage.setItem("token", tokenData)
     this.auth = true;
+    this.token = tokenData;
   }
 
   // Finish session
@@ -63,6 +66,10 @@ export class AuthService {
   // Determine if user is authenticated
   isAuth(): boolean {
     return this.auth;
+  }
+
+  getToken(): string | undefined {
+    return this.token;
   }
 
 }
