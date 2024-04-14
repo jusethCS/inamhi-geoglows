@@ -26,7 +26,9 @@ import { AuthService } from '../../services/auth.service';
 export class RegisterComponent {
 
   // Form variables and error messages
-  email = new FormControl('', [Validators.required, Validators.email]);
+  pattern = "^[a-zA-Z0-9._%+-]+@(?!.*\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+  email = new FormControl('', [Validators.required, Validators.email,
+                               Validators.pattern(this.pattern)]);
   password = new FormControl('', [Validators.required]);
   firstname = new FormControl('', [Validators.required]);
   lastname = new FormControl('', [Validators.required]);
@@ -53,11 +55,28 @@ export class RegisterComponent {
   //           METHOD: Update status and erros in form values             //
   // -------------------------------------------------------------------- //
   updateErrorMessageEmail() {
-    this.errorMessageEmail = this.email.hasError('required')
-      ? 'Debe ingresar un correo'
-      : this.email.hasError('email')
-        ? 'Correo no válido'
-        : '';
+  switch(true) {
+    case this.email.hasError('required'):
+      this.errorMessageEmail = 'Debe ingresar un correo';
+      break;
+    case this.email.hasError('email'):
+      this.errorMessageEmail = 'Correo no válido';
+      break;
+    case this.email.hasError('pattern'):
+      this.errorMessageEmail = 'Debe ingresar un correo institucional';
+      break;
+    default:
+      this.errorMessageEmail = '';
+  }
+}
+
+  // Institutional email validator
+  institutionalEmail(control: FormControl) {
+    const valor = control.value as string;
+    if (valor && valor.toLowerCase().endsWith('.com')) {
+      return { 'commail': true };
+    }
+    return null;
   }
 
   // -------------------------------------------------------------------- //
