@@ -1,7 +1,7 @@
 <div class="dashboard-container">
   <div class="dashboard-container-background">
 
-    <div class="header py-5">
+    <div class="header pt-5 pb-4">
       <div class="container">
         <div class="d-flex mb-2 align-items-end">
           <div>
@@ -19,15 +19,20 @@
         <div class="row">
           <div class="col welcome text-center">
             Bienvenid&#64;, {{userFullName}}
-            (<a href="/">Cerrar sesión</a>)
           </div>
         </div>
         <div class="row">
           <div class="col title text-center"> APLICACIONES INAMHI GEOGLOWS</div>
         </div>
         <div class="d-flex flex-wrap justify-content-center">
-          <app-cardapp [imageUrl]="'/assets/img/climate-trends.png'" [appName]="'Climate Trends Ecuador'"/>
-          <app-cardapp [imageUrl]="'/assets/img/met-data-explorer.png'" [appName]="'Met Data Explorer Ecuador'"/>
+          <app-cardapp
+            [imageUrl]="'/assets/img/climate-trends.png'"
+            [appName]="'Climate Trends Ecuador'"
+            [appUrl]="'/apps/climate-trends'"/>
+          <app-cardapp
+            [imageUrl]="'/assets/img/met-data-explorer.png'"
+            [appName]="'Met Data Explorer Ecuador'"
+            [appUrl]="'/apps/met-data-explorer'"/>
           <app-cardapp [imageUrl]="'/assets/img/hydroviewer.png'" [appName]="'Hydroviewer Ecuador'"/>
           <app-cardapp [imageUrl]="'/assets/img/historical-validation-tool.png'" [appName]="'Historical Validation Tool'"/>
           <app-cardapp [imageUrl]="'/assets/img/national-water-level-forecast.png'" [appName]="'National Water Level Forecast'"/>
