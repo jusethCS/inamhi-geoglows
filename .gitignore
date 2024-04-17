@@ -6,3 +6,5 @@ database/data/*
 *data.csv
 *.sqlite3
 *.pyc
+inamhi-geoglows.pem
+conect.bat
