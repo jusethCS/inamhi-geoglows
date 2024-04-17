@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-(+pym@eth3h+d^8e+ui)gsr(d9j920ec@8k=tpr5brtg@h5sg9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'ec2-3-211-227-44.compute-1.amazonaws.com']
 
 
 # Application definition
@@ -118,7 +118,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "/static/"
+STATIC_ROOT = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -126,6 +127,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-CORS_ALLOWED_ORIGINS = [ # Agrega aquí los orígenes permitidos, por ejemplo: 
-    'http://localhost:4200', # Reemplaza con la URL de tu aplicación frontend 
+CORS_ALLOWED_ORIGINS = [
+    "http://ec2-3-211-227-44.compute-1.amazonaws.com",
+    "https://ec2-3-211-227-44.compute-1.amazonaws.com",
+    "http://localhost:4200",
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
