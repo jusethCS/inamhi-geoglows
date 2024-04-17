@@ -5,3 +5,4 @@ activate.bat
 database/data/*
 *data.csv
 *.sqlite3
+*.pyc
