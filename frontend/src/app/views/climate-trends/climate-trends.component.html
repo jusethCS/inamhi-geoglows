@@ -1,1 +1,10 @@
-<p>climate-trends works!</p>
+<app-header
+  [imageUrl]="'/assets/img/climate-trends.png'"
+  [appName]="'Climate Trends Ecuador'"
+  (panelActivate)="isPanelActive($event)" />
+
+<div class="app-content d-flex justify-content-start">
+  <div [ngClass]="{'app-panel-active': panelActive, 'app-panel-deactive': !panelActive}"></div>
+  <div id="map" #map [ngClass]="{'app-map-partial': panelActive, 'app-map-full': !panelActive}"></div>
+</div>
+
