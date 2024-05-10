@@ -144,7 +144,7 @@ export class ClimateTrendsComponent {
         case "mensual":
             return "monthly";
         case "anual":
-            return "yearly";
+            return "annual";
         default:
             return "NA";
     }
@@ -169,7 +169,7 @@ export class ClimateTrendsComponent {
             case "monthly":
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 break;
-            case "yearly":
+            case "annual":
                 currentDate.setFullYear(currentDate.getFullYear() + 1);
                 break;
             default:
@@ -201,11 +201,19 @@ export class ClimateTrendsComponent {
     let url = `http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver/${product}-${frequency}/wms`;
     let target_dates = this.generateDates(startDate, endDate, frequency)
     let target_layers = target_dates.map(date => `${product}-${frequency}:${date}`)
+    console.log(target_layers)
     let layers = target_layers.map(layer => this.getLeafletLayer(url, layer))
     if (this.timeControl !== undefined) {
       this.timeControl.destroy();
     }
-    this.timeControl = new WMSLayerTimeControl(this.map, this.L.control, layers, 1000, target_dates);
+    this.timeControl = new WMSLayerTimeControl(
+                                this.map,
+                                this.L.control,
+                                layers,
+                                1000,
+                                target_dates,
+                                `${product} ${frequency}`,
+                                frequency);
   }
 
   playTimeControl(){
