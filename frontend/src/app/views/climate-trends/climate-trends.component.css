@@ -1,14 +1,20 @@
 .app-content{
   height: calc(100vh - 50px);
+  overflow: hidden;
 }
 
+.scale-90{
+  transform: scale(0.9) !important;
+  transform-origin: top left !important;
+}
 
 /* State 1 */
 .app-panel-active{
   width: 330px;
   height: 100%;
+  overflow: auto;
   background-color: rgba(0,0,0,0.8);
-  transition: all 200ms
+  transition: all 200ms,
 }
 .app-map-partial{
   width: calc(100vw - 330px);
@@ -27,17 +33,27 @@
 
 
 .select{
-  width: 280px !important;
+  width: 305px !important;
 }
 
 .update-button{
-  width: 280px !important;
-  height: 45px !important;
+  width: 275px !important;
+  height: 40px !important;
   background-color: #5B5B5B;
 }
 
+.button-cont{
+  width: 275px !important;
+}
+
 .time-button{
-  width: 40px !important;
+  width: 35px !important;
+  height: 35px !important;
+  background-color: #5B5B5B;
+}
+
+.half-button{
+  width: 48% !important;
   height: 40px !important;
   background-color: #5B5B5B;
 }

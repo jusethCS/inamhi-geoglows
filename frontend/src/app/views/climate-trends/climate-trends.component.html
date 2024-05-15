@@ -6,30 +6,30 @@
 <div class="app-content d-flex justify-content-start">
   <div [ngClass]="{'app-panel-active': panelActive, 'app-panel-deactive': !panelActive}">
     <mat-accordion class="dark-mode" [ngClass]="{'app-panel-deactivate': !panelActive}" multi>
-      <app-dropdown-panel [expanded]="true" iconClass="fa-solid fa-satellite" title="Datos satelitales">
 
-        <mat-form-field class="select" appearance="outline">
+      <!-- ------------------------------------------------------------------------------------------ -->
+      <!--                           SATELLITE BASED PRECIPITATION PRODUCTS                           -->
+      <!-- ------------------------------------------------------------------------------------------ -->
+      <app-dropdown-panel [expanded]="true" iconClass="fa-solid fa-satellite" title="Datos satelitales">
+        <mat-form-field class="select scale-90" appearance="outline">
           <mat-label>Variable:</mat-label>
           <mat-select [(ngModel)]="selVars" (selectionChange)="updateProduct()">
             <mat-option *ngFor="let variable of vars" [value]="variable">{{ variable }}</mat-option>
           </mat-select>
         </mat-form-field>
-
-        <mat-form-field class="select" appearance="outline">
+        <mat-form-field class="select scale-90" appearance="outline">
           <mat-label>Producto:</mat-label>
           <mat-select [(ngModel)]="selProd" (selectionChange)="updateTemporal()">
             <mat-option *ngFor="let producto of prod" [value]="producto">{{ producto }}</mat-option>
           </mat-select>
         </mat-form-field>
-
-        <mat-form-field class="select" appearance="outline">
+        <mat-form-field class="select scale-90" appearance="outline">
           <mat-label>Temporalidad:</mat-label>
           <mat-select [(ngModel)]="selTemp">
             <mat-option *ngFor="let t of temp" [value]="t">{{ t }}</mat-option>
           </mat-select>
         </mat-form-field>
-
-        <mat-form-field class="select" appearance="outline">
+        <mat-form-field class="select scale-90" appearance="outline">
           <mat-label>Rango de fechas:</mat-label>
           <mat-date-range-input [formGroup]="dateRange" [rangePicker]="picker">
             <input matStartDate formControlName="start" placeholder="Start date">
@@ -39,14 +39,12 @@
           <mat-date-range-picker #picker></mat-date-range-picker>
         </mat-form-field>
 
-        <button mat-stroked-button class="dark-mode update-button" (click)="updateSatelliteProduct()">
+        <button mat-stroked-button class="dark-mode update-button pt-0" (click)="updateSatelliteProduct()">
           <i class="fa-solid fa-arrows-rotate"></i> &nbsp;
           Actualizar Datos
         </button>
 
-        <br><br>
-
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between pt-3 button-cont">
           <button mat-stroked-button class="dark-mode time-button" (click)="previousTimeControl()">
             <i class="fa-solid fa-backward"></i>
           </button>
@@ -60,25 +58,44 @@
             <i class="fa-solid fa-forward"></i>
           </button>
         </div>
+      </app-dropdown-panel>
 
 
+      <!-- ------------------------------------------------------------------------------------------ -->
+      <!--                          PROCESS DATA USING PROVINCES AND CANTONS                          -->
+      <!-- ------------------------------------------------------------------------------------------ -->
+      <app-dropdown-panel iconClass="fa-solid fa-gears" title="Procesamiento">
 
+        <mat-form-field class="select scale-90" appearance="outline">
+          <mat-label>Provincia:</mat-label>
+          <mat-select [(ngModel)]="selProv" (selectionChange)="updateCanton()">
+            <mat-option *ngFor="let p of prov" [value]="p">{{ p }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="select scale-90" appearance="outline">
+          <mat-label>Canton:</mat-label>
+          <mat-select [(ngModel)]="selCant">
+            <mat-option *ngFor="let c of cant" [value]="c">{{ c }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="d-flex justify-content-between button-cont">
+          <button mat-stroked-button class="dark-mode half-button" (click)="displayCanton()">
+            <i class="fa-solid fa-arrows-rotate"></i>
+            Actualizar
+          </button>
+          <button mat-stroked-button class="dark-mode half-button">
+            <i class="fa-solid fa-chart-column"></i>
+            Graficar
+          </button>
+        </div>
 
 
 
       </app-dropdown-panel>
 
-      <app-dropdown-panel iconClass="fa-solid fa-layer-group" title="Capas e información">
-        Aqui el contenido
-      </app-dropdown-panel>
 
-      <app-dropdown-panel iconClass="fa-solid fa-filter" title="Filtrar por">
-        Aqui el contenido
-      </app-dropdown-panel>
-
-      <app-dropdown-panel iconClass="fa-solid fa-upload" title="Cargar capa">
-        Aqui el contenido
-      </app-dropdown-panel>
     </mat-accordion>
   </div>
 

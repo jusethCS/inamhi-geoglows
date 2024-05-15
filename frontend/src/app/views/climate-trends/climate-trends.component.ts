@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import {JsonPipe} from '@angular/common';
 
-import { satelliteProducts, date_custom_format } from './climate-trends.variables';
+import { satelliteProducts, date_custom_format, ecuador } from './climate-trends.variables';
 import { WMSLayerTimeControl } from '../../shared/classes/time-dimension';
 
 import * as _moment from 'moment';
@@ -17,6 +17,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {provideMomentDateAdapter} from '@angular/material-moment-adapter';
 import { MatButtonModule } from '@angular/material/button';
+import { response } from 'express';
 
 const moment = _rollupMoment || _moment;
 
@@ -67,11 +68,27 @@ export class ClimateTrendsComponent {
   selProd: string = "CHIRPS";
   selTemp: string = "Diario"
   tabla = satelliteProducts;
+  tablaEcuador = ecuador;
   dateRange: FormGroup = new FormGroup({
     start: new FormControl<Date | null>(null),
     end: new FormControl<Date | null>(null),
   });
   timeControl: WMSLayerTimeControl | undefined;
+
+  // Province and cantons
+  prov: string[] = [
+    "AZUAY", "BOLIVAR", "CAÑAR", "CARCHI", "COTOPAXI", "CHIMBORAZO", "EL ORO",
+    "ESMERALDAS", "GUAYAS", "IMBABURA", "LOJA", "LOS RIOS", "MANABI", "MORONA SANTIAGO",
+    "NAPO", "PASTAZA", "PICHINCHA", "TUNGURAHUA", "ZAMORA CHINCHIPE", "GALAPAGOS",
+    "SUCUMBIOS", "ORELLANA", "SANTO DOMINGO", "SANTA ELENA"
+  ];
+  cant: string[] = [];
+  selProv: string = "";
+  selCant: string = "";
+
+  // GeoJSON data
+  geojson_data: any;
+  LGeoJson: any;
 
 
   // -------------------------------------------------------------------- //
@@ -123,6 +140,16 @@ export class ClimateTrendsComponent {
         item => item.Variable === this.selVars && item.Producto === this.selProd
       ).map(item => item.Temporalidad))];
     this.selTemp = this.temp[0];
+  }
+
+  // Update canton selector
+  updateCanton(){
+    this.cant = [ ...new Set(
+      this.tablaEcuador.filter(
+        item => item.provincia === this.selProv
+      ).map(item => item.canton)
+    )];
+    this.selCant = this.cant[0];
   }
 
   // Init datepicker dates
@@ -231,4 +258,37 @@ export class ClimateTrendsComponent {
   nextTimeControl(){
     this.timeControl?.next();
   }
+
+  displayCanton(){
+    let code = this.tablaEcuador.filter(
+                  item => item.provincia === this.selProv && item.canton === this.selCant
+                ).map(item => item.code)[0];
+
+    let url = "";
+    if (code && code.endsWith("00")){
+      url = `http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver/ecuador-limits/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ecuador-limits%3Aprovincias&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=DPA_CANTON=${code}`;
+    }else{
+      url = `http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver/ecuador-limits/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ecuador-limits%3Acantones&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=DPA_CANTON=${code}`;
+    }
+
+    console.log(code);
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        this.geojson_data = data;
+        if (this.LGeoJson) {
+          this.map.removeLayer(this.LGeoJson);
+        }
+        this.LGeoJson = this.L.geoJSON(data, {
+            style: {
+              color: "#000000",
+              weight: 1.5,
+              fillOpacity: 0
+            }
+        }).addTo(this.map)
+        this.map.fitBounds(this.LGeoJson.getBounds())
+      });
+  }
+
 }
