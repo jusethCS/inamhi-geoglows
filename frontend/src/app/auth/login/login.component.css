@@ -1,0 +1,33 @@
+.auth-component{
+  width: 350px;
+}
+
+.auth-button{
+  width: 165px;
+}
+
+.auth-title{
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+
+.alert-fixed {
+  position: fixed;
+  bottom: 100px;
+  z-index: 9999;
+  animation: fadeOut 12s forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

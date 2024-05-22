@@ -54,12 +54,12 @@
                     {{userFullName}}
                   </a>
                   <ul class="dropdown-menu custom-dropdown-menu" style="border: none;">
-                    <li class="text-center"><a class="dropdown-item" href="#">CERRAR SESION</a></li>
+                    <li class="text-center"><a class="dropdown-item" href="#" (click)="logout()">CERRAR SESION</a></li>
                   </ul>
                 </li>
               } @else {
                 <li class="nav-item text-center custom-nav-item">
-                  <a class="nav-link" href="#">INICIAR SESIÓN</a>
+                  <a class="nav-link" href="#" (click)="clickOnLoginButton()">INICIAR SESIÓN</a>
                 </li>
               }
             </ul>

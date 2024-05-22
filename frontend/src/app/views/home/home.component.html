@@ -1,6 +1,6 @@
 <div>
 
-  <app-header/>
+  <app-header (outIsAuth)="retrieveIsAuth($event)" (clickLogin)="showLoginPanel($event)" />
 
   <div class="position-absolute top-0 start-0 home-body">
 
@@ -13,30 +13,34 @@
           <div class="w-100 px-2">
             <div class="col-12 d-flex justify-content-center">
               <div class="home-content">
-                <div class="home-title text-center fade-in-1">INAMHI GEOGLOWS</div>
-                <br>
-                <div class="home-description text-center fade-in-2">
-                  Accede, visualiza y descarga
-                  <span class="highlight">pronósticos hidrometeorológicos</span> e
-                  <span class="highlight">información satelital</span>
-                  en Ecuador.
-                </div>
-                <br><br>
-                <div class="d-flex justify-content-center fade-in-2">
-                  <button
-                    (click)="scrollToElement()"
-                    mat-flat-button color="primary"
-                    class="home-btn home-btn-primary">
-                      <fa-icon [icon]="infoIcon"></fa-icon>
-                      Conoce más
-                  </button>
-                  <button
-                    mat-flat-button
-                    class="home-btn home-btn-secondary">
-                      <fa-icon [icon]="infoGitHub"></fa-icon>
-                      GitHub
-                  </button>
-                </div>
+                @if (loginPanelActive) {
+                  <router-outlet/>
+                }@else {
+                  <div class="home-title text-center fade-in-1">INAMHI GEOGLOWS</div>
+                  <br>
+                  <div class="home-description text-center fade-in-2">
+                    Accede, visualiza y descarga
+                    <span class="highlight">pronósticos hidrometeorológicos</span> e
+                    <span class="highlight">información satelital</span>
+                    en Ecuador.
+                  </div>
+                  <br><br>
+                  <div class="d-flex justify-content-center fade-in-2">
+                    <button
+                      (click)="scrollToElement()"
+                      mat-flat-button color="primary"
+                      class="home-btn home-btn-primary">
+                        <fa-icon [icon]="infoIcon"></fa-icon>
+                        Conoce más
+                    </button>
+                    <button
+                      mat-flat-button
+                      class="home-btn home-btn-secondary">
+                        <fa-icon [icon]="infoGitHub"></fa-icon>
+                        GitHub
+                    </button>
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -55,7 +59,7 @@
     <!--------------------------------------------------------------------------->
     <!--                            FEATURE PANEL                              -->
     <!--------------------------------------------------------------------------->
-    <div #about class="container position-relative py-5">
+    <div #about id="about" class="container position-relative py-5">
       <div class="row pt-4">
         <slidein>
           <div class="home-subtitle text-center pt-5">

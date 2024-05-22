@@ -24,13 +24,45 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 export class HomeComponent {
 
+  // -------------------------------------------------------------------- //
+  //                           CLASS ATTRIBUTES                           //
+  // -------------------------------------------------------------------- //
+
+  // State variables
+  loginPanelActive:boolean = false;
+  isAuth:boolean = false;
+
+  // icons
   infoIcon = faCircleInfo;
   infoGitHub = faGithub;
+
+  // -------------------------------------------------------------------- //
+  //                            CONSTRUCTOR                               //
+  // -------------------------------------------------------------------- //
+
+  constructor(){
+
+  }
 
   @ViewChild('about') myScrollContainer!: ElementRef;
   scrollToElement(): void {
     const element = this.myScrollContainer.nativeElement;
     element.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }
+
+
+
+  // -------------------------------------------------------------------- //
+  //                               METHODS                                //
+  // -------------------------------------------------------------------- //
+  retrieveIsAuth(isAuthD:boolean){
+    this.isAuth = isAuthD;
+  }
+
+  showLoginPanel(click:string){
+    if(this.isAuth === false && this.loginPanelActive === false){
+        this.loginPanelActive = true
+    }
   }
 
 
