@@ -1,0 +1,55 @@
+<div>
+  <app-header/>
+  <div class="position-absolute top-0 start-0 home-body">
+
+    <!--------------------------------------------------------------------------->
+    <!--                              HOME PANEL                               -->
+    <!--------------------------------------------------------------------------->
+    <div class="position-relative home-container">
+      <div class="home-background">
+        <div class="container d-flex align-items-center h-100">
+          <div class="w-100 px-2">
+            <div class="col-12 d-flex justify-content-center">
+              <div class="home-content">
+                <div class="row">
+                  <div class="col title text-center"> APLICACIONES INAMHI GEOGLOWS</div>
+                </div>
+                <div class="d-flex flex-wrap justify-content-center custom-container">
+                  <app-cardapp
+                    [imageUrl]="'/assets/img/climate-trends.png'"
+                    [appName]="'Climate Trends Ecuador'"
+                    [appUrl]="'/apps/climate-trends'"/>
+                  <app-cardapp
+                    [imageUrl]="'/assets/img/met-data-explorer.png'"
+                    [appName]="'Met Data Explorer Ecuador'"
+                    [appUrl]="'/apps/met-data-explorer'"/>
+                  <app-cardapp
+                    [imageUrl]="'/assets/img/hydroviewer.png'"
+                    [appName]="'Hydroviewer Ecuador'"
+                    [appUrl]="'/apps/hydroviewer'"/>
+                  <app-cardapp
+                    [imageUrl]="'/assets/img/historical-validation-tool.png'"
+                    [appName]="'Historical Validation Tool'"
+                    [appUrl]="'/apps/historical-valitation-tool'"/>
+                  <app-cardapp
+                    [imageUrl]="'/assets/img/national-water-level-forecast.png'"
+                    [appName]="'National Water Level Forecast'"
+                    [appUrl]="'/apps/national-water-level-forecast'"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="position-absolute bottom-0 d-flex align-items-end fade-in-3">
+          <div class="d-flex justify-content-center pb-4">
+            <img src="assets/img/all-white-logos-h.webp" class="servir-logo-h">
+            <img src="assets/img/all-white-logos-v.webp" class="servir-logo-v">
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
