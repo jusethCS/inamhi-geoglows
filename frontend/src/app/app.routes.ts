@@ -3,6 +3,7 @@ import { HomeComponent } from './views/home/home.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { AppsComponent } from './views/apps/apps.component';
+import { ClimateTrendsComponent } from './views/climate-trends/climate-trends.component';
 
 export const routes: Routes = [
   // ----------------------------------------------------------------------- //
@@ -22,5 +23,12 @@ export const routes: Routes = [
   {
     path: "apps",
     component: AppsComponent,
+  },
+  // ----------------------------------------------------------------------- //
+  //                                  APPS                                   //
+  // ----------------------------------------------------------------------- //
+  {
+    path: "apps/climate-trends",
+    component: ClimateTrendsComponent,
   },
 ];

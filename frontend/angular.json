@@ -27,7 +27,9 @@
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css",
-              "src/custom-theme.scss"
+              "src/custom-theme.scss",
+              "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
@@ -92,7 +94,9 @@
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css",
-              "src/custom-theme.scss"
+              "src/custom-theme.scss",
+              "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
