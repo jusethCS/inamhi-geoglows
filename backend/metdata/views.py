@@ -1,7 +1,6 @@
 import requests
 import rasterio
 
-
 from django.http import JsonResponse
 import json
 from rasterio.mask import mask
@@ -72,6 +71,5 @@ def get_metdata(request):
 
 
 
-# http://localhost:8000/api/metdata/get-metdata?product=chirps&temp=monthly&start=2023-01-01&end=2023-12-31&code=1301
-
+# http://ec2-3-211-227-44.compute-1.amazonaws.com/api/metdata/get-metdata?product=chirps&temp=monthly&start=2023-01-01&end=2023-12-31&code=1301
 # http://localhost:8000/api/metdata/get-metdata?product=chirps&temp=daily&start=2023-01-01&end=2023-12-31&code=1300
