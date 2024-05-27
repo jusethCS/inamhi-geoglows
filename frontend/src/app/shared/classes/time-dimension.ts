@@ -107,7 +107,7 @@ export class WMSLayerTimeControl {
     if (currentDate) {
         // Add legend image
         const imageElement = document.createElement('img');
-        imageElement.src = `assets/img/pacum-legend-${this.temporality}.png`;
+        imageElement.src = `assets/img/pacum-legend-${this.temporality}.webp`;
         imageElement.width = 600;
         // Add text legend
         this.legendDateElement.innerHTML = `${this.product.toUpperCase()}: ${currentDate} <br>`;

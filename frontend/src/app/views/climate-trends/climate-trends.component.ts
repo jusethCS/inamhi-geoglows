@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { AppHeaderComponent } from '../../shared/app-header/app-header.component';
 import { CommonModule } from '@angular/common';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
@@ -16,7 +16,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MatButtonModule } from '@angular/material/button';
 
+import { ClimateTrendsService } from './climate-trends.service';
+import { ModalComponent } from '../../shared/modal/modal.component';
+import { LoadingComponent } from '../../shared/loading/loading.component';
+
 import * as L from 'leaflet';
+
+
+import * as PlotlyJS from 'plotly.js-dist-min';
+import { PlotlyModule } from 'angular-plotly.js';
+PlotlyModule.plotlyjs = PlotlyJS;
+
 
 @Component({
   selector: 'app-climate-trends',
@@ -26,6 +36,7 @@ import * as L from 'leaflet';
   imports: [
     AppHeaderComponent,
     CommonModule,
+    PlotlyModule,
     MatExpansionModule,
     MatAccordion,
     DropdownPanelComponent,
@@ -37,7 +48,9 @@ import * as L from 'leaflet';
     FormsModule,
     ReactiveFormsModule,
     JsonPipe,
-    MatButtonModule
+    MatButtonModule,
+    ModalComponent,
+    LoadingComponent
   ],
   providers: [provideMomentDateAdapter(date_custom_format)],
 })
@@ -59,9 +72,11 @@ export class ClimateTrendsComponent {
   vars: string[] = ['Precipitación', 'Temperatura'];
   prod: string[] = [];
   temp: string[] = [];
+
   selVars: string = "Precipitación";
   selProd: string = "CHIRPS";
   selTemp: string = "Diario"
+
   tabla = satelliteProducts;
   tablaEcuador = ecuador;
   dateRange: FormGroup = new FormGroup({
@@ -69,7 +84,7 @@ export class ClimateTrendsComponent {
     end: new FormControl<Date | null>(null),
   });
   timeControl: WMSLayerTimeControl | undefined;
-
+  codeArea:string = "";
 
   // Province and cantons
   prov: string[] = [
@@ -86,12 +101,19 @@ export class ClimateTrendsComponent {
   geojson_data: any;
   LGeoJson: any;
 
+  // Modals
+  @ViewChild(ModalComponent) modalComponent: ModalComponent | undefined;
+
+  // Plots templates
+  public precPlot:any = {};
+  public tempPlot:any = {};
+  isReadyData: boolean = false;
 
 
   // -------------------------------------------------------------------- //
   //                          CLASS CONSTRUCTOR                           //
   // -------------------------------------------------------------------- //
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private CTservice: ClimateTrendsService) {
     this.updateProduct();
     this.updateTemporal();
   }
@@ -265,7 +287,7 @@ export class ClimateTrendsComponent {
       url = `http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver/ecuador-limits/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ecuador-limits%3Acantones&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=DPA_CANTON=${code}`;
     }
 
-    console.log(code);
+    this.codeArea = code;
 
     fetch(url)
       .then(response => response.json())
@@ -283,6 +305,81 @@ export class ClimateTrendsComponent {
         }).addTo(this.map)
         this.map.fitBounds(this.LGeoJson.getBounds())
       });
+  }
+
+  openModal() {
+    if (this.modalComponent) {
+      this.modalComponent.openModal();
+    }
+  }
+
+  plotData(){
+    this.isReadyData = false;
+    let product = this.selProd.toLowerCase();
+    let frequency = this.translateFrecuency(this.selTemp);
+    let startDate = this.dateRange.value.start;
+    let endDate = this.dateRange.value.end;
+    let target_dates = this.generateDates(startDate, endDate, frequency);
+    let startDateS = target_dates[0];
+    let endDateS = target_dates[target_dates.length - 1];
+    let code = this.codeArea;
+
+    let a = this.CTservice.get_metdata(product, frequency, startDateS, endDateS, code);
+    this.openModal();
+
+    a.subscribe({
+      next: (response) => {
+
+        const dates = response.map((item: any) => item.date);
+        const values = response.map((item: any) => item.value);
+
+        if(this.selVars === "Precipitación"){
+          this.precPlot = {
+            data: [{ x: dates, y: values, type: 'bar'}],
+            layout: {
+              title: "Hietograma",
+              autosize: true,
+              margin: { l: 50, r: 30, b: 40, t: 50 },
+              xaxis: {
+                title: '',
+                linecolor: "black",
+                linewidth: 1,
+                showgrid: false,
+                showline: true,
+                mirror: true,
+                ticks: "outside",
+                automargin: true,
+              },
+              yaxis: {
+                title: 'Precipitación (mm)',
+                linecolor: "black",
+                linewidth: 1,
+                showgrid: false,
+                showline: true,
+                mirror: true,
+                ticks: "outside",
+                automargin: true,
+              }
+            }
+          };
+        }
+
+        if(this.selVars === "Temperatura"){
+          this.tempPlot = {
+            data: [{ x: dates, y: values, type: 'scatter', mode: 'lines'}],
+            layout: { autosize: true, xaxis: { title: ''}, yaxis: { title: 'Temperatura (°C)'} }
+          };
+        }
+
+        this.isReadyData = true;
+
+      },
+      error: (err) => {
+        alert("El servidor no pudo procesar su solicitud.")
+        console.log(err);
+      }
+    })
+
   }
 
 }

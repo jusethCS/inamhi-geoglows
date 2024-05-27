@@ -1,7 +1,8 @@
 <app-header
   [imageUrl]="'/assets/img/climate-trends.png'"
   [appName]="'Climate Trends Ecuador'"
-  (panelActivate)="isPanelActive($event)" />
+  (panelActivate)="isPanelActive($event)"
+  (showPanel)="openModal()"/>
 
 <div class="app-content d-flex justify-content-start">
   <div [ngClass]="{'app-panel-active': panelActive, 'app-panel-deactive': !panelActive}">
@@ -85,19 +86,67 @@
             <i class="fa-solid fa-arrows-rotate"></i>
             Actualizar
           </button>
-          <button mat-stroked-button class="dark-mode half-button">
+          <button mat-stroked-button class="dark-mode half-button" (click)="plotData()">
             <i class="fa-solid fa-chart-column"></i>
             Graficar
           </button>
         </div>
       </app-dropdown-panel>
 
-
-
-
     </mat-accordion>
   </div>
 
   <div id="map" #map [ngClass]="{'app-map-partial': panelActive, 'app-map-full': !panelActive}"></div>
+
+
+  <!-- ------------------------------------------------------------------------------------------ -->
+  <!--                                        MODAL PANEL                                         -->
+  <!-- ------------------------------------------------------------------------------------------ -->
+  <app-modal>
+
+    <!-- HEADER -->
+    <div header>
+      <div class="container">
+        <div class="modal-header-title"> TENDENCIA CLIMÁTICA </div>
+        <div class="row modal-header-content">
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Variable:</b> {{selVars}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Producto:</b> {{selProd}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Temporalidad:</b> {{selTemp}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Provincia:</b> {{selProv}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Canton:</b> {{selCant}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div body>
+      <div class="w-100">
+        @if(isReadyData){
+          @if(selVars==="Precipitación"){
+            <plotly-plot [data]="precPlot.data" [layout]="precPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }
+        }
+        @else {
+          <app-loading></app-loading>
+        }
+
+      </div>
+    </div>
+
+  </app-modal>
+
 </div>
 

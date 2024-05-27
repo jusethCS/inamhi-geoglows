@@ -1,3 +1,6 @@
+/*---------------------------------------------------------------------------*/
+/*                               GENERAL STYLES                              */
+/*---------------------------------------------------------------------------*/
 .app-content{
   height: calc(100vh - 50px);
   overflow: hidden;
@@ -56,4 +59,75 @@
   width: 48% !important;
   height: 40px !important;
   background-color: #5B5B5B;
+}
+
+.modal-header-title{
+  font-size: 1.2rem;
+  font-weight:500;
+  margin-top: 12px;
+  margin-bottom: 10px;
+}
+
+.modal-header-content{
+  font-size: 0.8rem;
+}
+
+
+/*-------------------------------------------------------------------*/
+/*                            SMARTPHONES                            */
+/*-------------------------------------------------------------------*/
+@media screen and (max-width: 576px) {
+
+  .modal-header-title{
+    font-size: 1.1rem;
+    font-weight:500;
+    margin-top: 12px;
+  }
+
+}
+
+/*-------------------------------------------------------------------*/
+/*                              TABLETS                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 576px) and (max-width: 992px) {
+
+
+}
+
+/*-------------------------------------------------------------------*/
+/*                              TABLETS                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 992px) {
+
+}
+
+
+
+
+
+
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--app-primary-color);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #C8C8C8;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: white;
+}
+
+.leaflet-bottom .leaflet-control {
+  margin-bottom: 0px !important;
 }

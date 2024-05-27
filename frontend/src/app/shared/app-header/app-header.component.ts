@@ -28,6 +28,7 @@ export class AppHeaderComponent {
   @Input() appName: string | undefined;
   @Input() imageUrl: string | undefined;
   @Output() panelActivate = new EventEmitter<boolean>();
+  @Output() showPanel = new EventEmitter<string>();
 
   // Boolean variables for dropdown and panel components
   isOpen: boolean = false;
@@ -102,6 +103,10 @@ export class AppHeaderComponent {
   // Close app and redirect to app panel
   redirectToApps(){
     this.router.navigateByUrl('/apps');
+  }
+
+  showModalPanel(){
+    this.showPanel.emit("click");
   }
 
 }
