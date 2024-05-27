@@ -2,37 +2,32 @@ import requests
 import rasterio
 from concurrent.futures import ThreadPoolExecutor
 from django.http import JsonResponse
-import json
 from rasterio.mask import mask
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from io import BytesIO
 
 SERVER = "http://ec2-3-211-227-44.compute-1.amazonaws.com"
 GEOSERVER = f"{SERVER}/geoserver"
 ENDPOINT = "/usr/share/geoserver/data_dir/data"
 
 def get_raster_value(gdf, raster):
-    geometries = gdf.geometry.values
-    out_image, out_transform = mask(raster, geometries, crop=True)
-    out_image = out_image.astype(float)
-    out_image[out_image == raster.nodata] = np.nan
-    return round(np.nanmean(out_image), 2)
+    try:
+        geometries = gdf.geometry.values
+        out_image, out_transform = mask(raster, geometries, crop=True)
+        out_image = out_image.astype(float)
+        out_image[out_image == raster.nodata] = np.nan
+        return round(np.nanmean(out_image), 2)
+    except:
+        return(0)
 
 def fetch_raster_value(date, workspace, gdf):
-    dd = date.strftime('%Y-%m-%d')
-    url = f"{ENDPOINT}/{workspace}/{dd}/{dd}.geotiff"
-    print(url)
     try:
-        #response = requests.get(url)
-        #response.raise_for_status()  # Ensure we catch HTTP errors
-        #raster_bytes = BytesIO(response.content)
+        dd = date.strftime('%Y-%m-%d')
+        url = f"{ENDPOINT}/{workspace}/{dd}/{dd}.geotiff"
         raster = rasterio.open(url)
         value = get_raster_value(gdf, raster)
-    except requests.RequestException:
-        value = 0
-    except rasterio.errors.RasterioError:
+    except:
         value = 0
     print(dd, value)
     return {'date': dd, 'value': value}
@@ -68,3 +63,12 @@ def get_metdata(request):
 
     except ValueError as e:
         return JsonResponse({"error": e})
+    
+
+
+
+#product = "chirps"
+#temporality = "daily"
+#start = "2024-01-01"
+#end = "2024-06-01"
+#code = "1500"
