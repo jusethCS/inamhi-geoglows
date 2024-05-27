@@ -11,7 +11,7 @@ from io import BytesIO
 
 SERVER = "http://ec2-3-211-227-44.compute-1.amazonaws.com"
 GEOSERVER = f"{SERVER}/geoserver"
-ENDPOINT = f"{SERVER}:4200"
+ENDPOINT = "/usr/share/geoserver/data_dir/data"
 
 def get_raster_value(gdf, raster):
     geometries = gdf.geometry.values
@@ -25,10 +25,10 @@ def fetch_raster_value(date, workspace, gdf):
     url = f"{ENDPOINT}/{workspace}/{dd}/{dd}.geotiff"
     print(url)
     try:
-        response = requests.get(url)
-        response.raise_for_status()  # Ensure we catch HTTP errors
-        raster_bytes = BytesIO(response.content)
-        raster = rasterio.open(raster_bytes)
+        #response = requests.get(url)
+        #response.raise_for_status()  # Ensure we catch HTTP errors
+        #raster_bytes = BytesIO(response.content)
+        raster = rasterio.open(url)
         value = get_raster_value(gdf, raster)
     except requests.RequestException:
         value = 0
