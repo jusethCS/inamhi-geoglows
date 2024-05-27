@@ -56,7 +56,7 @@ def get_metdata(request):
         elif temporality == "annual":
             dates = pd.date_range(start=start, end=end, freq='YS')
 
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        with ThreadPoolExecutor(max_workers=10) as executor:
             results = list(executor.map(lambda date: fetch_raster_value(date, workspace, gdf), dates))
 
         return JsonResponse(results, safe=False)
