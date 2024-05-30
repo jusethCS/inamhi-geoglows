@@ -70,7 +70,7 @@ def download_imerg(date_start, date_end, frequency):
         freq2 = "D"
         date_format = "%Y-%m-%d"
         correct_factor = 1
-        vv = "v06"
+        vv = "v07"
     elif frequency == "monthly":
         freq = "MS"
         freq2 = "ME"
@@ -107,7 +107,6 @@ def download_imerg(date_start, date_end, frequency):
                     dd = dd_range[i].strftime('%Y-%m-%d')
                     endpoint = "/usr/share/geoserver/data_dir/data"
                     url = f"{endpoint}/imerg-monthly/{dd}/{dd}.geotiff"
-                    print(url)
                     #
                     with rasterio.open(url) as src:
                         if pacum is None:
@@ -195,7 +194,7 @@ except:
 
 ## Downloaded daily data
 try:
-    start_date = (actual_date - relativedelta(months=2)).strftime("%Y-%m-01")
+    start_date = (actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
     end_date = actual_date.strftime("%Y-%m-%d")
     download_imerg(start_date, end_date, "daily")
 except:
