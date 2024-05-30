@@ -70,16 +70,19 @@ def download_imerg(date_start, date_end, frequency):
         freq2 = "D"
         date_format = "%Y-%m-%d"
         correct_factor = 1
+        vv = "v06"
     elif frequency == "monthly":
         freq = "MS"
         freq2 = "ME"
         date_format = "%Y-%m-01"
         correct_factor = 24*30
+        vv = "v07"
     elif frequency == "annual":
         freq = "YS"
         freq2 = "YE"
         date_format = "%Y-01-01"
         correct_factor = 1
+        vv = "v06"
     else:
         return("Frecuency could be 'daily', 'monthly', 'annual'.")
     #
@@ -126,7 +129,7 @@ def download_imerg(date_start, date_end, frequency):
             else:
                 ch.download(
                     date=dates[i],
-                    version="v07", 
+                    version=vv, 
                     run="final", 
                     timestep=frequency, 
                     outpath=outpath)       
@@ -170,14 +173,6 @@ from dateutil.relativedelta import relativedelta
 
 actual_date = datetime.date.today()
 
-## Download yearly data
-try:
-    start_date = (actual_date - relativedelta(years=6)).strftime("%Y-01-01")
-    end_date = datetime.date(actual_date.year, 12, 31).strftime("%Y-%m-%d")
-    download_imerg(start_date, end_date, "annual")
-except:
-    print("Donwloaded annual data")
-
 
 ## Download monthly data
 try:
@@ -189,6 +184,14 @@ try:
 except:
     print("Downloaded monthly data")
 
+
+## Download yearly data
+try:
+    start_date = (actual_date - relativedelta(years=6)).strftime("%Y-01-01")
+    end_date = datetime.date(actual_date.year, 12, 31).strftime("%Y-%m-%d")
+    download_imerg(start_date, end_date, "annual")
+except:
+    print("Donwloaded annual data")
 
 ## Downloaded daily data
 try:
