@@ -88,6 +88,7 @@ def download_chirps(date_start, date_end, frequency):
         # Try to download data, retrying if there's an error
         try:
             ch.download(date=dates[i], timestep=frequency, outpath=outpath)
+            print("")
         except Exception as e:
             logging.error(f"Error downloading data: {dates[i]}: {e}")
             continue
@@ -117,8 +118,44 @@ def download_chirps(date_start, date_end, frequency):
 
 
 
-date_start = "1981-01-01"
-date_end = "2024-05-01"
-frequency = "annual"
 
-download_chirps(date_start, date_end, frequency)
+###############################################################################
+#                                MAIN ROUTINE                                 #
+###############################################################################
+import datetime
+import calendar
+from dateutil.relativedelta import relativedelta
+
+actual_date = datetime.date.today()
+
+## Download yearly data
+try:
+    start_date = (actual_date - relativedelta(years=3)).strftime("%Y-01-01")
+    end_date = datetime.date(actual_date.year, 12, 31).strftime("%Y-%m-%d")
+    download_chirps(start_date, end_date, "annual")
+except:
+    print("Donwloaded annual data")
+
+
+## Download monthly data
+try:
+    lmd = calendar.monthrange(actual_date.year, actual_date.month)[1]
+    last_month_day = datetime.date(actual_date.year, actual_date.month, lmd)
+    start_date = (actual_date - relativedelta(months=3)).strftime("%Y-%m-01")
+    end_date = last_month_day.strftime("%Y-%m-%d")
+    download_chirps(start_date, end_date, "monthly")
+except:
+    print("Downloaded monthly data")
+
+
+## Downloaded daily data
+try:
+    start_date = (actual_date - relativedelta(months=3)).strftime("%Y-%m-01")
+    end_date = actual_date.strftime("%Y-%m-%d")
+    download_chirps(start_date, end_date, "daily")
+except:
+    print("Downloaded daily data")
+
+
+
+
