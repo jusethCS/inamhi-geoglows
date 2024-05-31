@@ -91,7 +91,6 @@ def download_imerg(date_start, date_end, frequency):
     dates2 = pd.date_range(date_start, date_end, freq = freq2)
     bounds = (-94, -7.5, -70, 4)
     #
-    #
     # Donwnload and publish CHIRPS data
     for i in range(len(dates)):
         # File paths
@@ -199,16 +198,3 @@ try:
     download_imerg(start_date, end_date, "daily")
 except:
     print("Downloaded daily data")
-
-
-
-
-
-
-
-
-date_start = "2001-01-01"
-date_end = "2023-12-31"
-frequency = "annual"
-
-download_imerg(date_start, date_end, frequency)
