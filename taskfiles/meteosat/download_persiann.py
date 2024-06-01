@@ -134,6 +134,15 @@ from dateutil.relativedelta import relativedelta
 actual_date = datetime.date.today()
 dataset = "PERSIANN"
 
+## Downloaded daily data
+try:
+    start_date = (actual_date - relativedelta(months=3)).strftime("%Y-%m-01")
+    end_date = actual_date.strftime("%Y-%m-%d")
+    download_persiann(start_date, end_date, dataset, "daily")
+except:
+    print("Downloaded daily data")
+
+
 ## Download monthly data
 try:
     lmd = calendar.monthrange(actual_date.year, actual_date.month)[1]
@@ -152,12 +161,3 @@ try:
     download_persiann(start_date, end_date, dataset, "annual")
 except:
     print("Donwloaded annual data")
-
-## Downloaded daily data
-try:
-    start_date = (actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
-    end_date = actual_date.strftime("%Y-%m-%d")
-    download_persiann(start_date, end_date, dataset, "daily")
-except:
-    print("Downloaded daily data")
-
