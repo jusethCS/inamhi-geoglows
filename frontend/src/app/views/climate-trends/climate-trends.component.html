@@ -15,19 +15,19 @@
         <mat-form-field class="select scale-90" appearance="outline">
           <mat-label>Variable:</mat-label>
           <mat-select [(ngModel)]="selVars" (selectionChange)="updateProduct()">
-            <mat-option *ngFor="let variable of vars" [value]="variable">{{ variable }}</mat-option>
+            <mat-option class="text-90" *ngFor="let variable of vars" [value]="variable">{{ variable }}</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field class="select scale-90" appearance="outline">
           <mat-label>Producto:</mat-label>
           <mat-select [(ngModel)]="selProd" (selectionChange)="updateTemporal()">
-            <mat-option *ngFor="let producto of prod" [value]="producto">{{ producto }}</mat-option>
+            <mat-option class="text-90" *ngFor="let producto of prod" [value]="producto">{{ producto }}</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field class="select scale-90" appearance="outline">
           <mat-label>Temporalidad:</mat-label>
           <mat-select [(ngModel)]="selTemp">
-            <mat-option *ngFor="let t of temp" [value]="t">{{ t }}</mat-option>
+            <mat-option class="text-90" *ngFor="let t of temp" [value]="t">{{ t }}</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field class="select scale-90" appearance="outline">
@@ -41,8 +41,8 @@
         </mat-form-field>
 
         <button mat-stroked-button class="dark-mode update-button pt-0" (click)="updateSatelliteProduct()">
-          <i class="fa-solid fa-arrows-rotate"></i> &nbsp;
-          Actualizar Datos
+          <i class="fa-solid fa-arrows-rotate"></i>
+          Actualizar datos
         </button>
 
         <div class="d-flex justify-content-between pt-3 button-cont">
@@ -70,14 +70,14 @@
         <mat-form-field class="select scale-90" appearance="outline">
           <mat-label>Provincia:</mat-label>
           <mat-select [(ngModel)]="selProv" (selectionChange)="updateCanton()">
-            <mat-option *ngFor="let p of prov" [value]="p">{{ p }}</mat-option>
+            <mat-option class="text-90" *ngFor="let p of prov" [value]="p">{{ p }}</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field class="select scale-90" appearance="outline">
           <mat-label>Canton:</mat-label>
           <mat-select [(ngModel)]="selCant">
-            <mat-option *ngFor="let c of cant" [value]="c">{{ c }}</mat-option>
+            <mat-option class="text-90" *ngFor="let c of cant" [value]="c">{{ c }}</mat-option>
           </mat-select>
         </mat-form-field>
 

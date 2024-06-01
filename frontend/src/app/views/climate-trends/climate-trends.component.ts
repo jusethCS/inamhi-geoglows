@@ -28,6 +28,10 @@ import { PlotlyModule } from 'angular-plotly.js';
 PlotlyModule.plotlyjs = PlotlyJS;
 
 
+interface ExtendedWMSOptions extends L.WMSOptions {
+  CQL_FILTER?: string;
+}
+
 @Component({
   selector: 'app-climate-trends',
   standalone: true,
@@ -69,7 +73,7 @@ export class ClimateTrendsComponent {
   panelActive: boolean = true;
 
   // Satellite products
-  vars: string[] = ['Precipitación', 'Temperatura'];
+  vars: string[] = ['Precipitación'];//, 'Temperatura'];
   prod: string[] = [];
   temp: string[] = [];
 
@@ -242,6 +246,7 @@ export class ClimateTrendsComponent {
     let startDate = this.dateRange.value.start;
     let endDate = this.dateRange.value.end;
     let url = `http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver/${product}-${frequency}/wms`;
+    console.log(url)
     let target_dates = this.generateDates(startDate, endDate, frequency)
     let target_layers = target_dates.map(date => `${product}-${frequency}:${date}`)
     console.log(target_layers)
@@ -275,6 +280,7 @@ export class ClimateTrendsComponent {
     this.timeControl?.next();
   }
 
+
   displayCanton() {
     let code = this.tablaEcuador.filter(
       item => item.provincia === this.selProv && item.canton === this.selCant
@@ -305,6 +311,7 @@ export class ClimateTrendsComponent {
         }).addTo(this.map)
         this.map.fitBounds(this.LGeoJson.getBounds())
       });
+
   }
 
   openModal() {

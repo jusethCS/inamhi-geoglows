@@ -10,6 +10,12 @@
   transform: scale(0.9) !important;
   transform-origin: top left !important;
 }
+.text-90{
+  font-size: 0.9rem !important;
+}
+.mat-mdc-option{
+  min-height: 40px !important;
+}
 
 /* State 1 */
 .app-panel-active{
@@ -41,8 +47,9 @@
 
 .update-button{
   width: 275px !important;
-  height: 40px !important;
+  height: 36px !important;
   background-color: #5B5B5B;
+  font-size: 0.8rem !important;
 }
 
 .button-cont{
@@ -53,6 +60,7 @@
   width: 35px !important;
   height: 35px !important;
   background-color: #5B5B5B;
+  font-size: 0.8rem !important;
 }
 
 .half-button{

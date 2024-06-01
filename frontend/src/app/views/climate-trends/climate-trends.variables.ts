@@ -2,20 +2,26 @@ export const satelliteProducts = [
   { Variable: 'Precipitación', Producto: 'CHIRPS', Temporalidad: 'Diaria' },
   { Variable: 'Precipitación', Producto: 'CHIRPS', Temporalidad: 'Mensual' },
   { Variable: 'Precipitación', Producto: 'CHIRPS', Temporalidad: 'Anual' },
-  { Variable: 'Precipitación', Producto: 'CMORPH', Temporalidad: 'Horaria' },
+
   { Variable: 'Precipitación', Producto: 'CMORPH', Temporalidad: 'Diaria' },
   { Variable: 'Precipitación', Producto: 'CMORPH', Temporalidad: 'Mensual' },
   { Variable: 'Precipitación', Producto: 'CMORPH', Temporalidad: 'Anual' },
-  { Variable: 'Precipitación', Producto: 'PERSIANN', Temporalidad: 'Horaria' },
+
   { Variable: 'Precipitación', Producto: 'PERSIANN', Temporalidad: 'Diaria' },
   { Variable: 'Precipitación', Producto: 'PERSIANN', Temporalidad: 'Mensual' },
   { Variable: 'Precipitación', Producto: 'PERSIANN', Temporalidad: 'Anual' },
-  { Variable: 'Temperatura', Producto: 'CHIRTS', Temporalidad: 'Diaria' },
-  { Variable: 'Temperatura', Producto: 'CHIRTS', Temporalidad: 'Mensual' },
-  { Variable: 'Temperatura', Producto: 'CHIRTS', Temporalidad: 'Anual' },
-  { Variable: 'Temperatura', Producto: 'GDAL', Temporalidad: 'Diaria' },
-  { Variable: 'Temperatura', Producto: 'GDAL', Temporalidad: 'Mensual' },
-  { Variable: 'Temperatura', Producto: 'GDAL', Temporalidad: 'Anual' }
+
+  { Variable: 'Precipitación', Producto: 'PERSIANN-CCS', Temporalidad: 'Diaria' },
+  { Variable: 'Precipitación', Producto: 'PERSIANN-CCS', Temporalidad: 'Mensual' },
+  { Variable: 'Precipitación', Producto: 'PERSIANN-CCS', Temporalidad: 'Anual' },
+
+  { Variable: 'Precipitación', Producto: 'PERSIANN-PDIR', Temporalidad: 'Diaria' },
+  { Variable: 'Precipitación', Producto: 'PERSIANN-PDIR', Temporalidad: 'Mensual' },
+  { Variable: 'Precipitación', Producto: 'PERSIANN-PDIR', Temporalidad: 'Anual' },
+
+  { Variable: 'Precipitación', Producto: 'IMERG', Temporalidad: 'Diaria' },
+  { Variable: 'Precipitación', Producto: 'IMERG', Temporalidad: 'Mensual' },
+  { Variable: 'Precipitación', Producto: 'IMERG', Temporalidad: 'Anual' }
 ];
 
 export const date_custom_format = {

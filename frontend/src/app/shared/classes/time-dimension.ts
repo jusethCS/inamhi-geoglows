@@ -40,9 +40,9 @@ export class WMSLayerTimeControl {
 
       // Cargar todas las capas y solo dejar visible la primera
       if (this.layers.length > 0) {
-          this.layers.forEach(layer => {layer.setOpacity(0).addTo(this.map);});
-          this.layers[0].setOpacity(1);
           this.updateLegend();
+          this.layers.forEach(layer => {layer.setOpacity(0).addTo(this.map);});
+          this.layers[0].setOpacity(0.5);
       }
   }
 
@@ -94,12 +94,12 @@ export class WMSLayerTimeControl {
 
   private updateLayerNext() {
       this.layers[this.currentDateIndex - 1]?.setOpacity(0);
-      this.layers[this.currentDateIndex]?.setOpacity(1);
+      this.layers[this.currentDateIndex]?.setOpacity(0.5);
   }
 
   private updateLayerPrevious() {
     this.layers[this.currentDateIndex + 1]?.setOpacity(0);
-    this.layers[this.currentDateIndex]?.setOpacity(1);
+    this.layers[this.currentDateIndex]?.setOpacity(0.5);
   }
 
   private updateLegend() {

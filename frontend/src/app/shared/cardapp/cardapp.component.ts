@@ -13,14 +13,17 @@ export class CardappComponent {
   @Input() imageUrl: string | undefined;
   @Input() appName: string | undefined;
   @Input() appUrl: string | undefined;
+  @Input() hRef: string | undefined;
 
   constructor(private router: Router) {}
 
   redirigir(): void {
+    if(this.hRef){
+      window.location.href = this.hRef;
+    }
     if(this.appUrl){
       this.router.navigate([this.appUrl]);
     }
   }
-
 
 }
