@@ -244,7 +244,7 @@ actual_date = datetime.date.today()
 
 ## Downloaded daily data
 try:
-    start_date = "2003-01-01"#(actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
+    start_date = (actual_date - relativedelta(months=2)).strftime("%Y-%m-01")
     end_date = actual_date.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, "daily")
 except:
@@ -260,7 +260,7 @@ try:
     download_persiann(start_date, end_date, "monthly")
 except:
     print("Downloaded monthly data")
-    
+
 
 ## Download yearly data
 try:
