@@ -5,7 +5,7 @@
   --primary-background-color: #162633;
   --primary-font-color: white;
   --header-heigth: 60px;
-  --panel-width: 300px;
+  --panel-width: 315px;
   --panel-background-color:#2f3640 ;
 
 }
@@ -111,7 +111,10 @@
   height: 100%;
 }
 
-
+.reproductor{
+  background-color: var(--primary-background-color);
+  width: var(--panel-width);
+}
 
 @media screen and (max-width: 576px) {
   .img-log{
@@ -142,3 +145,24 @@
   }
 }
 
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--app-primary-color);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #C8C8C8;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: white;
+}

@@ -1,0 +1,113 @@
+<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.4.2/css/all.css">
+<link rel="stylesheet" href="https://kit-pro.fontawesome.com/releases/v6.4.2/css/pro.min.css">
+
+<app-app-template
+  [imageUrl]="'/assets/img/met-data-explorer.png'"
+  [appName]="'MET DATA EXPLORER'"
+  (panelActivate)="resizeMap()">
+
+  <div panelContainer style="padding-left: 12px; padding-right: 8px; padding-top: 12px;">
+    <app-dropdown iconClass="fa-regular fa-satellite" title="Datos satelitales">
+
+      <mat-form-field class="select scaled" appearance="outline" style="padding-top: 12px;">
+        <mat-label>Variable:</mat-label>
+        <mat-select [(ngModel)]="selVars" (selectionChange)="updateProduct()">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of vars" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Producto:</mat-label>
+        <mat-select [(ngModel)]="selProd" (selectionChange)="updateTemporal()">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let producto of prod" [value]="producto">
+              {{ producto }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Temporalidad:</mat-label>
+        <mat-select [(ngModel)]="selTemp">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let t of temp" [value]="t">
+              {{ t }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Rango de fechas:</mat-label>
+        <mat-date-range-input [formGroup]="dateRange" [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Start date">
+          <input matEndDate formControlName="end" placeholder="End date">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+
+      <button mat-stroked-button class="dark-mode update-button scaled">
+        <i class="fa-solid fa-arrows-rotate"></i>
+        Actualizar datos
+      </button>
+
+      <br>
+
+
+    </app-dropdown>
+
+    <app-dropdown iconClass="fa-regular fa-cloud-bolt-sun" title="Pronóstico WRF">
+    </app-dropdown>
+
+    <app-dropdown iconClass="fa-regular fa-fire" title="Incendios forestales">
+    </app-dropdown>
+
+    <app-dropdown iconClass="fa-regular fa-earth-americas" title="Monitoreo GOES">
+    </app-dropdown>
+
+    <app-dropdown iconClass="fa-regular fa-layer-group" title="Capas e información">
+    </app-dropdown>
+
+    <app-dropdown iconClass="fa-regular fa-filter" title="Filtrar por">
+    </app-dropdown>
+
+    <app-dropdown iconClass="fa-regular fa-upload" title="Cargar capa">
+    </app-dropdown>
+
+  </div>
+
+
+<!--
+  <div reprodContainer style="padding-left: 12px; padding-right: 8px; padding-top: 5px;">
+    <app-dropdown [expanded]="true" iconClass="fa-regular fa-timeline-arrow" title="Layer slider">
+      <div class="d-flex justify-content-between">
+        <button mat-stroked-button class="dark-mode time-button">
+          <i class="fa-solid fa-backward"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode time-button">
+          <i class="fa-solid fa-play"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode time-button">
+          <i class="fa-solid fa-stop"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode time-button">
+          <i class="fa-solid fa-forward"></i>
+        </button>
+      </div>
+    </app-dropdown>
+  </div>
+-->
+
+  <div mapContainer>
+    <div id="map"></div>
+  </div>
+
+
+
+</app-app-template>

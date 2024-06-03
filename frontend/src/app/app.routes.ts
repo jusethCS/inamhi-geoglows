@@ -4,6 +4,7 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { AppsComponent } from './views/apps/apps.component';
 import { ClimateTrendsComponent } from './views/climate-trends/climate-trends.component';
+import { MetDataExplorerComponent } from './views/met-data-explorer/met-data-explorer.component';
 
 export const routes: Routes = [
   // ----------------------------------------------------------------------- //
@@ -30,5 +31,9 @@ export const routes: Routes = [
   {
     path: "apps/climate-trends",
     component: ClimateTrendsComponent,
+  },
+  {
+    path: "apps/met-data-explorer",
+    component: MetDataExplorerComponent,
   },
 ];

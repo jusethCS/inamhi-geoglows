@@ -4,7 +4,7 @@ import { Modal } from 'bootstrap';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../auth/auth.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 
 // Font Awesome Icons
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -37,6 +37,7 @@ export class AppTemplateComponent {
   // Boolean variables for dropdown and panel components
   isOpen: boolean = false;
   isPanelActive: boolean = true;
+  @Output() panelActivate = new EventEmitter<boolean>();
 
   // State variables
   isAuth: boolean = false;
@@ -89,6 +90,7 @@ export class AppTemplateComponent {
   // Toggle panel visibility
   toggleDropdown(): void {
     this.isPanelActive = !this.isPanelActive;
+    this.panelActivate.emit(this.isPanelActive);
   }
 
   // Logout function

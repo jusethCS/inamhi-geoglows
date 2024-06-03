@@ -1,0 +1,47 @@
+
+.time-button{
+  min-width: 35px !important;
+  width: 50px !important;
+  height: 30px !important;
+  font-size: 0.8rem !important;
+}
+
+#map{
+  height: calc(100vh - 60px) ;
+  width: 100%;
+}
+
+.select{
+  width: 300px !important;
+}
+
+.scaled{
+  transform: scale(0.8) !important;
+  transform-origin: top left !important;
+}
+
+.scaled-text{
+  font-size: 0.8rem;
+}
+
+.mat-mdc-option{
+  min-height: 40px !important;
+}
+
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  min-height: 12px !important;
+  height: 12px !important;
+}
+
+
+.update-button{
+  font-size: 1.05rem;
+  width: 300px !important;
+  height: 50px !important;
+  background-color: rgba(255,255,255,0.2);
+}
+
+
+
+
+

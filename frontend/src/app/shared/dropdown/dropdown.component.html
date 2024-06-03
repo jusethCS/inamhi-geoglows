@@ -1,0 +1,9 @@
+<mat-expansion-panel class="expansion-panel" [expanded]="expanded">
+  <mat-expansion-panel-header class="expansion-header">
+    <mat-panel-title class="panel-title">
+      <i [class]="iconClass" style="width: 35px;"></i>
+      {{title}}
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <ng-content></ng-content>
+</mat-expansion-panel>

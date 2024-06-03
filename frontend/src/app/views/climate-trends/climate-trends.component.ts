@@ -1,9 +1,17 @@
-import { Component, ViewChild } from '@angular/core';
-import { AppHeaderComponent } from '../../shared/app-header/app-header.component';
 import { CommonModule } from '@angular/common';
+import { Component, ViewChild } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+
+
+import { MatLabel } from '@angular/material/form-field';
+
+
+
+import { AppHeaderComponent } from '../../shared/app-header/app-header.component';
+
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { DropdownPanelComponent } from '../../shared/dropdown-panel/dropdown-panel.component';
-import { MatLabel } from '@angular/material/form-field';
+
 import { MatSelectModule } from '@angular/material/select';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
@@ -14,7 +22,7 @@ import { WMSLayerTimeControl } from '../../shared/classes/time-dimension';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
-import { MatButtonModule } from '@angular/material/button';
+
 
 import { ClimateTrendsService } from './climate-trends.service';
 import { ModalComponent } from '../../shared/modal/modal.component';

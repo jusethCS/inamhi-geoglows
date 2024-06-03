@@ -87,6 +87,11 @@
           [ngClass]="{'panel-deactivate': !isPanelActive}" multi>
             <ng-content select="[panelContainer]"></ng-content>
         </mat-accordion>
+
+        <div class="position-absolute bottom-0 start-0 reproductor"
+              [ngClass]="{'panel-deactivate': !isPanelActive}">
+          <ng-content select="[reprodContainer]"></ng-content>
+        </div>
   </div>
   <div [ngClass]="{
     'map-partial': isPanelActive,
