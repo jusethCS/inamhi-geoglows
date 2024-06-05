@@ -7,8 +7,18 @@
 }
 
 #map{
-  height: calc(100vh - 60px) ;
+  /*height: calc(100vh - 60px) ;*/
+  height: calc(100vh - 105px);
   width: 100%;
+}
+
+.reprod-container{
+  height: 45px;
+  background-color: #162633;
+}
+
+.reprod-panel-button{
+  width: 250px;
 }
 
 .select{
@@ -35,13 +45,41 @@
 
 
 .update-button{
-  font-size: 1.05rem;
+  font-size: 1rem;
   width: 300px !important;
   height: 50px !important;
   background-color: rgba(255,255,255,0.2);
 }
 
+.form-check{
+  padding-bottom: 6px;
+}
+.form-check-label{
+  font-size: 0.8rem;
+}
 
+.panel-subtitle{
+  font-size: 0.8rem;
+  color: #FCBF10;
+  font-weight: bold;
+  padding-bottom: 6px;
+}
 
+.half-button{
+  width: 48%;
+  height: 45px;
+  font-size: 1rem;
+  background-color: rgba(255,255,255,0.2);
+}
 
+#shpFile{
+  font-size: 0.8rem;
+}
 
+/*
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused)
+.mdc-floating-label,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused) .mdc-floating-label--float-above {
+  color: #FCBF10 !important;
+}
+*/

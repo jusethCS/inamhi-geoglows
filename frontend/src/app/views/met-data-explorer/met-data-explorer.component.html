@@ -7,8 +7,11 @@
   (panelActivate)="resizeMap()">
 
   <div panelContainer style="padding-left: 12px; padding-right: 8px; padding-top: 12px;">
-    <app-dropdown iconClass="fa-regular fa-satellite" title="Datos satelitales">
 
+    <!--------------------------------------------------------------------------------------->
+    <!--                          SATELLITE BASED PRODUCT - PANEL                          -->
+    <!--------------------------------------------------------------------------------------->
+    <app-dropdown iconClass="fa-regular fa-satellite" title="Datos satelitales">
       <mat-form-field class="select scaled" appearance="outline" style="padding-top: 12px;">
         <mat-label>Variable:</mat-label>
         <mat-select [(ngModel)]="selVars" (selectionChange)="updateProduct()">
@@ -56,56 +59,274 @@
         <i class="fa-solid fa-arrows-rotate"></i>
         Actualizar datos
       </button>
-
       <br>
-
-
     </app-dropdown>
 
-    <app-dropdown iconClass="fa-regular fa-cloud-bolt-sun" title="Pronóstico WRF">
+
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                          METEOROLOGICAL FORECAST - PANEL                          -->
+    <!--------------------------------------------------------------------------------------->
+    <app-dropdown iconClass="fa-regular fa-cloud-bolt-sun" title="Pronóstico meteorológico">
+      <mat-form-field class="select scaled" appearance="outline" style="padding-top: 12px;">
+        <mat-label>Modelo:</mat-label>
+        <mat-select [(ngModel)]="selForecastModel" (selectionChange)="updateForecatVariable()">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let model of forecastModel" [value]="model">
+              {{ model }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Variable:</mat-label>
+        <mat-select [(ngModel)]="selForecastVariable">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of forecastVariables" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button class="dark-mode update-button scaled">
+        <i class="fa-solid fa-arrows-rotate"></i>
+        Actualizar pronóstico
+      </button>
+      <br>
     </app-dropdown>
 
+
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                           FOREST FIRE FORECAST - PANEL                            -->
+    <!--------------------------------------------------------------------------------------->
     <app-dropdown iconClass="fa-regular fa-fire" title="Incendios forestales">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="drougth-days">
+        <label class="form-check-label" for="drougth-days">Días consecutivos sin lluvia</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="firms">
+        <label class="form-check-label" for="firms">Focos de calor (NASA FIRMS)</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="hidromet-fire-risk">
+        <label class="form-check-label" for="hidromet-fire-risk">Riesgo hidrometeorológico</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="fire-forecast">
+        <label class="form-check-label" for="fire-forecast">Probabilidad de incendio</label>
+      </div>
     </app-dropdown>
 
+
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                             GOES MONITORING - PANEL                               -->
+    <!--------------------------------------------------------------------------------------->
     <app-dropdown iconClass="fa-regular fa-earth-americas" title="Monitoreo GOES">
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Tipo:</mat-label>
+        <mat-select [(ngModel)]="selGOESType" (selectionChange)="updateGOESProduct()">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of GOESType" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      @if (!activeGOESCustom) {
+        <mat-form-field class="select scaled" appearance="outline">
+          <mat-label>Producto:</mat-label>
+          <mat-select [(ngModel)]="selGOESProduct">
+            <mat-option
+              class="scaled-text"
+              *ngFor="let variable of GOESProduct" [value]="variable">
+                {{ variable }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      } @else {
+        <mat-form-field class="select scaled" appearance="outline">
+          <mat-label>Banda R:</mat-label>
+          <mat-select [(ngModel)]="selGOESCustomBandR">
+            <mat-option
+              class="scaled-text"
+              *ngFor="let variable of GOESBands" [value]="variable">
+                {{ variable }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="select scaled" appearance="outline">
+          <mat-label>Banda G:</mat-label>
+          <mat-select [(ngModel)]="selGOESCustomBandG">
+            <mat-option
+              class="scaled-text"
+              *ngFor="let variable of GOESBands" [value]="variable">
+                {{ variable }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="select scaled" appearance="outline">
+          <mat-label>Banda B:</mat-label>
+          <mat-select [(ngModel)]="selGOESCustomBandB">
+            <mat-option
+              class="scaled-text"
+              *ngFor="let variable of GOESBands" [value]="variable">
+                {{ variable }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      }
+
+      <button mat-stroked-button class="dark-mode update-button scaled">
+        <i class="fa-solid fa-arrows-rotate"></i>
+        Actualizar producto
+      </button>
+      <br>
     </app-dropdown>
 
+
+
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                                  LAYERS - PANEL                                   -->
+    <!--------------------------------------------------------------------------------------->
     <app-dropdown iconClass="fa-regular fa-layer-group" title="Capas e información">
+      <div class="panel-subtitle">Advertencias meteorológicas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="pacum-wanring">
+        <label class="form-check-label" for="pacum-wanring">Alertas por lluvias y tormentas</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="temp-warning">
+        <label class="form-check-label" for="pacum-wanring">Alertas por altas temperaturas</label>
+      </div>
+
+      <div class="panel-subtitle pt-3">Capas base</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="poblados">
+        <label class="form-check-label" for="poblados">Centros poblados</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="vias-principales">
+        <label class="form-check-label" for="vias-principales">Vías principales</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="vias-secundarias">
+        <label class="form-check-label" for="vias-secundarias">Vías secundarias</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="provincias">
+        <label class="form-check-label" for="provincias">Delimitación provincial</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones">
+        <label class="form-check-label" for="cantones">Delimitación cantonal</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="parroquias">
+        <label class="form-check-label" for="parroquias">Delimitación parroquial</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="rios">
+        <label class="form-check-label" for="rios">Red hidrográfica (ríos)</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="demarcacion-hidrografica">
+        <label class="form-check-label" for="demarcacion-hidrografica">Demarcaciones Hidrográficas</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cuencas-4">
+        <label class="form-check-label" for="cuencas-4">Cuencas Hidrográficas Nivel 4</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cuencas-5">
+        <label class="form-check-label" for="cuencas-5">Cuencas Hidrográficas Nivel 5</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="hidroelectricas">
+        <label class="form-check-label" for="hidroelectricas">Centrales hidroeléctricas</label>
+      </div>
+
     </app-dropdown>
 
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                             FILTER AND PLOT - PANEL                               -->
+    <!--------------------------------------------------------------------------------------->
     <app-dropdown iconClass="fa-regular fa-filter" title="Filtrar por">
-    </app-dropdown>
-
-    <app-dropdown iconClass="fa-regular fa-upload" title="Cargar capa">
-    </app-dropdown>
-
-  </div>
-
-
-<!--
-  <div reprodContainer style="padding-left: 12px; padding-right: 8px; padding-top: 5px;">
-    <app-dropdown [expanded]="true" iconClass="fa-regular fa-timeline-arrow" title="Layer slider">
-      <div class="d-flex justify-content-between">
-        <button mat-stroked-button class="dark-mode time-button">
-          <i class="fa-solid fa-backward"></i>
+      <mat-form-field class="select scaled" appearance="outline"  style="padding-top: 12px;">
+        <mat-label>Provincia:</mat-label>
+        <mat-select [(ngModel)]="selProv" (selectionChange)="updateCanton()">
+          <mat-option class="scaled-text" *ngFor="let p of prov" [value]="p">{{ p }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Canton:</mat-label>
+        <mat-select [(ngModel)]="selCant">
+          <mat-option class="scaled-text" *ngFor="let c of cant" [value]="c">{{ c }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="d-flex justify-content-between select scaled">
+        <button mat-stroked-button class="dark-mode half-button" (click)="displayCanton()">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          Actualizar
         </button>
-        <button mat-stroked-button class="dark-mode time-button">
-          <i class="fa-solid fa-play"></i>
-        </button>
-        <button mat-stroked-button class="dark-mode time-button">
-          <i class="fa-solid fa-stop"></i>
-        </button>
-        <button mat-stroked-button class="dark-mode time-button">
-          <i class="fa-solid fa-forward"></i>
+        <button mat-stroked-button class="dark-mode half-button" (click)="plotData()">
+          <i class="fa-solid fa-chart-column"></i>
+          Graficar
         </button>
       </div>
     </app-dropdown>
+
+    <app-dropdown iconClass="fa-regular fa-upload" title="Cargar capa">
+      <div class="panel-subtitle">Área geográfica</div>
+      <input class="form-control" type="file" id="shpFile" accept=".shp">
+      <div style="color:white; font-size:0.7rem; width: 95%; padding-top: 5px">
+        El archivo shapefile debe estar proyectado en EPSG:4326 (Coordenadas geográficas)
+      </div>
+      <div class="d-flex justify-content-between select scaled pt-3">
+        <button mat-stroked-button class="dark-mode half-button" (click)="displayCanton()">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          Actualizar
+        </button>
+        <button mat-stroked-button class="dark-mode half-button" (click)="plotData()">
+          <i class="fa-solid fa-chart-column"></i>
+          Graficar
+        </button>
+      </div>
+    </app-dropdown>
+
   </div>
--->
+
+
 
   <div mapContainer>
     <div id="map"></div>
+    <div class="reprod-container d-flex align-items-center justify-content-center">
+      <div>
+        <div class="reprod-panel-button d-flex justify-content-between">
+          <button mat-stroked-button class="dark-mode time-button">
+            <i class="fa-solid fa-backward"></i>
+          </button>
+          <button mat-stroked-button class="dark-mode time-button">
+            <i class="fa-solid fa-play"></i>
+          </button>
+          <button mat-stroked-button class="dark-mode time-button">
+            <i class="fa-solid fa-stop"></i>
+          </button>
+          <button mat-stroked-button class="dark-mode time-button">
+            <i class="fa-solid fa-forward"></i>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
 

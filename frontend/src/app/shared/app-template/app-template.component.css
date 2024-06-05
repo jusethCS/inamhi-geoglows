@@ -11,6 +11,10 @@
 }
 
 /*  #2f3640   #1f384d #192B3B */
+.template-container{
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}
 
 .app-header{
   width: 100vw;
@@ -96,7 +100,8 @@
   height: calc(100vh - var(--header-heigth) );
   overflow: auto;
   background-color: var(--panel-background-color);
-  transition: all 200ms,
+  transition: all 200ms;
+  z-index: 100;
 }
 .map-partial{
   width: calc(100vw - var(--panel-width));

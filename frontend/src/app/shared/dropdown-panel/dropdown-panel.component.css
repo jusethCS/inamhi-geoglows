@@ -2,7 +2,7 @@
   background-color: transparent !important;
   color: white !important;
 }
-.panel-title{
+::ng-deep .panel-title{
   color: white !important;
   font-size: 16px;
 }

@@ -24,6 +24,53 @@ export const satelliteProducts = [
   { Variable: 'Precipitación', Producto: 'IMERG', Temporalidad: 'Anual' }
 ];
 
+export const forecastProduct = [
+  {Model: "WRF", Variable: "Precipitación", Code: "wrf-pacum"},
+  {Model: "WRF", Variable: "Temperatura", Code: "wrf-taprm"},
+  {Model: "WRF", Variable: "Humedad Relativa", Code: "wrf-hrprm"},
+  {Model: "GFS", Variable: "Precipitación", Code: "gfs-pacum"},
+  {Model: "GFS", Variable: "Temperatura", Code: "gfs-taprm"},
+  {Model: "GFS", Variable: "Humedad Relativa", Code: "gfs-hrprm"}
+];
+
+
+export const GOES = [
+  {Type: "Banda individual", Code:"goes-b01", Producto: 'Banda 1: 0.47 µm ("Blue")'},
+  {Type: "Banda individual", Code:"goes-b02", Producto: 'Banda 2: 0.64 µm ("Red")'},
+  {Type: "Banda individual", Code:"goes-b03", Producto: 'Banda 3: 0.86 µm ("Veggie")'},
+  {Type: "Banda individual", Code:"goes-b04", Producto: 'Banda 4: 1.37 µm ("Cirrus")'},
+  {Type: "Banda individual", Code:"goes-b05", Producto: 'Banda 5: 1.6 µm ("Snow/Ice")'},
+  {Type: "Banda individual", Code:"goes-b06", Producto: 'Banda 6: 2.2 µm ("Cloud Particle Size")'},
+  {Type: "Banda individual", Code:"goes-b07", Producto: 'Banda 7: 3.9 µm ("Shortwave Window")'},
+  {Type: "Banda individual", Code:"goes-b08", Producto: 'Banda 8: 6.2 µm ("Upper-Level Tropospheric Water Vapor")'},
+  {Type: "Banda individual", Code:"goes-b09", Producto: 'Banda 9: 6.9 µm ("Mid-Level Tropospheric Water Vapor")'},
+  {Type: "Banda individual", Code:"goes-b10", Producto: 'Banda 10: 7.3 µm ("Lower-level Water Vapor")'},
+  {Type: "Banda individual", Code:"goes-b11", Producto: 'Banda 11: 8.4 µm ("Cloud-Top Phase")'},
+  {Type: "Banda individual", Code:"goes-b12", Producto: 'Banda 12: 9.6 µm ("Ozone")'},
+  {Type: "Banda individual", Code:"goes-b13", Producto: 'Banda 13: 10.3 µm ("Clean" IR Longwave Window)'},
+  {Type: "Banda individual", Code:"goes-b14", Producto: 'Banda 14: 11.2 µm ("IR" Longwave Window)'},
+  {Type: "Banda individual", Code:"goes-b15", Producto: 'Banda 15: 12.3 µm ("Dirty" Longwave Window)'},
+  {Type: "Banda individual", Code:"goes-b16", Producto: 'Banda 16: 13.3 µm ("CO2" Longwave Infrared)'}
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const date_custom_format = {
   parse: {
     dateInput: 'YYYY-MM-DD',
