@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="https://kit-pro.fontawesome.com/releases/v6.4.2/css/pro.min.css">
 
 <app-app-template
+  #template
   [imageUrl]="'/assets/img/met-data-explorer.png'"
   [appName]="'MET DATA EXPLORER'"
   (panelActivate)="resizeMap()">
@@ -55,7 +56,7 @@
         <mat-date-range-picker #picker></mat-date-range-picker>
       </mat-form-field>
 
-      <button mat-stroked-button class="dark-mode update-button scaled">
+      <button mat-stroked-button class="dark-mode update-button scaled" (click)="updateSatelliteProduct()">
         <i class="fa-solid fa-arrows-rotate"></i>
         Actualizar datos
       </button>
@@ -312,20 +313,60 @@
     <div class="reprod-container d-flex align-items-center justify-content-center">
       <div>
         <div class="reprod-panel-button d-flex justify-content-between">
-          <button mat-stroked-button class="dark-mode time-button">
+          <button mat-stroked-button class="dark-mode time-button" (click)="previousTimeControl()">
             <i class="fa-solid fa-backward"></i>
           </button>
-          <button mat-stroked-button class="dark-mode time-button">
+          <button mat-stroked-button class="dark-mode time-button" (click)="playTimeControl()">
             <i class="fa-solid fa-play"></i>
           </button>
-          <button mat-stroked-button class="dark-mode time-button">
+          <button mat-stroked-button class="dark-mode time-button" (click)="stopTimeControl()">
             <i class="fa-solid fa-stop"></i>
           </button>
-          <button mat-stroked-button class="dark-mode time-button">
+          <button mat-stroked-button class="dark-mode time-button" (click)="nextTimeControl()">
             <i class="fa-solid fa-forward"></i>
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div dataModalHeader>
+    <div class="container">
+      <div class="modal-header-title"> TENDENCIA CLIMÁTICA </div>
+      <div class="row modal-header-content">
+        <div class="col-sm-12 col-md-4 py-1">
+          <b>Variable:</b> {{selVars.toUpperCase()}}
+        </div>
+        <div class="col-sm-12 col-md-4 py-1">
+          <b>Producto:</b> {{selProd.toUpperCase()}}
+        </div>
+        <div class="col-sm-12 col-md-4 py-1">
+          <b>Temporalidad:</b> {{selTemp.toUpperCase()}}
+        </div>
+        <div class="col-sm-12 col-md-4 py-1">
+          <b>Provincia:</b> {{selProv.toUpperCase()}}
+        </div>
+        <div class="col-sm-12 col-md-4 py-1">
+          <b>Canton:</b> {{selCant.toUpperCase()}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div dataModalBody>
+    <div class="w-100">
+      @if(isReadyData){
+        @if(selVars==="Precipitación"){
+          <plotly-plot [data]="precPlot.data" [layout]="precPlot.layout"
+            [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+            [theme]="'simple_white'">
+          </plotly-plot>
+        }
+      }
+      @else {
+        <app-loading></app-loading>
+      }
+
     </div>
   </div>
 

@@ -266,7 +266,7 @@ export class ClimateTrendsComponent {
       this.map,
       L.control,
       layers,
-      1000,
+      500,
       target_dates,
       `${product} ${frequency}`,
       frequency);

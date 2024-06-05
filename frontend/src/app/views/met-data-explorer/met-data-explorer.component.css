@@ -76,6 +76,55 @@
   font-size: 0.8rem;
 }
 
+.modal-header-title{
+  font-size: 1.2rem;
+  font-weight:500;
+  margin-top: 12px;
+  margin-bottom: 10px;
+}
+
+.modal-header-content{
+  font-size: 0.8rem;
+}
+
+
+
+
+
+
+
+/*-------------------------------------------------------------------*/
+/*                            SMARTPHONES                            */
+/*-------------------------------------------------------------------*/
+@media screen and (max-width: 576px) {
+
+  .modal-header-title{
+    font-size: 1.1rem;
+    font-weight:500;
+    margin-top: 12px;
+  }
+
+}
+
+/*-------------------------------------------------------------------*/
+/*                              TABLETS                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 576px) and (max-width: 992px) {
+
+
+}
+
+/*-------------------------------------------------------------------*/
+/*                              TABLETS                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 992px) {
+
+}
+
+
+
+
+
 /*
 ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused)
 .mdc-floating-label,

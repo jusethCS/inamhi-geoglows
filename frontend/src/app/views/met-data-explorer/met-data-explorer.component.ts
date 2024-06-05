@@ -1,23 +1,29 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { AppTemplateComponent } from '../../shared/app-template/app-template.component';
-import { DropdownComponent } from "../../shared/dropdown/dropdown.component";
-import { MatButtonModule } from '@angular/material/button';
+import { Component, ViewChild } from '@angular/core';
 
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatSelect, MatOption } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
+
+import { AppTemplateComponent } from '../../shared/app-template/app-template.component';
+import { DropdownComponent } from "../../shared/dropdown/dropdown.component";
 import { date_custom_format, satelliteProducts, forecastProduct, GOES, ecuador } from './met-data-explorer.variables';
+import { WMSLayerTimeControl } from '../../shared/classes/time-dimension';
+import { translateFrecuency, generateDates } from './met-data-explorer.utils';
+import { SatelliteDataService } from '../../core/satellite_data.service';
+import { LoadingComponent } from "../../shared/loading/loading.component";
 
-
+import { environment } from '../../../environments/environment';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 
-import * as L from 'leaflet';
-import { faL } from '@fortawesome/free-solid-svg-icons';
 
+import * as L from 'leaflet';
+import * as PlotlyJS from 'plotly.js-dist-min';
+import { PlotlyModule } from 'angular-plotly.js';
+PlotlyModule.plotlyjs = PlotlyJS;
 
 
 
@@ -27,6 +33,7 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
     standalone: true,
     templateUrl: './met-data-explorer.component.html',
     styleUrl: './met-data-explorer.component.css',
+    providers: [provideMomentDateAdapter(date_custom_format)],
     imports: [
         AppTemplateComponent,
         CommonModule,
@@ -39,15 +46,19 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
         MatDatepickerModule,
         FormsModule,
         ReactiveFormsModule,
-        MatSlideToggleModule
-    ],
-    providers: [provideMomentDateAdapter(date_custom_format)]
+        MatSlideToggleModule,
+        LoadingComponent,
+        PlotlyModule,
+    ]
 })
 
 export class MetDataExplorerComponent {
   // -------------------------------------------------------------------- //
   //                           CLASS ATTRIBUTES                           //
   // -------------------------------------------------------------------- //
+  // Template component
+  @ViewChild("template") template!: AppTemplateComponent;
+
   // Leaflet variables
   map: any;
 
@@ -94,6 +105,19 @@ export class MetDataExplorerComponent {
   cant: string[] = [];
   selProv: string = "AZUAY";
   selCant: string = "";
+  codeArea: string = "";
+
+  // GeoJSON data
+  geojson_data: any;
+  LGeoJson: any;
+
+  // Leaflet layer - time control
+  timeControl: WMSLayerTimeControl | undefined;
+
+  // Plots templates
+  precPlot:any = {};
+  tempPlot:any = {};
+  isReadyData: boolean = false;
 
 
 
@@ -102,7 +126,7 @@ export class MetDataExplorerComponent {
   //                          CLASS CONSTRUCTOR                           //
   // -------------------------------------------------------------------- //
 
-  constructor( private fb: FormBuilder ) {
+  constructor( private fb: FormBuilder, private CTservice: SatelliteDataService ) {
     this.updateProduct();
     this.updateTemporal();
     this.initFormDate();
@@ -123,7 +147,7 @@ export class MetDataExplorerComponent {
 
 
   // -------------------------------------------------------------------- //
-  //                            CLASS METHODS                             //
+  //                         CLASS METHODS - UI                           //
   // -------------------------------------------------------------------- //
   resizeMap(){
     setTimeout(() => { this.map.invalidateSize() }, 10);
@@ -190,10 +214,151 @@ export class MetDataExplorerComponent {
     this.selGOESProduct = this.GOESProduct[0];
   }
 
-  displayCanton(){
+  // -------------------------------------------------------------------- //
+  //                      CLASS METHODS - BACKEND                         //
+  // -------------------------------------------------------------------- //
+
+  // Function to retrieve the leaflet WMS layer
+  getLeafletLayer(url: string, layer: string) {
+    let leafletLayer = L.tileLayer.wms(url, {
+      layers: layer,
+      format: 'image/png',
+      transparent: true,
+      version: "1.1.1",
+    });
+    return (leafletLayer)
+  }
+
+  // Update satellite product
+  updateSatelliteProduct() {
+    let product = this.selProd.toLowerCase();
+    let frequency = translateFrecuency(this.selTemp);
+    let startDate = this.dateRange.value.start;
+    let endDate = this.dateRange.value.end;
+    let url = `${environment.urlGeoserver}/${product}-${frequency}/wms`;
+    let target_dates = generateDates(startDate, endDate, frequency)
+    let target_layers = target_dates.map(date => `${product}-${frequency}:${date}`)
+    let layers = target_layers.map(layer => this.getLeafletLayer(url, layer))
+    if (this.timeControl !== undefined) {
+      this.timeControl.destroy();
+    }
+    this.timeControl = new WMSLayerTimeControl(
+      this.map, L.control, layers, 1000, target_dates, `${product} ${frequency}`, frequency);
+  }
+
+  playTimeControl() {
+    this.timeControl?.play();
+  }
+
+  stopTimeControl() {
+    this.timeControl?.stop();
+  }
+
+  previousTimeControl() {
+    this.timeControl?.previous();
+  }
+
+  nextTimeControl() {
+    this.timeControl?.next();
+  }
+
+
+  displayCanton() {
+    let code = ecuador.filter(
+      item => item.provincia === this.selProv && item.canton === this.selCant
+    ).map(item => item.code)[0];
+    let url = "";
+    if (code && code.endsWith("00")) {
+      url = `${environment.urlGeoserver}/ecuador-limits/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ecuador-limits%3Aprovincias&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=DPA_CANTON=${code}`;
+    } else {
+      url = `${environment.urlGeoserver}/ecuador-limits/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ecuador-limits%3Acantones&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=DPA_CANTON=${code}`;
+    }
+    this.codeArea = code;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        this.geojson_data = data;
+        if (this.LGeoJson) {
+          this.map.removeLayer(this.LGeoJson);
+        }
+        this.LGeoJson = L.geoJSON(data, {
+          style: {
+            color: "#000000",
+            weight: 1.5,
+            fillOpacity: 0
+          }
+        }).addTo(this.map)
+        this.map.fitBounds(this.LGeoJson.getBounds())
+      });
 
   }
+
   plotData(){
+    this.isReadyData = false;
+    let product = this.selProd.toLowerCase();
+    let frequency = translateFrecuency(this.selTemp);
+    let startDate = this.dateRange.value.start;
+    let endDate = this.dateRange.value.end;
+    let target_dates = generateDates(startDate, endDate, frequency);
+    let startDateS = target_dates[0];
+    let endDateS = target_dates[target_dates.length - 1];
+    let code = this.codeArea;
+
+    let a = this.CTservice.get_metdata(product, frequency, startDateS, endDateS, code);
+    this.template.showDataModal();
+
+    a.subscribe({
+      next: (response) => {
+
+        const dates = response.map((item: any) => item.date);
+        const values = response.map((item: any) => item.value);
+
+        if(this.selVars === "Precipitación"){
+          this.precPlot = {
+            data: [{ x: dates, y: values, type: 'bar'}],
+            layout: {
+              title: "Hietograma",
+              autosize: true,
+              margin: { l: 50, r: 30, b: 40, t: 50 },
+              xaxis: {
+                title: '',
+                linecolor: "black",
+                linewidth: 1,
+                showgrid: false,
+                showline: true,
+                mirror: true,
+                ticks: "outside",
+                automargin: true,
+              },
+              yaxis: {
+                title: 'Precipitación (mm)',
+                linecolor: "black",
+                linewidth: 1,
+                showgrid: false,
+                showline: true,
+                mirror: true,
+                ticks: "outside",
+                automargin: true,
+              }
+            }
+          };
+        }
+
+        if(this.selVars === "Temperatura"){
+          this.tempPlot = {
+            data: [{ x: dates, y: values, type: 'scatter', mode: 'lines'}],
+            layout: { autosize: true, xaxis: { title: ''}, yaxis: { title: 'Temperatura (°C)'} }
+          };
+        }
+
+        this.isReadyData = true;
+
+      },
+      error: (err) => {
+        alert("El servidor no pudo procesar su solicitud.")
+        console.log(err);
+      }
+    })
 
   }
 
