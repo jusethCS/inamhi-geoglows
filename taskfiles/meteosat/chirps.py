@@ -48,9 +48,6 @@ def mask(input_raster, bounds):
             dst.write(data)
 
 
-
-
-
 ###############################################################################
 #                                MAIN ROUTINE                                 #
 ###############################################################################
@@ -122,8 +119,6 @@ def download_chirps(date_start, date_end, frequency):
         os.remove(outpath)
 
 
-
-
 ###############################################################################
 #                                MAIN ROUTINE                                 #
 ###############################################################################
@@ -131,7 +126,14 @@ import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
 
+# Update datetime (now)
 actual_date = datetime.date.today()
+
+# Change the work directory
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
+os.chdir(user_dir)
+os.chdir("logs")
 
 ## Downloaded daily data
 try:
@@ -160,13 +162,4 @@ try:
     download_chirps(start_date, end_date, "annual")
 except:
     print("Donwloaded annual data")
-
-
-
-
-
-
-
-
-
 
