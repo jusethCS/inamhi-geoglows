@@ -18,7 +18,13 @@ from geo.Geoserver import Geoserver
 ###############################################################################
 #                           ENVIROMENTAL VARIABLES                            #
 ###############################################################################
-# inamhi-geoglows/taskfiles/meteosat/
+# Change the work directory
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
+os.chdir(user_dir)
+os.chdir("inamhi-geoglows/taskfiles/meteosat")
+
+# Load enviromental
 load_dotenv()
 GEOSERVER_USER = os.getenv("GEOSERVER_USER")
 GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
@@ -239,8 +245,14 @@ import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
 
+# Update params
 actual_date = datetime.date.today()
 
+# Change the work directory
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
+os.chdir(user_dir)
+os.chdir("logs")
 
 ## Downloaded daily data
 try:
