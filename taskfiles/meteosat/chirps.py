@@ -15,7 +15,7 @@ from geo.Geoserver import Geoserver
 user = os.getlogin()
 user_dir = os.path.expanduser('~{}'.format(user))
 os.chdir(user_dir)
-os.chdir("/inamhi-geoglows/taskfiles/meteosat")
+os.chdir("inamhi-geoglows/taskfiles/meteosat")
 
 load_dotenv()
 GEOSERVER_USER = os.getenv("GEOSERVER_USER")
