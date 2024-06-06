@@ -188,8 +188,8 @@ os.chdir("logs")
 
 ## Downloaded daily data
 try:
-    start_date = (actual_date - relativedelta(months=5)).strftime("%Y-%m-01")
-    end_date = actual_date.strftime("%Y-%m-%d")
+    start_date = (actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
+    end_date = (actual_date - relativedelta(months=6)).strftime("%Y-%m-%d")
     download_imerg(start_date, end_date, "daily")
 except:
     print("Downloaded daily data")
