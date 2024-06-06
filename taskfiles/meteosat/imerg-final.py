@@ -11,10 +11,18 @@ from geo.Geoserver import Geoserver
 ###############################################################################
 #                           ENVIROMENTAL VARIABLES                            #
 ###############################################################################
-# inamhi-geoglows/taskfiles/meteosat/
+# Change the work directory
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
+os.chdir(user_dir)
+os.chdir("inamhi-geoglows/taskfiles/meteosat")
+
+# Load enviromental
 load_dotenv()
 GEOSERVER_USER = os.getenv("GEOSERVER_USER")
 GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
+NASA_USER = os.getenv("NASA_USER")
+NASA_PASS = os.getenv("NASA_PASS")
 
 
 ###############################################################################
@@ -51,7 +59,7 @@ def mask(input_raster, bounds, correct_factor):
 #                                MAIN ROUTINE                                 #
 ###############################################################################
 # Instance the meteosatpy for CHIRPS data
-ch = meteosatpy.IMERG(user="Juseth_Enrique", pw="Jusseth123*")
+ch = meteosatpy.IMERG(user=NASA_USER, pw=NASA_PASS)
 
 def download_imerg(date_start, date_end, frequency):
     # Configure log file
@@ -169,7 +177,22 @@ import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
 
+# Update datetime (now)
 actual_date = datetime.date.today()
+
+# Change the work directory
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
+os.chdir(user_dir)
+os.chdir("logs")
+
+## Downloaded daily data
+try:
+    start_date = (actual_date - relativedelta(months=5)).strftime("%Y-%m-01")
+    end_date = actual_date.strftime("%Y-%m-%d")
+    download_imerg(start_date, end_date, "daily")
+except:
+    print("Downloaded daily data")
 
 
 ## Download monthly data
@@ -191,10 +214,4 @@ try:
 except:
     print("Donwloaded annual data")
 
-## Downloaded daily data
-try:
-    start_date = (actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
-    end_date = actual_date.strftime("%Y-%m-%d")
-    download_imerg(start_date, end_date, "daily")
-except:
-    print("Downloaded daily data")
+
