@@ -17,6 +17,7 @@ user_dir = os.path.expanduser('~{}'.format(user))
 os.chdir(user_dir)
 os.chdir("inamhi-geoglows/taskfiles/meteosat")
 
+# Load enviromental
 load_dotenv()
 GEOSERVER_USER = os.getenv("GEOSERVER_USER")
 GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
