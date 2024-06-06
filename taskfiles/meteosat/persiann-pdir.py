@@ -18,7 +18,13 @@ from geo.Geoserver import Geoserver
 ###############################################################################
 #                           ENVIROMENTAL VARIABLES                            #
 ###############################################################################
-# inamhi-geoglows/taskfiles/meteosat/
+# Change the work directory
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
+os.chdir(user_dir)
+os.chdir("inamhi-geoglows/taskfiles/meteosat")
+
+# Load enviromental
 load_dotenv()
 GEOSERVER_USER = os.getenv("GEOSERVER_USER")
 GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
@@ -145,9 +151,6 @@ def download_persiann(date_start, date_end, frequency):
     #
     # Server
     server = "https://persiann.eng.uci.edu/CHRSdata/PDIRNow"
-    # https://persiann.eng.uci.edu/CHRSdata/PDIRNow/PDIRNowyearly/pdirnow1year01.bin.gz
-    # https://persiann.eng.uci.edu/CHRSdata/PDIRNow/PDIRNowmonthly/pdirnow1mon0003.bin.gz
-    # https://persiann.eng.uci.edu/CHRSdata/PDIRNow/PDIRNowdaily/pdirnow1d000301.bin.gz
     #
     # Frequency 
     if frequency == "daily":
@@ -240,8 +243,14 @@ import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
 
+# Update params
 actual_date = datetime.date.today()
 
+# Change the work directory
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
+os.chdir(user_dir)
+os.chdir("logs")
 
 ## Downloaded daily data
 try:
@@ -256,7 +265,7 @@ except:
 try:
     lmd = calendar.monthrange(actual_date.year, actual_date.month)[1]
     last_month_day = datetime.date(actual_date.year, actual_date.month, lmd)
-    start_date = "2000-01-01"#(actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
+    start_date = (actual_date - relativedelta(months=1)).strftime("%Y-%m-01")
     end_date = last_month_day.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, "monthly")
 except:
@@ -265,7 +274,7 @@ except:
 
 ## Download yearly data
 try:
-    start_date = "2000-01-01"#(actual_date - relativedelta(years=6)).strftime("%Y-01-01")
+    start_date = (actual_date - relativedelta(years=6)).strftime("%Y-01-01")
     end_date = datetime.date(actual_date.year, 12, 31).strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, "annual")
 except:
