@@ -11,7 +11,13 @@ from geo.Geoserver import Geoserver
 ###############################################################################
 #                           ENVIROMENTAL VARIABLES                            #
 ###############################################################################
-# inamhi-geoglows/taskfiles/meteosat/
+# Change the work directory
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
+os.chdir(user_dir)
+os.chdir("inamhi-geoglows/taskfiles/meteosat")
+
+# Load enviromental
 load_dotenv()
 GEOSERVER_USER = os.getenv("GEOSERVER_USER")
 GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
@@ -131,12 +137,20 @@ import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
 
+# Update params
 actual_date = datetime.date.today()
 dataset = "PERSIANN"
 
+# Change the work directory
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
+os.chdir(user_dir)
+os.chdir("logs")
+
+
 ## Downloaded daily data
 try:
-    start_date = (actual_date - relativedelta(months=3)).strftime("%Y-%m-01")
+    start_date = (actual_date - relativedelta(months=1)).strftime("%Y-%m-01")
     end_date = actual_date.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, dataset, "daily")
 except:
@@ -147,7 +161,7 @@ except:
 try:
     lmd = calendar.monthrange(actual_date.year, actual_date.month)[1]
     last_month_day = datetime.date(actual_date.year, actual_date.month, lmd)
-    start_date = (actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
+    start_date = (actual_date - relativedelta(months=6)).strftime("%Y-%m-01")
     end_date = last_month_day.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, dataset, "monthly")
 except:
@@ -156,7 +170,7 @@ except:
 
 ## Download yearly data
 try:
-    start_date = (actual_date - relativedelta(years=6)).strftime("%Y-01-01")
+    start_date = (actual_date - relativedelta(years=3)).strftime("%Y-01-01")
     end_date = datetime.date(actual_date.year, 12, 31).strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, dataset, "annual")
 except:
