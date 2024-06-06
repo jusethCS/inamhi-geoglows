@@ -134,7 +134,7 @@ def readBinary(path):
 ###############################################################################
 def download_persiann(date_start, date_end, frequency):
     # Configure log file
-    log_file = f'persiann-pdir-{frequency}.log'
+    log_file = f'persiann-ccs-{frequency}.log'
     logging.basicConfig(filename=log_file, level=logging.ERROR)
     #
     # Instance the geoserver
@@ -144,27 +144,24 @@ def download_persiann(date_start, date_end, frequency):
             password=GEOSERVER_PASS)
     #
     # Server
-    server = "https://persiann.eng.uci.edu/CHRSdata/PDIRNow"
-    # https://persiann.eng.uci.edu/CHRSdata/PDIRNow/PDIRNowyearly/pdirnow1year01.bin.gz
-    # https://persiann.eng.uci.edu/CHRSdata/PDIRNow/PDIRNowmonthly/pdirnow1mon0003.bin.gz
-    # https://persiann.eng.uci.edu/CHRSdata/PDIRNow/PDIRNowdaily/pdirnow1d000301.bin.gz
+    server = "https://persiann.eng.uci.edu/CHRSdata/PERSIANN-CCS"
     #
     # Frequency 
     if frequency == "daily":
-        tt = "PDIRNowdaily"
+        tt = "daily"
         freq = "D"
         date_format = "%Y-%m-%d"
-        file_format = "pdirnow1d%y%j.bin.gz"
+        file_format = "rgccs1d%y%j.bin.gz"
     elif frequency == "monthly":
-        tt = "PDIRNowmonthly"
+        tt = "mthly"
         freq = "MS"
         date_format = "%Y-%m-01"
-        file_format = "pdirnow1mon%y%m.bin.gz"
+        file_format = "rgccs1m%y%m.bin.gz"
     elif frequency == "annual":
-        tt = "PDIRNowyearly"
+        tt = "yearly"
         freq = "YS"
         date_format = "%Y-01-01"
-        file_format = "pdirnow1year%y.bin.gz"
+        file_format = "rgccs1y%y.bin.gz"
     else:
         return("Frecuency could be 'daily', 'monthly', 'annual'.")
     #
@@ -183,7 +180,6 @@ def download_persiann(date_start, date_end, frequency):
         layer_name = dates[i].strftime(date_format)
         file_data = dates[i].strftime(file_format)
         url = f"{server}/{tt}/{file_data}"
-        print(url)
         binDownload = False
         try:
             try:
@@ -191,10 +187,11 @@ def download_persiann(date_start, date_end, frequency):
                     date=dates[i], 
                     timestep=frequency, 
                     outpath=outpath,
-                    dataset="PDIR")
+                    dataset="CCS")
                 mask(outpath, outpath, bounds)
-            except:
-                print("Download using URL")
+            except Exception as e:
+                print(e)
+                logging.error(f"Error downloading data: {dates[i]}: {e}")
                 response = requests.get(url)
                 with open("temporal.bin.gz", 'wb') as archivo:
                     archivo.write(response.content)
@@ -211,25 +208,27 @@ def download_persiann(date_start, date_end, frequency):
             geo.create_coveragestore(
                 layer_name=layer_name, 
                 path=outpath, 
-                workspace=f'persiann-pdir-{frequency}')
+                workspace=f'persiann-ccs-{frequency}')
         except:
             geo.delete_coveragestore(
                 coveragestore_name=layer_name, 
-                workspace=f'persiann-pdir-{frequency}')
+                workspace=f'persiann-ccs-{frequency}')
             geo.create_coveragestore(
                 layer_name=layer_name, 
                 path=outpath, 
-                workspace=f'persiann-pdir-{frequency}')
+                workspace=f'persiann-ccs-{frequency}')
         # Add styles
         geo.publish_style(
             layer_name=layer_name, 
-            style_name=f'precipitation_style_persiann_pdir_{frequency}', 
-            workspace=f'persiann-pdir-{frequency}')
+            style_name=f'precipitation_style_persiann_ccs_{frequency}', 
+            workspace=f'persiann-ccs-{frequency}')
         # Delete download file
         os.remove(outpath)
         if(binDownload):
             os.remove("temporal.tif")
             os.remove("temporal.bin")
+
+
 
 
 
@@ -245,7 +244,7 @@ actual_date = datetime.date.today()
 
 ## Downloaded daily data
 try:
-    start_date = "2000-01-01" #(actual_date - relativedelta(months=2)).strftime("%Y-%m-01")
+    start_date = (actual_date - relativedelta(months=0)).strftime("%Y-%m-01")
     end_date = actual_date.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, "daily")
 except:
@@ -256,7 +255,7 @@ except:
 try:
     lmd = calendar.monthrange(actual_date.year, actual_date.month)[1]
     last_month_day = datetime.date(actual_date.year, actual_date.month, lmd)
-    start_date = "2000-01-01"#(actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
+    start_date = (actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
     end_date = last_month_day.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, "monthly")
 except:
@@ -265,9 +264,15 @@ except:
 
 ## Download yearly data
 try:
-    start_date = "2000-01-01"#(actual_date - relativedelta(years=6)).strftime("%Y-01-01")
+    start_date = (actual_date - relativedelta(years=6)).strftime("%Y-01-01")
     end_date = datetime.date(actual_date.year, 12, 31).strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, "annual")
 except:
     print("Donwloaded annual data")
+
+
+
+
+
+
 
