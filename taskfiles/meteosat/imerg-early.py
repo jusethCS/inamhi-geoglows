@@ -188,7 +188,7 @@ os.chdir("logs")
 
 ## Downloaded daily data
 try:
-    start_date = (actual_date - relativedelta(months=1)).strftime("%Y-%m-%d")
+    start_date = "2000-06-01"#(actual_date - relativedelta(months=1)).strftime("%Y-%m-%d")
     end_date = actual_date
     download_imerg(start_date, end_date, "daily")
 except:
@@ -196,22 +196,22 @@ except:
 
 
 ## Download monthly data
-#try:
-#    lmd = calendar.monthrange(actual_date.year, actual_date.month)[1]
-#    last_month_day = datetime.date(actual_date.year, actual_date.month, lmd)
-#    start_date = (actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
-#    end_date = last_month_day.strftime("%Y-%m-%d")
-#    download_imerg(start_date, end_date, "monthly")
-#except:
-#    print("Downloaded monthly data")
+try:
+    lmd = calendar.monthrange(actual_date.year, actual_date.month)[1]
+    last_month_day = datetime.date(actual_date.year, actual_date.month, lmd)
+    start_date = "2000-06-01" #(actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
+    end_date = last_month_day.strftime("%Y-%m-%d")
+    download_imerg(start_date, end_date, "monthly")
+except:
+    print("Downloaded monthly data")
 
 
 ## Download yearly data
-#try:
-#    start_date = (actual_date - relativedelta(years=6)).strftime("%Y-01-01")
-#    end_date = datetime.date(actual_date.year, 12, 31).strftime("%Y-%m-%d")
-#    download_imerg(start_date, end_date, "annual")
-#except:
-#    print("Donwloaded annual data")
+try:
+    start_date = "2000-06-01"#(actual_date - relativedelta(years=6)).strftime("%Y-01-01")
+    end_date = datetime.date(actual_date.year, 12, 31).strftime("%Y-%m-%d")
+    download_imerg(start_date, end_date, "annual")
+except:
+    print("Donwloaded annual data")
 
 
