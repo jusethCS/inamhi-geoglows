@@ -83,7 +83,7 @@ def download_imerg(date_start, date_end, frequency):
         freq = "MS"
         freq2 = "ME"
         date_format = "%Y-%m-01"
-        correct_factor = 24*30
+        correct_factor = 1
         vv = "v06"
     elif frequency == "annual":
         freq = "YS"
@@ -98,6 +98,7 @@ def download_imerg(date_start, date_end, frequency):
     dates = pd.date_range(date_start, date_end, freq = freq)
     dates2 = pd.date_range(date_start, date_end, freq = freq2)
     bounds = (-94, -7.5, -70, 4)
+    print([dates, dates2])
     #
     # Donwnload and publish CHIRPS data
     for i in range(len(dates)):
@@ -132,6 +133,34 @@ def download_imerg(date_start, date_end, frequency):
                 with rasterio.open(outpath, 'w', **perfil) as dst:
                     dst.write(pacum, 1)
             #
+            elif(frequency == "monthly"):
+                pacum = None
+                dd_range = pd.date_range(dates[i], dates2[i], freq = "D")
+                #
+                for i in range(len(dd_range)):
+                    dd = dd_range[i].strftime('%Y-%m-%d')
+                    endpoint = "/usr/share/geoserver/data_dir/data"
+                    url = f"{endpoint}/imerg-early-daily/{dd}/{dd}.geotiff"
+                    #
+                    try:
+                        with rasterio.open(url) as src:
+                            if pacum is None:
+                                pacum = src.read(1)
+                            else:
+                                try:
+                                    pacum += src.read(1)
+                                except:
+                                    print(f"No se pudo sumar un valor: {url}")
+                    except:
+                        print(f"No se puedo sumar el mes: {url}")
+                #
+                with rasterio.open(url) as src:
+                    perfil = src.profile
+                    perfil.update(count=1)
+                #
+                # Guardar el resultado en un nuevo archivo GeoTIFF
+                with rasterio.open(outpath, 'w', **perfil) as dst:
+                    dst.write(pacum, 1)
             else:
                 ch.download(
                     date=dates[i],
@@ -188,7 +217,7 @@ os.chdir("logs")
 
 ## Downloaded daily data
 try:
-    start_date = "2000-06-01"#(actual_date - relativedelta(months=1)).strftime("%Y-%m-%d")
+    start_date = (actual_date - relativedelta(months=1)).strftime("%Y-%m-%d")
     end_date = actual_date
     download_imerg(start_date, end_date, "daily")
 except:
@@ -199,7 +228,7 @@ except:
 try:
     lmd = calendar.monthrange(actual_date.year, actual_date.month)[1]
     last_month_day = datetime.date(actual_date.year, actual_date.month, lmd)
-    start_date = "2000-06-01" #(actual_date - relativedelta(months=12)).strftime("%Y-%m-01")
+    start_date = (actual_date - relativedelta(months=2)).strftime("%Y-%m-01")
     end_date = last_month_day.strftime("%Y-%m-%d")
     download_imerg(start_date, end_date, "monthly")
 except:
@@ -208,7 +237,7 @@ except:
 
 ## Download yearly data
 try:
-    start_date = "2000-06-01"#(actual_date - relativedelta(years=6)).strftime("%Y-01-01")
+    start_date = (actual_date - relativedelta(years=6)).strftime("%Y-01-01")
     end_date = datetime.date(actual_date.year, 12, 31).strftime("%Y-%m-%d")
     download_imerg(start_date, end_date, "annual")
 except:
