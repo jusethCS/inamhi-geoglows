@@ -98,7 +98,6 @@ def download_imerg(date_start, date_end, frequency):
     dates = pd.date_range(date_start, date_end, freq = freq)
     dates2 = pd.date_range(date_start, date_end, freq = freq2)
     bounds = (-94, -7.5, -70, 4)
-    print([dates, dates2])
     #
     # Donwnload and publish CHIRPS data
     for i in range(len(dates)):
