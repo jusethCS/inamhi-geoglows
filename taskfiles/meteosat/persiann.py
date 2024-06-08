@@ -98,8 +98,8 @@ def download_persiann(date_start, date_end, dataset, frequency):
                 timestep=frequency, 
                 outpath=outpath,
                 dataset=dataset)
+            print("\n")
         except Exception as e:
-            print(e)
             logging.error(f"Error downloading data: {dates[i]}: {e}")
             continue
         # Mask data to Ecuador extent
@@ -153,6 +153,7 @@ try:
     start_date = (actual_date - relativedelta(days=10)).strftime("%Y-%m-%d")
     end_date = actual_date.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, dataset, "daily")
+    print("Downloaded daily data")
 except:
     print("Downloaded daily data")
 
@@ -164,6 +165,7 @@ try:
     start_date = (actual_date - relativedelta(months=2)).strftime("%Y-%m-01")
     end_date = last_month_day.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, dataset, "monthly")
+    print("Downloaded monthly data")
 except:
     print("Downloaded monthly data")
 

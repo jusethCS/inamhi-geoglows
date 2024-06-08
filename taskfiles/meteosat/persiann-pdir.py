@@ -181,12 +181,10 @@ def download_persiann(date_start, date_end, frequency):
     # Donwnload and publish CHIRPS data
     for i in range(len(dates)):
         # File paths
-        print(dates[i])
         outpath = dates[i].strftime(f"{date_format}.tif")
         layer_name = dates[i].strftime(date_format)
         file_data = dates[i].strftime(file_format)
         url = f"{server}/{tt}/{file_data}"
-        print(url)
         binDownload = False
         try:
             try:
@@ -195,9 +193,9 @@ def download_persiann(date_start, date_end, frequency):
                     timestep=frequency, 
                     outpath=outpath,
                     dataset="PDIR")
+                print("\n")
                 mask(outpath, outpath, bounds)
             except:
-                print("Download using URL")
                 response = requests.get(url)
                 with open("temporal.bin.gz", 'wb') as archivo:
                     archivo.write(response.content)
@@ -206,7 +204,6 @@ def download_persiann(date_start, date_end, frequency):
                 mask("temporal.tif", outpath, bounds)
                 binDownload = True
         except Exception as e:
-            print(e)
             logging.error(f"Error downloading data: {dates[i]}: {e}")
             continue
         # Publish raster data
@@ -257,6 +254,7 @@ try:
     start_date = (actual_date - relativedelta(days=10)).strftime("%Y-%m-%d")
     end_date = actual_date.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, "daily")
+    print("Downloaded daily data")
 except:
     print("Downloaded daily data")
 
@@ -268,6 +266,7 @@ try:
     start_date = (actual_date - relativedelta(months=2)).strftime("%Y-%m-01")
     end_date = last_month_day.strftime("%Y-%m-%d")
     download_persiann(start_date, end_date, "monthly")
+    print("Downloaded monthly data")
 except:
     print("Downloaded monthly data")
 
