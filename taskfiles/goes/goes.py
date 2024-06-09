@@ -155,13 +155,15 @@ def extract_datetime_from_path(path):
     return date_time
 
 
-def goes_to_geoserver(product, band, workdir):     
+def goes_to_geoserver(product, band, workdir, styled=False):     
     # Generate dates (start and end)
     now = datetime.datetime.now()
-    start = now - relativedelta(hours=1)
+    start = now - relativedelta(hours=2)
     end = now + relativedelta(minutes=5)
     start_str = start.strftime("%Y%m%d-%H%M00")
     end_str = end.strftime("%Y%m%d-%H%M00")
+    workdir = f"{workdir}/{product}-{band}/"
+    os.chdir(workdir)
     #
     # Instance the geoserver
     geo = Geoserver(
@@ -193,10 +195,11 @@ def goes_to_geoserver(product, band, workdir):
                 layer_name=layer_name, 
                 path=outpath, 
                 workspace=f'GOES-{product}-{band}')
-            geo.publish_style(
-                layer_name=layer_name, 
-                style_name=f'GOES-{product}-{band}', 
-                workspace=f'GOES-{product}-{band}')
+            if styled:
+                geo.publish_style(
+                    layer_name=layer_name, 
+                    style_name=f'GOES-{product}-{band}', 
+                    workspace=f'GOES-{product}-{band}')
         except:
             geo.delete_coveragestore(
                 coveragestore_name=layer_name, 
@@ -205,10 +208,11 @@ def goes_to_geoserver(product, band, workdir):
                 layer_name=layer_name, 
                 path=outpath, 
                 workspace=f'GOES-{product}-{band}')
-            geo.publish_style(
-                layer_name=layer_name, 
-                style_name=f'GOES-{product}-{band}', 
-                workspace=f'GOES-{product}-{band}')
+            if styled:
+                geo.publish_style(
+                    layer_name=layer_name, 
+                    style_name=f'GOES-{product}-{band}', 
+                    workspace=f'GOES-{product}-{band}')
         time.sleep(2)
     #
     # Remove NC data
@@ -257,21 +261,38 @@ def delete_coverage(product, band):
 #                                MAIN ROUTINE                                 #
 ###############################################################################
 # Change the work directory
-workdir = "/home/ubuntu/data/goes/"
-os.chdir(workdir)
+workdir = "/home/ubuntu/data/goes"
 
 # GOES variables
 product = "ABI-L2-CMIPF"
 
-goes_to_geoserver(product=product, band="01", workdir=workdir)
+goes_to_geoserver(product=product, band="01", workdir=workdir, styled=True)
 delete_coverage(product=product, band="01")
 
-goes_to_geoserver(product=product, band="08", workdir=workdir)
+goes_to_geoserver(product=product, band="02", workdir=workdir, styled=True)
+delete_coverage(product=product, band="02")
+
+goes_to_geoserver(product=product, band="03", workdir=workdir, styled=True)
+delete_coverage(product=product, band="03")
+
+goes_to_geoserver(product=product, band="04", workdir=workdir, styled=True)
+delete_coverage(product=product, band="04")
+
+goes_to_geoserver(product=product, band="05", workdir=workdir, styled=True)
+delete_coverage(product=product, band="05")
+
+goes_to_geoserver(product=product, band="06", workdir=workdir, styled=True)
+delete_coverage(product=product, band="06")
+
+goes_to_geoserver(product=product, band="07", workdir=workdir, styled=False)
+delete_coverage(product=product, band="07")
+
+goes_to_geoserver(product=product, band="08", workdir=workdir, styled=True)
 delete_coverage(product=product, band="08")
 
-goes_to_geoserver(product=product, band="09", workdir=workdir)
+goes_to_geoserver(product=product, band="09", workdir=workdir, styled=True)
 delete_coverage(product=product, band="09")
 
-goes_to_geoserver(product=product, band="10", workdir=workdir)
+goes_to_geoserver(product=product, band="10", workdir=workdir, styled=True)
 delete_coverage(product=product, band="10")
 
