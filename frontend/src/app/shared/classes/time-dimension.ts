@@ -11,9 +11,13 @@ export class WMSLayerTimeControl {
   private legendDateElement: HTMLElement;
   private LControl: any;
   private product: string;
-  private temporality: string;
+  private img: string;
 
-  constructor(map: L.Map, LControl: any,layers: L.TileLayer.WMS[], timeInterval: number, timeSerie: string[], product: string, temporality: string) {
+  constructor(
+    map: L.Map, LControl: any,layers: L.TileLayer.WMS[],
+    timeInterval: number, timeSerie: string[], product: string,
+    img:string ) {
+
       this.map = map;
       this.layers = layers;
       this.timeInterval = timeInterval;
@@ -22,7 +26,7 @@ export class WMSLayerTimeControl {
       this.timeSerie = timeSerie;
       this.LControl = LControl;
       this.product = product;
-      this.temporality = temporality
+      this.img = img;
 
       // Añadir la leyenda al mapa
       this.legendDateElement = document.createElement('div');
@@ -107,7 +111,7 @@ export class WMSLayerTimeControl {
     if (currentDate) {
         // Add legend image
         const imageElement = document.createElement('img');
-        imageElement.src = `assets/img/pacum-legend-${this.temporality}.webp`;
+        imageElement.src = this.img;
         imageElement.width = 600;
         // Add text legend
         this.legendDateElement.innerHTML = `${this.product.toUpperCase()}: ${currentDate} <br>`;

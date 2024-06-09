@@ -5,6 +5,7 @@
   #template
   [imageUrl]="'/assets/img/met-data-explorer.png'"
   [appName]="'MET DATA EXPLORER'"
+  [appUrl]="'/apps/met-data-explorer'"
   (panelActivate)="resizeMap()">
 
   <div panelContainer style="padding-left: 12px; padding-right: 8px; padding-top: 12px;">
@@ -129,63 +130,29 @@
     <app-dropdown iconClass="fa-regular fa-earth-americas" title="Monitoreo GOES">
 
       <mat-form-field class="select scaled" appearance="outline">
-        <mat-label>Tipo:</mat-label>
-        <mat-select [(ngModel)]="selGOESType" (selectionChange)="updateGOESProduct()">
+        <mat-label>Producto:</mat-label>
+        <mat-select [(ngModel)]="selGOESProduct" (selectionChange)="updateGOESBand()">
           <mat-option
             class="scaled-text"
-            *ngFor="let variable of GOESType" [value]="variable">
+            *ngFor="let variable of GOESProduct" [value]="variable">
               {{ variable }}
           </mat-option>
         </mat-select>
       </mat-form-field>
 
-      @if (!activeGOESCustom) {
-        <mat-form-field class="select scaled" appearance="outline">
-          <mat-label>Producto:</mat-label>
-          <mat-select [(ngModel)]="selGOESProduct">
-            <mat-option
-              class="scaled-text"
-              *ngFor="let variable of GOESProduct" [value]="variable">
-                {{ variable }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      } @else {
-        <mat-form-field class="select scaled" appearance="outline">
-          <mat-label>Banda R:</mat-label>
-          <mat-select [(ngModel)]="selGOESCustomBandR">
-            <mat-option
-              class="scaled-text"
-              *ngFor="let variable of GOESBands" [value]="variable">
-                {{ variable }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Banda:</mat-label>
+        <mat-select [(ngModel)]="selGOESBand">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of GOESBand" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-        <mat-form-field class="select scaled" appearance="outline">
-          <mat-label>Banda G:</mat-label>
-          <mat-select [(ngModel)]="selGOESCustomBandG">
-            <mat-option
-              class="scaled-text"
-              *ngFor="let variable of GOESBands" [value]="variable">
-                {{ variable }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
 
-        <mat-form-field class="select scaled" appearance="outline">
-          <mat-label>Banda B:</mat-label>
-          <mat-select [(ngModel)]="selGOESCustomBandB">
-            <mat-option
-              class="scaled-text"
-              *ngFor="let variable of GOESBands" [value]="variable">
-                {{ variable }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      }
-
-      <button mat-stroked-button class="dark-mode update-button scaled">
+      <button mat-stroked-button class="dark-mode update-button scaled" (click)="updateGOES()">
         <i class="fa-solid fa-arrows-rotate"></i>
         Actualizar producto
       </button>
@@ -261,7 +228,7 @@
     <!--------------------------------------------------------------------------------------->
     <!--                             FILTER AND PLOT - PANEL                               -->
     <!--------------------------------------------------------------------------------------->
-    <app-dropdown iconClass="fa-regular fa-filter" title="Filtrar por">
+    <app-dropdown iconClass="fa-regular fa-filter" title="Filtrar y graficar">
       <mat-form-field class="select scaled" appearance="outline"  style="padding-top: 12px;">
         <mat-label>Provincia:</mat-label>
         <mat-select [(ngModel)]="selProv" (selectionChange)="updateCanton()">
@@ -310,7 +277,11 @@
 
   <div mapContainer>
     <div id="map"></div>
-    <div class="reprod-container d-flex align-items-center justify-content-center">
+    <div class="reprod-container d-flex align-items-center justify-content-between px-3">
+      <div class="reprod-title">
+        <i class="fa-regular fa-sliders"></i>&nbsp;
+        Panel de control y animación
+      </div>
       <div>
         <div class="reprod-panel-button d-flex justify-content-between">
           <button mat-stroked-button class="dark-mode time-button" (click)="previousTimeControl()">
@@ -326,6 +297,17 @@
             <i class="fa-solid fa-forward"></i>
           </button>
         </div>
+      </div>
+      <div class="reprod-panel-save d-flex justify-content-between">
+        <button mat-stroked-button class="dark-mode time-button">
+          <i class="fa-regular fa-download"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode time-button">
+          <i class="fa-regular fa-camera-viewfinder"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode time-button">
+          <i class="fa-regular fa-video"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -362,11 +344,16 @@
             [theme]="'simple_white'">
           </plotly-plot>
         }
+        @if(isAuth){
+          <button type="button" class="btn btn-primary btn-sm" (click)="downloadData()">
+            <i class="fa-regular fa-download"></i>
+            Descargar datos
+          </button>
+        }
       }
       @else {
         <app-loading></app-loading>
       }
-
     </div>
   </div>
 

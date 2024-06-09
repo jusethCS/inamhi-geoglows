@@ -5,6 +5,7 @@ import { RegisterComponent } from './auth/register/register.component';
 import { AppsComponent } from './views/apps/apps.component';
 import { ClimateTrendsComponent } from './views/climate-trends/climate-trends.component';
 import { MetDataExplorerComponent } from './views/met-data-explorer/met-data-explorer.component';
+import { LoginRedirectComponent } from './views/login-redirect/login-redirect.component';
 
 export const routes: Routes = [
   // ----------------------------------------------------------------------- //
@@ -17,6 +18,10 @@ export const routes: Routes = [
       {path: "", component: LoginComponent},
       {path: "register", component: RegisterComponent}
     ]
+  },
+  {
+    path: "login",
+    component: LoginRedirectComponent
   },
   // ----------------------------------------------------------------------- //
   //                             APPS DASHBOARD                              //

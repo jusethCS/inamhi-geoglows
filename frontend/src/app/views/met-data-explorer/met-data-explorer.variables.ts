@@ -21,7 +21,16 @@ export const satelliteProducts = [
 
   { Variable: 'Precipitación', Producto: 'IMERG', Temporalidad: 'Diaria' },
   { Variable: 'Precipitación', Producto: 'IMERG', Temporalidad: 'Mensual' },
-  { Variable: 'Precipitación', Producto: 'IMERG', Temporalidad: 'Anual' }
+  { Variable: 'Precipitación', Producto: 'IMERG', Temporalidad: 'Anual' },
+
+  { Variable: 'Precipitación', Producto: 'IMERG-EARLY', Temporalidad: 'Diaria' },
+  { Variable: 'Precipitación', Producto: 'IMERG-EARLY', Temporalidad: 'Mensual' },
+  { Variable: 'Precipitación', Producto: 'IMERG-EARLY', Temporalidad: 'Anual' },
+
+  { Variable: 'Precipitación', Producto: 'IMERG-LATE', Temporalidad: 'Diaria' },
+  { Variable: 'Precipitación', Producto: 'IMERG-LATE', Temporalidad: 'Mensual' },
+  { Variable: 'Precipitación', Producto: 'IMERG-LATE', Temporalidad: 'Anual' }
+
 ];
 
 export const forecastProduct = [
@@ -35,22 +44,22 @@ export const forecastProduct = [
 
 
 export const GOES = [
-  {Type: "Banda individual", Code:"goes-b01", Producto: 'Banda 1: 0.47 µm ("Blue")'},
-  {Type: "Banda individual", Code:"goes-b02", Producto: 'Banda 2: 0.64 µm ("Red")'},
-  {Type: "Banda individual", Code:"goes-b03", Producto: 'Banda 3: 0.86 µm ("Veggie")'},
-  {Type: "Banda individual", Code:"goes-b04", Producto: 'Banda 4: 1.37 µm ("Cirrus")'},
-  {Type: "Banda individual", Code:"goes-b05", Producto: 'Banda 5: 1.6 µm ("Snow/Ice")'},
-  {Type: "Banda individual", Code:"goes-b06", Producto: 'Banda 6: 2.2 µm ("Cloud Particle Size")'},
-  {Type: "Banda individual", Code:"goes-b07", Producto: 'Banda 7: 3.9 µm ("Shortwave Window")'},
-  {Type: "Banda individual", Code:"goes-b08", Producto: 'Banda 8: 6.2 µm ("Upper-Level Tropospheric Water Vapor")'},
-  {Type: "Banda individual", Code:"goes-b09", Producto: 'Banda 9: 6.9 µm ("Mid-Level Tropospheric Water Vapor")'},
-  {Type: "Banda individual", Code:"goes-b10", Producto: 'Banda 10: 7.3 µm ("Lower-level Water Vapor")'},
-  {Type: "Banda individual", Code:"goes-b11", Producto: 'Banda 11: 8.4 µm ("Cloud-Top Phase")'},
-  {Type: "Banda individual", Code:"goes-b12", Producto: 'Banda 12: 9.6 µm ("Ozone")'},
-  {Type: "Banda individual", Code:"goes-b13", Producto: 'Banda 13: 10.3 µm ("Clean" IR Longwave Window)'},
-  {Type: "Banda individual", Code:"goes-b14", Producto: 'Banda 14: 11.2 µm ("IR" Longwave Window)'},
-  {Type: "Banda individual", Code:"goes-b15", Producto: 'Banda 15: 12.3 µm ("Dirty" Longwave Window)'},
-  {Type: "Banda individual", Code:"goes-b16", Producto: 'Banda 16: 13.3 µm ("CO2" Longwave Infrared)'}
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-01", Band: 'Banda 1: 0.47 µm ("Blue")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-02", Band: 'Banda 2: 0.64 µm ("Red")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-03", Band: 'Banda 3: 0.86 µm ("Veggie")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-04", Band: 'Banda 4: 1.37 µm ("Cirrus")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-05", Band: 'Banda 5: 1.6 µm ("Snow/Ice")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-06", Band: 'Banda 6: 2.2 µm ("Cloud Particle Size")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-07", Band: 'Banda 7: 3.9 µm ("Shortwave Window")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-08", Band: 'Banda 8: 6.2 µm ("Upper-Level Tropospheric Water Vapor")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-09", Band: 'Banda 9: 6.9 µm ("Mid-Level Tropospheric Water Vapor")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-10", Band: 'Banda 10: 7.3 µm ("Lower-level Water Vapor")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-11", Band: 'Banda 11: 8.4 µm ("Cloud-Top Phase")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-12", Band: 'Banda 12: 9.6 µm ("Ozone")'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-13", Band: 'Banda 13: 10.3 µm ("Clean" IR Longwave Window)'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-14", Band: 'Banda 14: 11.2 µm ("IR" Longwave Window)'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-15", Band: 'Banda 15: 12.3 µm ("Dirty" Longwave Window)'},
+  {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-16", Band: 'Banda 16: 13.3 µm ("CO2" Longwave Infrared)'}
 ]
 
 

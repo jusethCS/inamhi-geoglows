@@ -5,17 +5,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatSelect, MatOption } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 
 import { AppTemplateComponent } from '../../shared/app-template/app-template.component';
 import { DropdownComponent } from "../../shared/dropdown/dropdown.component";
 import { date_custom_format, satelliteProducts, forecastProduct, GOES, ecuador } from './met-data-explorer.variables';
 import { WMSLayerTimeControl } from '../../shared/classes/time-dimension';
-import { translateFrecuency, generateDates } from './met-data-explorer.utils';
+import { translateFrecuency, generateDates, convertToCSV, downloadFile, generateDatesGOES1, generateDatesGOES2 } from './met-data-explorer.utils';
+import { pacum_plot, temp_plot } from './met-data-explorer.plot-templates';
 import { SatelliteDataService } from '../../core/satellite_data.service';
 import { LoadingComponent } from "../../shared/loading/loading.component";
 
+import { AuthService } from '../../auth/auth.service';
 import { environment } from '../../../environments/environment';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 
@@ -23,6 +25,7 @@ import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import * as L from 'leaflet';
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
+
 PlotlyModule.plotlyjs = PlotlyJS;
 
 
@@ -58,6 +61,7 @@ export class MetDataExplorerComponent {
   // -------------------------------------------------------------------- //
   // Template component
   @ViewChild("template") template!: AppTemplateComponent;
+  public isAuth: boolean = false;
 
   // Leaflet variables
   map: any;
@@ -81,18 +85,10 @@ export class MetDataExplorerComponent {
   selForecastVariable: string = "Precipitación";
 
   // GOES
-  GOESType: string[] = ["Banda individual", "Composición multiespectral", "Personalizado"];
-  GOESProduct: string[] = [];
-  selGOESType: string = "Banda individual";
-  selGOESProduct: string = 'Banda 1: 0.47 µm ("Blue")';
-  activeGOESCustom: boolean = false;
-  selGOESCustomBandB: string = 'Banda 1: 0.47 µm ("Blue")';
-  selGOESCustomBandR: string = 'Banda 2: 0.64 µm ("Red")';
-  selGOESCustomBandG: string = 'Banda 3: 0.86 µm ("Veggie")';
-  GOESBands: string[] = [...new Set(
-    GOES.filter(
-      item => item.Type === "Banda individual"
-    ).map(item => item.Producto))];
+  GOESProduct: string[] = ["Cloud and Moisture Imagery", "Personalizado"];
+  GOESBand: string[] = [];
+  selGOESProduct: string = "Cloud and Moisture Imagery";
+  selGOESBand: string = 'Banda 1: 0.47 µm ("Blue")';
 
 
   // Filters and plots
@@ -110,6 +106,8 @@ export class MetDataExplorerComponent {
   // GeoJSON data
   geojson_data: any;
   LGeoJson: any;
+  meteorological_data: any;
+  meteorological_header: any;
 
   // Leaflet layer - time control
   timeControl: WMSLayerTimeControl | undefined;
@@ -126,14 +124,18 @@ export class MetDataExplorerComponent {
   //                          CLASS CONSTRUCTOR                           //
   // -------------------------------------------------------------------- //
 
-  constructor( private fb: FormBuilder, private CTservice: SatelliteDataService ) {
-    this.updateProduct();
-    this.updateTemporal();
-    this.initFormDate();
-    this.updateForecatVariable();
-    this.updateGOESProduct();
-    this.updateCanton();
-  }
+  constructor(
+    private fb: FormBuilder,
+    private CTservice: SatelliteDataService,
+    private authService: AuthService, ) {
+      this.isAuth = this.authService.isAuth();
+      this.updateProduct();
+      this.updateTemporal();
+      this.initFormDate();
+      this.updateForecatVariable();
+      this.updateGOESBand();
+      this.updateCanton();
+    }
 
   ngOnInit() {
     this.map = L.map("map");
@@ -201,17 +203,12 @@ export class MetDataExplorerComponent {
   }
 
   // Update GOES product
-  updateGOESProduct(): void{
-    if(this.selGOESType === "Personalizado"){
-      this.activeGOESCustom = true;
-    } else{
-      this.activeGOESCustom = false;
-    }
-    this.GOESProduct = [...new Set(
+  updateGOESBand(): void{
+    this.GOESBand = [...new Set(
       GOES.filter(
-        item => item.Type === this.selGOESType
-      ).map(item => item.Producto))];
-    this.selGOESProduct = this.GOESProduct[0];
+        item => item.Product === this.selGOESProduct
+      ).map(item => item.Band))];
+    this.selGOESBand = this.GOESBand[0];
   }
 
   // -------------------------------------------------------------------- //
@@ -225,6 +222,7 @@ export class MetDataExplorerComponent {
       format: 'image/png',
       transparent: true,
       version: "1.1.1",
+      crs: L.CRS.EPSG4326
     });
     return (leafletLayer)
   }
@@ -239,11 +237,32 @@ export class MetDataExplorerComponent {
     let target_dates = generateDates(startDate, endDate, frequency)
     let target_layers = target_dates.map(date => `${product}-${frequency}:${date}`)
     let layers = target_layers.map(layer => this.getLeafletLayer(url, layer))
+    console.log(layers);
     if (this.timeControl !== undefined) {
       this.timeControl.destroy();
     }
     this.timeControl = new WMSLayerTimeControl(
-      this.map, L.control, layers, 1000, target_dates, `${product} ${frequency}`, frequency);
+      this.map, L.control, layers, 1000, target_dates, `${product} ${frequency}`,
+    `assets/img/pacum-legend-${frequency}.webp`);
+  }
+
+  // Update GOES data
+  updateGOES(){
+    let dateGOES_layer = generateDatesGOES1();
+    let dateGOES = generateDatesGOES2();
+    let goes_code = [...new Set(
+      GOES.filter(
+        item => item.Product === this.selGOESProduct  && item.Band === this.selGOESBand
+      ).map(item => item.Code))][0];
+    let url = `${environment.urlGeoserver}/${goes_code}/wms`;
+    let target_layers = dateGOES_layer.map(date => `${goes_code}:${date}`);
+    let layers = target_layers.map(layer => this.getLeafletLayer(url, layer));
+    if (this.timeControl !== undefined) {
+      this.timeControl.destroy();
+    }
+    let img = `assets/img/${goes_code}.png`;
+    this.timeControl = new WMSLayerTimeControl(
+      this.map, L.control, layers, 200, dateGOES, `TEMPERATURA DE BRILLO (°c)`, img );
   }
 
   playTimeControl() {
@@ -309,50 +328,18 @@ export class MetDataExplorerComponent {
 
     a.subscribe({
       next: (response) => {
-
+        this.meteorological_data = response;
         const dates = response.map((item: any) => item.date);
         const values = response.map((item: any) => item.value);
-
         if(this.selVars === "Precipitación"){
-          this.precPlot = {
-            data: [{ x: dates, y: values, type: 'bar'}],
-            layout: {
-              title: "Hietograma",
-              autosize: true,
-              margin: { l: 50, r: 30, b: 40, t: 50 },
-              xaxis: {
-                title: '',
-                linecolor: "black",
-                linewidth: 1,
-                showgrid: false,
-                showline: true,
-                mirror: true,
-                ticks: "outside",
-                automargin: true,
-              },
-              yaxis: {
-                title: 'Precipitación (mm)',
-                linecolor: "black",
-                linewidth: 1,
-                showgrid: false,
-                showline: true,
-                mirror: true,
-                ticks: "outside",
-                automargin: true,
-              }
-            }
-          };
+          this.meteorological_header = ["Datetime", "Precipitacion (mm)"]
+          this.precPlot = pacum_plot(dates, values)
         }
-
         if(this.selVars === "Temperatura"){
-          this.tempPlot = {
-            data: [{ x: dates, y: values, type: 'scatter', mode: 'lines'}],
-            layout: { autosize: true, xaxis: { title: ''}, yaxis: { title: 'Temperatura (°C)'} }
-          };
+          this.meteorological_header = ["Datetime", "Temperatura (mm)"]
+          this.tempPlot = temp_plot(dates, values);
         }
-
         this.isReadyData = true;
-
       },
       error: (err) => {
         alert("El servidor no pudo procesar su solicitud.")
@@ -360,6 +347,13 @@ export class MetDataExplorerComponent {
       }
     })
 
+  }
+
+
+
+  downloadData(){
+    const csvData = convertToCSV(this.meteorological_data, this.meteorological_header);
+    downloadFile(csvData,  `${this.selProd}.csv`);
   }
 
 

@@ -17,8 +17,19 @@
   background-color: #162633;
 }
 
+.reprod-title{
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+}
+
 .reprod-panel-button{
+  min-width: 50px !important;
   width: 250px;
+}
+.reprod-panel-save{
+  min-width: 50px !important;
+  width: 180px;
 }
 
 .select{

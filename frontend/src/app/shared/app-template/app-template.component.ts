@@ -33,6 +33,7 @@ export class AppTemplateComponent {
   // Variables for communication
   @Input() appName?: string;
   @Input() imageUrl?: string;
+  @Input() appUrl?: string;
 
   // Boolean variables for dropdown and panel components
   isOpen: boolean = false;
@@ -117,5 +118,10 @@ export class AppTemplateComponent {
       const modal = new Modal(this.infoModal.nativeElement);
       modal.show();
     }
+  }
+
+  // Login and redirect
+  loginRedirect(){
+    this.router.navigateByUrl(`/login?next=${this.appUrl}`);
   }
 }
