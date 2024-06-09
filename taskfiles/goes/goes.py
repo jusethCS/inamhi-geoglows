@@ -263,6 +263,9 @@ os.chdir(workdir)
 # GOES variables
 product = "ABI-L2-CMIPF"
 
+goes_to_geoserver(product=product, band="01", workdir=workdir)
+delete_coverage(product=product, band="01")
+
 goes_to_geoserver(product=product, band="08", workdir=workdir)
 delete_coverage(product=product, band="08")
 
