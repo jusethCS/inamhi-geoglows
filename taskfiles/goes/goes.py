@@ -5,11 +5,12 @@ import GOES
 import shutil
 import datetime
 import numpy as np
+import pandas as pd
 from osgeo import osr
 from osgeo import gdal
 import pyproj as pyproj
 from pyresample import utils
-from dotenv import load_dotenv #
+from dotenv import load_dotenv
 from geo.Geoserver import Geoserver
 from pyresample.geometry import SwathDefinition
 from pyresample.kd_tree import resample_nearest
@@ -218,6 +219,39 @@ def goes_to_geoserver(product, band, workdir):
 
 
 
+def delete_coverage(product, band):
+    # Generate dates (start and end)
+    now = datetime.datetime.now()
+    start = now - relativedelta(days=5)
+    end = now - relativedelta(hours=12)
+    date_range = pd.date_range(start, end, freq="1T")
+    #
+    # Variables
+    endpoint = "/usr/share/geoserver/data_dir/data"
+    #
+    # Instance the geoserver
+    geo = Geoserver(
+            'http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver', 
+                username=GEOSERVER_USER, 
+                password=GEOSERVER_PASS)
+    #
+    for date in date_range:
+        layer_name = date.strftime('%Y%m%d%H%M')
+        filedir = f"{endpoint}/GOES-{product}-{band}/{layer_name}"
+        if os.path.exists(f"{filedir}/{layer_name}.geotiff"):
+            try:
+                geo.delete_coveragestore(
+                    coveragestore_name=layer_name, 
+                    workspace=f'GOES-{product}-{band}')
+                shutil.rmtree(filedir)
+                print(f"File {product}-{band}:{layer_name} was deleted!")
+            except Exception as e:
+                print(e)
+                print(f"File {product}-{band}:{layer_name} cannot be deleted!")
+
+
+
+
 
 ###############################################################################
 #                                MAIN ROUTINE                                 #
@@ -228,10 +262,13 @@ os.chdir(workdir)
 
 # GOES variables
 product = "ABI-L2-CMIPF"
+
 goes_to_geoserver(product=product, band="08", workdir=workdir)
+delete_coverage(product=product, band="08")
+
 goes_to_geoserver(product=product, band="09", workdir=workdir)
+delete_coverage(product=product, band="09")
+
 goes_to_geoserver(product=product, band="10", workdir=workdir)
-
-
-
+delete_coverage(product=product, band="10")
 
