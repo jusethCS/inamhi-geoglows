@@ -1,4 +1,5 @@
 import os
+import time
 import glob
 import GOES
 import shutil
@@ -186,6 +187,7 @@ def goes_to_geoserver(product, band, workdir):
     # Upload data into geoserver
     for nc_file in nc_files:
         start = extract_datetime_from_path(nc_file)
+        print(start.strftime(f'{product} Band:{band} - %Y-%m-%d %H:%M'))
         layer_name = start.strftime('%Y%m%d%H%M')
         outpath = start.strftime('%Y%m%d%H%M.tif')
         parse_goes(nc_file, outpath)
@@ -210,6 +212,7 @@ def goes_to_geoserver(product, band, workdir):
                 layer_name=layer_name, 
                 style_name=f'GOES-{product}-{band}', 
                 workspace=f'GOES-{product}-{band}')
+        time.sleep(2)
     #
     # Remove NC data
     for archivo in os.listdir(workdir):
