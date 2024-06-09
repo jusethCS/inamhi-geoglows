@@ -21,10 +21,7 @@ from dateutil.relativedelta import relativedelta
 #                           ENVIROMENTAL VARIABLES                            #
 ###############################################################################
 # Change the work directory
-user = os.getlogin()
-user_dir = os.path.expanduser('~{}'.format(user))
-os.chdir(user_dir)
-os.chdir("inamhi-geoglows/taskfiles/meteosat")
+os.chdir("/home/ubuntu/inamhi-geoglows/taskfiles/meteosat")
 
 # Load enviromental
 load_dotenv()
