@@ -27,6 +27,8 @@ os.chdir("/home/ubuntu/inamhi-geoglows/taskfiles/meteosat")
 load_dotenv()
 GEOSERVER_USER = os.getenv("GEOSERVER_USER")
 GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
+print(GEOSERVER_USER)
+print(GEOSERVER_PASS)
 
 
 
