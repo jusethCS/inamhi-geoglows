@@ -266,14 +266,6 @@ workdir = "/home/ubuntu/data/goes"
 # GOES variables
 product = "ABI-L2-CMIPF"
 
-goes_to_geoserver(product=product, band="01", workdir=workdir, styled=True)
-delete_coverage(product=product, band="01")
-
-goes_to_geoserver(product=product, band="02", workdir=workdir, styled=True)
-delete_coverage(product=product, band="02")
-
-goes_to_geoserver(product=product, band="03", workdir=workdir, styled=True)
-delete_coverage(product=product, band="03")
 
 goes_to_geoserver(product=product, band="04", workdir=workdir, styled=True)
 delete_coverage(product=product, band="04")
@@ -313,3 +305,15 @@ delete_coverage(product=product, band="15")
 
 goes_to_geoserver(product=product, band="16", workdir=workdir, styled=True)
 delete_coverage(product=product, band="16")
+
+
+## ---
+
+goes_to_geoserver(product=product, band="01", workdir=workdir, styled=True)
+delete_coverage(product=product, band="01")
+
+goes_to_geoserver(product=product, band="02", workdir=workdir, styled=True)
+delete_coverage(product=product, band="02")
+
+goes_to_geoserver(product=product, band="03", workdir=workdir, styled=True)
+delete_coverage(product=product, band="03")
