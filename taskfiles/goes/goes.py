@@ -296,3 +296,20 @@ delete_coverage(product=product, band="09")
 goes_to_geoserver(product=product, band="10", workdir=workdir, styled=True)
 delete_coverage(product=product, band="10")
 
+goes_to_geoserver(product=product, band="11", workdir=workdir, styled=True)
+delete_coverage(product=product, band="11")
+
+goes_to_geoserver(product=product, band="12", workdir=workdir, styled=True)
+delete_coverage(product=product, band="12")
+
+goes_to_geoserver(product=product, band="13", workdir=workdir, styled=True)
+delete_coverage(product=product, band="13")
+
+goes_to_geoserver(product=product, band="14", workdir=workdir, styled=True)
+delete_coverage(product=product, band="14")
+
+goes_to_geoserver(product=product, band="15", workdir=workdir, styled=True)
+delete_coverage(product=product, band="15")
+
+goes_to_geoserver(product=product, band="16", workdir=workdir, styled=True)
+delete_coverage(product=product, band="16")
