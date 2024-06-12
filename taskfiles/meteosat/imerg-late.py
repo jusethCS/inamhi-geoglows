@@ -78,19 +78,19 @@ def download_imerg(date_start, date_end, frequency):
         freq2 = "D"
         date_format = "%Y-%m-%d"
         correct_factor = 1
-        vv = "v06"
+        vv = "v07"
     elif frequency == "monthly":
         freq = "MS"
         freq2 = "ME"
         date_format = "%Y-%m-01"
         correct_factor = 1
-        vv = "v06"
+        vv = "v07"
     elif frequency == "annual":
         freq = "YS"
         freq2 = "YE"
         date_format = "%Y-01-01"
         correct_factor = 1
-        vv = "v06"
+        vv = "v07"
     else:
         return("Frecuency could be 'daily', 'monthly', 'annual'.")
     #
