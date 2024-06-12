@@ -189,7 +189,11 @@ def goes_to_geoserver(product, band, workdir, styled=False):
         print(start.strftime(f'{product} Band:{band} - %Y-%m-%d %H:%M'))
         layer_name = start.strftime('%Y%m%d%H%M')
         outpath = start.strftime('%Y%m%d%H%M.tif')
-        parse_goes(nc_file, outpath)
+        try:
+            parse_goes(nc_file, outpath)
+        except:
+            print("GOES data was not parse to TIFF")
+            pass
         try:
             geo.create_coveragestore(
                 layer_name=layer_name, 
