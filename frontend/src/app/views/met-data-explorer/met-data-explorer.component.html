@@ -288,7 +288,11 @@
             <i class="fa-solid fa-backward"></i>
           </button>
           <button mat-stroked-button class="dark-mode time-button" (click)="playTimeControl()">
-            <i class="fa-solid fa-play"></i>
+            @if(isPlay){
+              <i class="fa-solid fa-pause"></i>
+            }@else {
+              <i class="fa-solid fa-play"></i>
+            }
           </button>
           <button mat-stroked-button class="dark-mode time-button" (click)="stopTimeControl()">
             <i class="fa-solid fa-stop"></i>

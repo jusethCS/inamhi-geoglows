@@ -7,8 +7,10 @@ export class WMSLayerTimeControl {
   private timeInterval: number;
   private timeSerie: string[];
   private intervalId: any;
+  private dateControl: L.Control;
+  private dateElement: HTMLElement;
   private legendControl: L.Control;
-  private legendDateElement: HTMLElement;
+  private legendElement: HTMLElement;
   private LControl: any;
   private product: string;
   private img: string;
@@ -28,25 +30,35 @@ export class WMSLayerTimeControl {
       this.product = product;
       this.img = img;
 
-      // Añadir la leyenda al mapa
-      this.legendDateElement = document.createElement('div');
-      this.legendDateElement.className = 'legend-date';
-      this.legendControl = this.LControl({ position: 'bottomleft' });
-      this.legendControl.onAdd = () => this.legendDateElement;
-      this.legendControl.addTo(this.map);
+      // Añadir la fecha al mapa
+      this.dateElement = document.createElement('div');
+      this.dateElement.className = 'legend-date';
+      this.dateControl = this.LControl({ position: 'bottomleft' });
+      this.dateControl.onAdd = () => this.dateElement;
+      this.dateControl.addTo(this.map);
+      this.dateElement.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+      this.dateElement.style.color = 'black';
+      this.dateElement.style.fontWeight = "bold";
+      this.dateElement.style.padding = '5px';
+      this.dateElement.style.fontSize = '0.8rem';
+      this.dateElement.style.borderRadius = "5px"
 
-      // Styles
-      this.legendDateElement.style.backgroundColor = 'white';
-      this.legendDateElement.style.color = 'black';
-      this.legendDateElement.style.border = '1px solid #ccc';
-      this.legendDateElement.style.padding = '5px';
-      this.legendDateElement.style.fontSize = '16px';
+      // Añadir la leyenda al mapa
+      this.legendElement = document.createElement('div');
+      this.legendControl = this.LControl({ position: 'bottomleft' });
+      this.legendControl.onAdd = () => this.legendElement;
+      this.legendControl.addTo(this.map);
+      this.legendElement.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+      this.legendElement.style.color = 'black';
+      this.legendElement.style.padding = '5px';
+      this.legendElement.style.borderRadius = "5px"
+
 
       // Cargar todas las capas y solo dejar visible la primera
       if (this.layers.length > 0) {
           this.updateLegend();
           this.layers.forEach(layer => {layer.setOpacity(0).addTo(this.map);});
-          this.layers[0].setOpacity(0.5);
+          this.layers[0].setOpacity(0.6);
       }
   }
 
@@ -94,16 +106,17 @@ export class WMSLayerTimeControl {
   destroy(){
     this.layers.forEach(layer => {layer.remove();});
     this.legendControl.remove();
+    this.dateControl.remove();
   }
 
   private updateLayerNext() {
       this.layers[this.currentDateIndex - 1]?.setOpacity(0);
-      this.layers[this.currentDateIndex]?.setOpacity(0.5);
+      this.layers[this.currentDateIndex]?.setOpacity(0.6);
   }
 
   private updateLayerPrevious() {
     this.layers[this.currentDateIndex + 1]?.setOpacity(0);
-    this.layers[this.currentDateIndex]?.setOpacity(0.5);
+    this.layers[this.currentDateIndex]?.setOpacity(0.6);
   }
 
   private updateLegend() {
@@ -112,10 +125,12 @@ export class WMSLayerTimeControl {
         // Add legend image
         const imageElement = document.createElement('img');
         imageElement.src = this.img;
-        imageElement.width = 600;
+        imageElement.height = 300;
+        this.legendElement.innerHTML = "";
+        this.legendElement.appendChild(imageElement);
         // Add text legend
-        this.legendDateElement.innerHTML = `${this.product.toUpperCase()}: ${currentDate} <br>`;
-        this.legendDateElement.appendChild(imageElement);
+        this.dateElement.innerHTML = `${this.product.toUpperCase()}: ${currentDate} <br>`;
+
     }
   }
 }

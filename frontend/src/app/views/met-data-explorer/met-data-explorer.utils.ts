@@ -82,7 +82,7 @@ export function generateDatesGOES1(): string[] {
       timestamps.push(timestamp);
       now.setMinutes(now.getMinutes() - 10);
   }
-  return timestamps.reverse().slice(0, -1);
+  return timestamps.reverse().slice(0, -2);
 }
 
 export function generateDatesGOES2(): string[] {
@@ -102,6 +102,6 @@ export function generateDatesGOES2(): string[] {
       timestamps.push(timestamp);
       now.setMinutes(now.getMinutes() - 10);
   }
-  return timestamps.reverse().slice(0, -1);
+  return timestamps.reverse().slice(0, -2);
 }
 

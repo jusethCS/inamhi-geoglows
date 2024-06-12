@@ -117,6 +117,9 @@ export class MetDataExplorerComponent {
   tempPlot:any = {};
   isReadyData: boolean = false;
 
+  // Time control
+  isPlay: boolean = false;
+
 
 
 
@@ -138,11 +141,43 @@ export class MetDataExplorerComponent {
     }
 
   ngOnInit() {
-    this.map = L.map("map");
-    this.map.setView([-1.7, -78.5], 7)
-    L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-    ).addTo(this.map);
+
+    const osm = L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        zIndex: -1
+      }
+    );
+
+    const carto = L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 20,
+      zIndex: -1
+    });
+
+    const baseMaps = {
+      "OpenStreetMap": osm.bringToBack(),
+      "Carto DarkMap": carto.bringToBack()
+    };
+
+    this.map = L.map("map", {
+      center: [-1.7, -78.5],
+      zoom: 7,
+      zoomControl: false
+    });
+    osm.addTo(this.map);
+
+    L.control.layers(baseMaps, {}, {position: 'topright'}).addTo(this.map);
+    L.control.zoom({position: 'topright'}).addTo(this.map);
+
+    const imageElement = document.createElement('img');
+    const logoControl = new L.Control({position: 'topleft'})
+    imageElement.src = "assets/img/inamhi-white-logo.png";
+    imageElement.height = 55;
+    imageElement.width = 125;
+    logoControl.onAdd = () => imageElement
+    logoControl.addTo(this.map);
+
     setTimeout(() => { this.map.invalidateSize() }, 10);
   }
 
@@ -224,11 +259,13 @@ export class MetDataExplorerComponent {
       version: "1.1.1",
       crs: L.CRS.EPSG4326
     });
+    leafletLayer.setZIndex(10)
     return (leafletLayer)
   }
 
   // Update satellite product
   updateSatelliteProduct() {
+    this.isPlay = false;
     let product = this.selProd.toLowerCase();
     let frequency = translateFrecuency(this.selTemp);
     let startDate = this.dateRange.value.start;
@@ -243,11 +280,12 @@ export class MetDataExplorerComponent {
     }
     this.timeControl = new WMSLayerTimeControl(
       this.map, L.control, layers, 1000, target_dates, `${product} ${frequency}`,
-    `assets/img/pacum-legend-${frequency}.webp`);
+    `assets/img/pacum-legend-${frequency}.png`);
   }
 
   // Update GOES data
   updateGOES(){
+    this.isPlay = false;
     let dateGOES_layer = generateDatesGOES1();
     let dateGOES = generateDatesGOES2();
     let goes_code = [...new Set(
@@ -262,15 +300,26 @@ export class MetDataExplorerComponent {
     }
     let img = `assets/img/${goes_code}.png`;
     this.timeControl = new WMSLayerTimeControl(
-      this.map, L.control, layers, 200, dateGOES, `TEMPERATURA DE BRILLO (°c)`, img );
+      this.map, L.control, layers, 200, dateGOES, goes_code, img );
   }
 
   playTimeControl() {
-    this.timeControl?.play();
+    if(this.isPlay){
+      this.isPlay = false;
+      this.timeControl?.stop();
+    }else{
+      this.isPlay = true;
+      this.timeControl?.play();
+    }
+
   }
 
   stopTimeControl() {
-    this.timeControl?.stop();
+    //this.timeControl?.stop();
+    if (this.timeControl !== undefined) {
+      this.timeControl.destroy();
+    }
+    this.isPlay = false;
   }
 
   previousTimeControl() {
@@ -348,7 +397,6 @@ export class MetDataExplorerComponent {
     })
 
   }
-
 
 
   downloadData(){
