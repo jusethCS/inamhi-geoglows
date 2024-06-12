@@ -266,54 +266,22 @@ workdir = "/home/ubuntu/data/goes"
 # GOES variables
 product = "ABI-L2-CMIPF"
 
-
-goes_to_geoserver(product=product, band="04", workdir=workdir, styled=True)
-delete_coverage(product=product, band="04")
-
-goes_to_geoserver(product=product, band="05", workdir=workdir, styled=True)
-delete_coverage(product=product, band="05")
-
-goes_to_geoserver(product=product, band="06", workdir=workdir, styled=True)
-delete_coverage(product=product, band="06")
-
-goes_to_geoserver(product=product, band="07", workdir=workdir, styled=False)
-delete_coverage(product=product, band="07")
-
+# Brigthness temperature Bands
 goes_to_geoserver(product=product, band="08", workdir=workdir, styled=True)
-delete_coverage(product=product, band="08")
-
 goes_to_geoserver(product=product, band="09", workdir=workdir, styled=True)
-delete_coverage(product=product, band="09")
-
 goes_to_geoserver(product=product, band="10", workdir=workdir, styled=True)
-delete_coverage(product=product, band="10")
-
 goes_to_geoserver(product=product, band="11", workdir=workdir, styled=True)
-delete_coverage(product=product, band="11")
-
 goes_to_geoserver(product=product, band="12", workdir=workdir, styled=True)
-delete_coverage(product=product, band="12")
-
 goes_to_geoserver(product=product, band="13", workdir=workdir, styled=True)
-delete_coverage(product=product, band="13")
-
 goes_to_geoserver(product=product, band="14", workdir=workdir, styled=True)
-delete_coverage(product=product, band="14")
-
 goes_to_geoserver(product=product, band="15", workdir=workdir, styled=True)
-delete_coverage(product=product, band="15")
-
 goes_to_geoserver(product=product, band="16", workdir=workdir, styled=True)
-delete_coverage(product=product, band="16")
 
-
-## ---
-
+# Imaginery bands
 goes_to_geoserver(product=product, band="01", workdir=workdir, styled=True)
-delete_coverage(product=product, band="01")
-
 goes_to_geoserver(product=product, band="02", workdir=workdir, styled=True)
-delete_coverage(product=product, band="02")
-
 goes_to_geoserver(product=product, band="03", workdir=workdir, styled=True)
-delete_coverage(product=product, band="03")
+goes_to_geoserver(product=product, band="04", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="05", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="06", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="07", workdir=workdir, styled=False)
