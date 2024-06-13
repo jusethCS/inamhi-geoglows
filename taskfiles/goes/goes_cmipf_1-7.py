@@ -75,7 +75,7 @@ def save_as_geotiff(Field, LonsCen, LatsCen, OutputFileName):
     outband.FlushCache()
 
 
-def parse_goes(path, outpath):
+def parse_goes(path, outpath, pixel):
     """
     Parse y procesa un archivo de datos GOES para generar una imagen GeoTIFF.
 
@@ -103,7 +103,7 @@ def parse_goes(path, outpath):
     time_bounds = CMI.time_bounds
     #
     # Crea una rejilla de mapa en proyección cilíndrica equidistante
-    LonCenCyl, LatCenCyl = GOES.create_gridmap(domain, PixResol=2.0)
+    LonCenCyl, LatCenCyl = GOES.create_gridmap(domain, PixResol=pixel)
     #
     # Define la proyección utilizando pyproj
     Prj = pyproj.Proj('+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +a=6378.137 +b=6378.137 +units=km')
@@ -155,7 +155,7 @@ def extract_datetime_from_path(path):
     return date_time
 
 
-def goes_to_geoserver(product, band, workdir, styled=False):     
+def goes_to_geoserver(product, band, workdir, pixelBand, styled=False):     
     # Generate dates (start and end)
     now = datetime.datetime.now()
     start = now - relativedelta(hours=1)
@@ -190,7 +190,7 @@ def goes_to_geoserver(product, band, workdir, styled=False):
         layer_name = start.strftime('%Y%m%d%H%M')
         outpath = start.strftime('%Y%m%d%H%M.tif')
         try:
-            parse_goes(nc_file, outpath)
+            parse_goes(nc_file, outpath, pixelBand)
         except:
             print("GOES data was not parse to TIFF")
             pass
@@ -236,10 +236,10 @@ workdir = "/home/ubuntu/data/goes"
 # GOES variables
 product = "ABI-L2-CMIPF"
 
-goes_to_geoserver(product=product, band="01", workdir=workdir, styled=True)
-goes_to_geoserver(product=product, band="02", workdir=workdir, styled=True)
-goes_to_geoserver(product=product, band="03", workdir=workdir, styled=True)
-goes_to_geoserver(product=product, band="04", workdir=workdir, styled=True)
-goes_to_geoserver(product=product, band="05", workdir=workdir, styled=True)
-goes_to_geoserver(product=product, band="06", workdir=workdir, styled=True)
-goes_to_geoserver(product=product, band="07", workdir=workdir, styled=False)
+goes_to_geoserver(product=product, band="01", workdir=workdir, pixelBand=1.0, styled=True)
+goes_to_geoserver(product=product, band="02", workdir=workdir, pixelBand=0.5, styled=True)
+goes_to_geoserver(product=product, band="03", workdir=workdir, pixelBand=1.0, styled=True)
+goes_to_geoserver(product=product, band="04", workdir=workdir, pixelBand=2.0, styled=True)
+goes_to_geoserver(product=product, band="05", workdir=workdir, pixelBand=1.0, styled=True)
+goes_to_geoserver(product=product, band="06", workdir=workdir, pixelBand=2.0, styled=True)
+goes_to_geoserver(product=product, band="07", workdir=workdir, pixelBand=2.0, styled=False)
