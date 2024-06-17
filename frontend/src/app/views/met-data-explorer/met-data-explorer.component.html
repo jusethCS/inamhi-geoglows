@@ -151,12 +151,16 @@
         </mat-select>
       </mat-form-field>
 
-
       <button mat-stroked-button class="dark-mode update-button scaled" (click)="updateGOES()">
         <i class="fa-solid fa-arrows-rotate"></i>
         Actualizar producto
       </button>
-      <br>
+
+      <div class="form-check form-switch pt-2">
+        <input class="form-check-input" type="checkbox" id="auto-update-goes" [(ngModel)]="isAutoUpdateGOES" (ngModelChange)="autoUpdateGOES()">
+        <label class="form-check-label" for="auto-update-goes">Actualización automática</label>
+      </div>
+
     </app-dropdown>
 
 
@@ -318,36 +322,87 @@
 
   <div dataModalHeader>
     <div class="container">
-      <div class="modal-header-title"> TENDENCIA CLIMÁTICA </div>
-      <div class="row modal-header-content">
-        <div class="col-sm-12 col-md-4 py-1">
-          <b>Variable:</b> {{selVars.toUpperCase()}}
+
+      @if(plotClass === "satellite"){
+        <div class="modal-header-title"> MONITOREO SATELITAL </div>
+        <div class="row modal-header-content">
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Variable:</b> {{selVars.toUpperCase()}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Producto:</b> {{selProd.toUpperCase()}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Temporalidad:</b> {{selTemp.toUpperCase()}}
+          </div>
+          @if(isPointPlotClass){
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Latitud:</b> {{latC}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Longitud:</b> {{lonC}}
+            </div>
+          } @else {
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Provincia:</b> {{selProv.toUpperCase()}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Canton:</b> {{selCant.toUpperCase()}}
+            </div>
+          }
         </div>
-        <div class="col-sm-12 col-md-4 py-1">
-          <b>Producto:</b> {{selProd.toUpperCase()}}
+      }
+
+      @if(plotClass === "goes"){
+        <div class="modal-header-title"> MONITOREO GOES </div>
+        <div class="row modal-header-content">
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Producto:</b> {{selGOESProduct}}
+          </div>
+          <div class="col-sm-12 col-md-8 py-1">
+            <b>Banda:</b> {{selGOESBand}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Latitud:</b> {{latC}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Longitud:</b> {{lonC}}
+          </div>
         </div>
-        <div class="col-sm-12 col-md-4 py-1">
-          <b>Temporalidad:</b> {{selTemp.toUpperCase()}}
-        </div>
-        <div class="col-sm-12 col-md-4 py-1">
-          <b>Provincia:</b> {{selProv.toUpperCase()}}
-        </div>
-        <div class="col-sm-12 col-md-4 py-1">
-          <b>Canton:</b> {{selCant.toUpperCase()}}
-        </div>
-      </div>
+      }
+
+
     </div>
   </div>
 
   <div dataModalBody>
     <div class="w-100">
       @if(isReadyData){
-        @if(selVars==="Precipitación"){
-          <plotly-plot [data]="precPlot.data" [layout]="precPlot.layout"
-            [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
-            [theme]="'simple_white'">
-          </plotly-plot>
+
+        @if(plotClass==="satellite"){
+          @if(selVars==="Precipitación"){
+            <plotly-plot [data]="precPlot.data" [layout]="precPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }
         }
+
+        @if(plotClass==="goes"){
+          @if(!goesBTemp){
+            <plotly-plot [data]="goesBTPlot.data" [layout]="goesBTPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }@else {
+            <plotly-plot [data]="goesGrayPlot.data" [layout]="goesGrayPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }
+        }
+
+
         @if(isAuth){
           <button type="button" class="btn btn-primary btn-sm" (click)="downloadData()">
             <i class="fa-regular fa-download"></i>

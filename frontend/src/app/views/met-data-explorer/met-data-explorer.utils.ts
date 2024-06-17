@@ -102,6 +102,24 @@ export function generateDatesGOES2(): string[] {
       timestamps.push(timestamp);
       now.setMinutes(now.getMinutes() - 10);
   }
-  return timestamps.reverse().slice(0, -2);
+  return timestamps.reverse().slice(1, -1);
 }
 
+export function buildUrl(baseUrl: string, params: any): string {
+  const queryString = Object.keys(params)
+    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+    .join('&');
+  return `${baseUrl}?${queryString}`;
+}
+
+
+import moment from 'moment';
+export function convertToPlotlyFormat(datetimeString: string): string {
+  const parsedDate = moment(datetimeString, 'YYYY-MM-DD HH:mm');
+  if (!parsedDate.isValid()) {
+    throw new Error('Invalid date format');
+  }
+  const adjustedDate = parsedDate.subtract(5, 'hours');
+  const isoString = adjustedDate.toISOString();
+  return isoString;
+}
