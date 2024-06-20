@@ -25,8 +25,6 @@ from dateutil.relativedelta import relativedelta
 load_dotenv("/home/ubuntu/inamhi-geoglows/taskfiles/meteosat/.env")
 GEOSERVER_USER = os.getenv("GEOSERVER_USER")
 GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
-print(GEOSERVER_USER)
-print(GEOSERVER_PASS)
 
 
 

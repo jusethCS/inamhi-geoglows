@@ -15,8 +15,8 @@ GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
 def delete_coverage(product, band):
     # Generate dates (start and end)
     now = datetime.datetime.now()
-    start = now - relativedelta(days=5)
-    end = now - relativedelta(hour=12)
+    start = now - relativedelta(days=10)
+    end = now - relativedelta(hours=12)
     date_range = pd.date_range(start, end, freq="1T")
     #
     # Variables

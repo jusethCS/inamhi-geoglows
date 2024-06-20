@@ -2,8 +2,8 @@ import os
 import time
 import glob
 import GOES
-import shutil
 import datetime
+import subprocess
 import numpy as np
 import pandas as pd
 from osgeo import osr
@@ -227,6 +227,40 @@ def goes_to_geoserver(product, band, workdir, styled=False):
 
 
 
+def delete_coverage(product, band):
+    # Generate dates (start and end)
+    now = datetime.datetime.now()
+    start = now - relativedelta(days=10)
+    end = now - relativedelta(hours=12)
+    date_range = pd.date_range(start, end, freq="1T")
+    #
+    # Variables
+    endpoint = "/usr/share/geoserver/data_dir/data"
+    #
+    # Instance the geoserver
+    geo = Geoserver(
+            'http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver', 
+                username=GEOSERVER_USER, 
+                password=GEOSERVER_PASS)
+    #
+    for date in date_range:
+        layer_name = date.strftime('%Y%m%d%H%M')
+        filedir = f"{endpoint}/GOES-{product}-{band}/{layer_name}"
+        if os.path.exists(f"{filedir}/{layer_name}.geotiff"):
+            try:
+                comando = ['sudo', 'rm', '-rf', filedir]
+                subprocess.run(comando, check=True, text=True, capture_output=True)
+                geo.delete_coveragestore(
+                    coveragestore_name=layer_name, 
+                    workspace=f'GOES-{product}-{band}')
+                print(f"File {product}-{band}:{layer_name} was deleted!")
+            except Exception as e:
+                print(e)
+                print(f"File {product}-{band}:{layer_name} cannot be deleted!")
+
+
+
+
 ###############################################################################
 #                                MAIN ROUTINE                                 #
 ###############################################################################
@@ -238,11 +272,28 @@ product = "ABI-L2-CMIPF"
 
 # Brigthness temperature Bands
 goes_to_geoserver(product=product, band="08", workdir=workdir, styled=True)
+delete_coverage(product=product, band="08")
+
 goes_to_geoserver(product=product, band="09", workdir=workdir, styled=True)
+delete_coverage(product=product, band="09")
+
 goes_to_geoserver(product=product, band="10", workdir=workdir, styled=True)
+delete_coverage(product=product, band="10")
+
 goes_to_geoserver(product=product, band="11", workdir=workdir, styled=True)
+delete_coverage(product=product, band="11")
+
 goes_to_geoserver(product=product, band="12", workdir=workdir, styled=True)
+delete_coverage(product=product, band="12")
+
 goes_to_geoserver(product=product, band="13", workdir=workdir, styled=True)
+delete_coverage(product=product, band="13")
+
 goes_to_geoserver(product=product, band="14", workdir=workdir, styled=True)
+delete_coverage(product=product, band="14")
+
 goes_to_geoserver(product=product, band="15", workdir=workdir, styled=True)
+delete_coverage(product=product, band="15")
+
 goes_to_geoserver(product=product, band="16", workdir=workdir, styled=True)
+delete_coverage(product=product, band="16")
