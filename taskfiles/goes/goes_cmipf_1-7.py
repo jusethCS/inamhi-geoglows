@@ -2,8 +2,8 @@ import os
 import time
 import glob
 import GOES
-import shutil
 import datetime
+import subprocess
 import numpy as np
 import pandas as pd
 from osgeo import osr
@@ -225,6 +225,36 @@ def goes_to_geoserver(product, band, workdir, pixelBand, styled=False):
         if os.path.isfile(ruta_completa):
             os.unlink(ruta_completa)
 
+def delete_coverage(product, band):
+    # Generate dates (start and end)
+    now = datetime.datetime.now()
+    start = now - relativedelta(days=10)
+    end = now - relativedelta(hours=12)
+    date_range = pd.date_range(start, end, freq="1T")
+    #
+    # Variables
+    endpoint = "/usr/share/geoserver/data_dir/data"
+    #
+    # Instance the geoserver
+    geo = Geoserver(
+            'http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver', 
+                username=GEOSERVER_USER, 
+                password=GEOSERVER_PASS)
+    #
+    for date in date_range:
+        layer_name = date.strftime('%Y%m%d%H%M')
+        filedir = f"{endpoint}/GOES-{product}-{band}/{layer_name}"
+        if os.path.exists(f"{filedir}/{layer_name}.geotiff"):
+            try:
+                comando = ['sudo', 'rm', '-rf', filedir]
+                subprocess.run(comando, check=True, text=True, capture_output=True)
+                geo.delete_coveragestore(
+                    coveragestore_name=layer_name, 
+                    workspace=f'GOES-{product}-{band}')
+                print(f"File {product}-{band}:{layer_name} was deleted!")
+            except Exception as e:
+                print(e)
+                print(f"File {product}-{band}:{layer_name} cannot be deleted!")
 
 
 ###############################################################################
@@ -237,9 +267,22 @@ workdir = "/home/ubuntu/data/goes"
 product = "ABI-L2-CMIPF"
 
 goes_to_geoserver(product=product, band="01", workdir=workdir, pixelBand=1.0, styled=True)
+delete_coverage(product=product, band="01")
+
 goes_to_geoserver(product=product, band="02", workdir=workdir, pixelBand=0.5, styled=True)
+delete_coverage(product=product, band="02")
+
 goes_to_geoserver(product=product, band="03", workdir=workdir, pixelBand=1.0, styled=True)
+delete_coverage(product=product, band="03")
+
 goes_to_geoserver(product=product, band="04", workdir=workdir, pixelBand=2.0, styled=True)
+delete_coverage(product=product, band="04")
+
 goes_to_geoserver(product=product, band="05", workdir=workdir, pixelBand=1.0, styled=True)
+delete_coverage(product=product, band="05")
+
 goes_to_geoserver(product=product, band="06", workdir=workdir, pixelBand=2.0, styled=True)
+delete_coverage(product=product, band="06")
+
 goes_to_geoserver(product=product, band="07", workdir=workdir, pixelBand=2.0, styled=False)
+delete_coverage(product=product, band="07")
