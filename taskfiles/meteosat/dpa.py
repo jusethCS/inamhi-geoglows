@@ -1,11 +1,12 @@
 import os
 import rasterio
+import meteosatpy
 import numpy as np
 import pandas as pd
-import meteosatpy
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
-from geo.Geoserver import Geoserver
+from hs_restclient import HydroShare, HydroShareAuthBasic
+
 
 ###############################################################################
 #                           ENVIROMENTAL VARIABLES                            #
@@ -18,12 +19,9 @@ os.chdir("inamhi-geoglows/taskfiles/meteosat")
 
 # Load enviromental
 load_dotenv()
-GEOSERVER_USER = os.getenv("GEOSERVER_USER")
-GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
-
-
-
-
+HS_USER=os.getenv("HS_USER")
+HS_PASS=os.getenv("HS_PASS")
+HS_IDRS=os.getenv("HS_IDRS")
 
 ###############################################################################
 #                             AUXILIAR FUNCTIONS                              #
@@ -47,6 +45,8 @@ def mask(input_raster, output_raster, bounds):
 ###############################################################################
 #                                MAIN ROUTINE                                 #
 ###############################################################################
+user = os.getlogin()
+user_dir = os.path.expanduser('~{}'.format(user))
 os.chdir(user_dir)
 os.chdir("data/dpa")
 
@@ -97,20 +97,21 @@ with rasterio.open('pacum.tif', 'w', **perfil) as dst:
 mask('pacum.tif', "pacum-cut.tif", bounds)
 
 
-geo = Geoserver(
-    'http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver', 
-    username=GEOSERVER_USER, password=GEOSERVER_PASS)
-
+auth = HydroShareAuthBasic(username=HS_USER, password=HS_PASS)
+hs = HydroShare(auth=auth)
+local_file = "pacum-cut.tif"
+resource_filename = f"pacum_persiann_daily7.tif"
 try:
-    geo.create_coveragestore(layer_name="pacum-persiann-pdir", path="pacum-cut.tif", workspace="dpa")
-    geo.publish_style(layer_name="pacum-persiann-pdir", style_name='pacum', workspace='dpa')
+    hs.deleteResourceFile(HS_IDRS,  resource_filename)
 except:
-    geo.delete_coveragestore(coveragestore_name="pacum-persiann-pdir", workspace='dpa')
-    geo.create_coveragestore(layer_name="pacum-persiann-pdir", path="pacum-cut.tif", workspace="dpa")
-    geo.publish_style(layer_name="pacum-persiann-pdir", style_name='pacum', workspace='dpa')
+    hs.addResourceFile(HS_IDRS, local_file, resource_filename)
+    hs.resource(HS_IDRS).public(True)
+    hs.resource(HS_IDRS).shareable(True)
+    print("Uploaded data!")
+
 
 for f in os.listdir():
         os.remove(f)
 
-
+# https://www.hydroshare.org/resource/925ad37f78674d578eab2494e13db240/data/contents/pacum_persiann_daily7.tif
 # http://ec2-3-211-227-44.compute-1.amazonaws.com:4200/data/dpa/pacum-persiann-pdir/pacum-persiann-pdir.geotiff
