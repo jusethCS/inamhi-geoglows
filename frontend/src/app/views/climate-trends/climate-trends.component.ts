@@ -1,400 +1,525 @@
+// TS MODULES AND LIBRARIES
 import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-
-
-import { MatLabel } from '@angular/material/form-field';
-
-
-
-import { AppHeaderComponent } from '../../shared/app-header/app-header.component';
-
-import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
-import { DropdownPanelComponent } from '../../shared/dropdown-panel/dropdown-panel.component';
-
-import { MatSelectModule } from '@angular/material/select';
-import { FormGroup, FormControl, FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { JsonPipe } from '@angular/common';
-
-import { satelliteProducts, date_custom_format, ecuador } from './climate-trends.variables';
-import { WMSLayerTimeControl } from '../../shared/classes/time-dimension';
-
+import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatSelect, MatOption } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FormGroup, FormControl, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 
-
-import { ClimateTrendsService } from './climate-trends.service';
-import { ModalComponent } from '../../shared/modal/modal.component';
-import { LoadingComponent } from '../../shared/loading/loading.component';
-
+// JS LIBRARIES
 import * as L from 'leaflet';
-
-
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
 PlotlyModule.plotlyjs = PlotlyJS;
 
+// CUSTOM COMPONENTS AND MODULES
+import { WMSLayerTimeControl } from '../../shared/classes/time-dimension';
+import { AppTemplateComponent } from '../../shared/app-template/app-template.component';
+import { DropdownComponent } from '../../shared/dropdown/dropdown.component';
+import { LoadingComponent } from '../../shared/loading/loading.component';
+import { environment } from '../../../environments/environment';
+import { providers } from './modules/providers';
+import { dataApp } from './modules/appConfig';
+import { utils } from './modules/utils';
+import { plotTemplates } from "./modules/plotTemplates";
 
-interface ExtendedWMSOptions extends L.WMSOptions {
-  CQL_FILTER?: string;
-}
+
 
 @Component({
   selector: 'app-climate-trends',
   standalone: true,
   templateUrl: './climate-trends.component.html',
   styleUrl: './climate-trends.component.css',
+  providers: [provideMomentDateAdapter(new providers().dateFormat)],
   imports: [
-    AppHeaderComponent,
+    AppTemplateComponent,
     CommonModule,
-    PlotlyModule,
-    MatExpansionModule,
-    MatAccordion,
-    DropdownPanelComponent,
-    MatLabel,
-    MatSelectModule,
-    FormsModule,
+    DropdownComponent,
+    MatButtonModule,
     MatFormFieldModule,
+    MatLabel,
+    MatSelect,
+    MatOption,
     MatDatepickerModule,
     FormsModule,
     ReactiveFormsModule,
-    JsonPipe,
-    MatButtonModule,
-    ModalComponent,
-    LoadingComponent
+    MatSlideToggleModule,
+    LoadingComponent,
+    PlotlyModule,
   ],
-  providers: [provideMomentDateAdapter(date_custom_format)],
 })
 
-
 export class ClimateTrendsComponent {
-
-  // -------------------------------------------------------------------- //
-  //                           CLASS ATTRIBUTES                           //
-  // -------------------------------------------------------------------- //
+  // Components variables
+  public isAuth: boolean = false;
+  @ViewChild('template') template!: AppTemplateComponent;
 
   // Leaflet variables
-  map: any;
+  public map!: L.Map;
+  public dataAppConfig = new dataApp();
+  public utilsApp = new utils();
+  public plotTemplate = new plotTemplates();
 
-  // State variable for panel activation
-  panelActive: boolean = true;
-
-  // Satellite products
-  vars: string[] = ['Precipitación'];//, 'Temperatura'];
-  prod: string[] = [];
-  temp: string[] = [];
-
-  selVars: string = "Precipitación";
-  selProd: string = "CHIRPS";
-  selTemp: string = "Diario"
-
-  tabla = satelliteProducts;
-  tablaEcuador = ecuador;
-  dateRange: FormGroup = new FormGroup({
+  // Satellite based product
+  public satelliteData = this.dataAppConfig.satelliteData;
+  public satelliteVariable: string[] = this.dataAppConfig.satelliteVariables;
+  public selectedSatelliteVariable: string = this.satelliteVariable[0];
+  public satelliteProducts: any = [];
+  public selectedSatelliteProduct: string = "";
+  public satelliteTemporal: any = [];
+  public selectedSatelliteTemporal: string = "";
+  public satelliteDateRange: FormGroup = new FormGroup({
     start: new FormControl<Date | null>(null),
     end: new FormControl<Date | null>(null),
   });
-  timeControl: WMSLayerTimeControl | undefined;
-  codeArea:string = "";
+  public satelliteMinDate: Date = new Date(2004, 0, 1); //2004-01-01
+  public satelliteMaxDate: Date = new Date();
 
-  // Province and cantons
-  prov: string[] = [
-    "AZUAY", "BOLIVAR", "CAÑAR", "CARCHI", "COTOPAXI", "CHIMBORAZO", "EL ORO",
-    "ESMERALDAS", "GUAYAS", "IMBABURA", "LOJA", "LOS RIOS", "MANABI", "MORONA SANTIAGO",
-    "NAPO", "PASTAZA", "PICHINCHA", "TUNGURAHUA", "ZAMORA CHINCHIPE", "GALAPAGOS",
-    "SUCUMBIOS", "ORELLANA", "SANTO DOMINGO", "SANTA ELENA"
-  ];
-  cant: string[] = [];
-  selProv: string = "";
-  selCant: string = "";
+  // GOES product
+  public goesData = this.dataAppConfig.goesData;
+  public goesProducts: string[] = this.dataAppConfig.goesProducts;
+  public selectedGoesProduct: string = this.goesProducts[0];
+  public goesBands: string[] = [];
+  public selectedGoesBand: string = "";
+  public isAutoUpdateGoes: boolean = false;
+  public autoUpdateGoesFun: any;
 
-  // GeoJSON data
-  geojson_data: any;
-  LGeoJson: any;
+  // Meteorological modeling
+  public forecastData = this.dataAppConfig.forecastData;
+  public forecastModels: string[] = this.dataAppConfig.forecastModels;
+  public selectedForecastModel: string = this.forecastModels[0];
+  public forecastVariables: string[] = [];
+  public selectedForecastVariable: string = "";
+  public forecastTemporals: string[] = [];
+  public selectedForecastTemporal: string = "";
 
-  // Modals
-  @ViewChild(ModalComponent) modalComponent: ModalComponent | undefined;
+  // Layer information and plot
+  public timeControl: WMSLayerTimeControl | undefined;
+  public isActiveInfoLayers:boolean = false;
+  public isPointPlotClass:boolean = false;
+  public activeURLLayer: string = '';
+  public activeLayers: string[] = [];
+  public activeDates: string[] = [];
+  public isReadyData: boolean = false;
+  public plotClass: string = "satellite"; //goes, wrf,
+  public goesBTemp:boolean = false;
 
-  // Plots templates
-  public precPlot:any = {};
-  public tempPlot:any = {};
-  isReadyData: boolean = false;
+  // Plot templates
+  public precPlot: any = {};
+  public tempPlot: any = {};
+  public humPlot: any = {};
+  public windPlot: any = {};
+  public goesGrayPlot: any = {};
+  public goesBTPlot: any = {};
+
+  // Point plot
+  latC: any;
+  lonC: any;
+
+  // Time control Layers
+  public isPlay:boolean = false;
 
 
-  // -------------------------------------------------------------------- //
-  //                          CLASS CONSTRUCTOR                           //
-  // -------------------------------------------------------------------- //
-  constructor(private fb: FormBuilder, private CTservice: ClimateTrendsService) {
-    this.updateProduct();
-    this.updateTemporal();
-  }
+  constructor(
+    private formBuilder: FormBuilder,
+  ){}
 
   ngOnInit() {
-    // Initialize the map
-    this.map = L.map("map");
-    this.map.setView([-1.7, -78.5], 7)
-    L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-    ).addTo(this.map);
-
-    // Intialize the datepicker
+    this.initializeMap();
+    this.resizeMap();
+    this.updateSatelliteProduct();
+    this.updateSatelliteTemporal();
     this.initFormDate();
+    this.updateGoesBand();
+    this.updateForecatVariable();
+    this.updateForecastTemporal();
   }
 
-  // -------------------------------------------------------------------- //
-  //                            CLASS METHODS                             //
-  // -------------------------------------------------------------------- //
 
-  // Open or close panel
-  isPanelActive(panelActivateEvent: boolean) {
-    this.panelActive = panelActivateEvent;
+  public initializeMap() {
+    // Base maps
+    const osm = L.tileLayer(
+      'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+         zIndex: -1
+      });
+    const carto = L.tileLayer(
+      'https://abcd.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+        zIndex: -1
+      });
+    const esri = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
+        zIndex: -1
+      });
+    const baseMaps = {
+      "Mapa claro": osm,
+      'Mapa oscuro': carto,
+      "Topografico": esri
+    };
+
+    // Overlayers
+    const cities = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png');
+    const provLimits = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+          layers: 'ecuador-limits:provincias',
+          format: 'image/png',
+          transparent: true,
+          version: '1.1.0'
+        });
+    const cantLimits = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+          layers: 'ecuador-limits:cantones',
+          format: 'image/png',
+          transparent: true,
+          version: '1.1.0'
+        });
+    const overlayers = {
+      "Limites provinciales": provLimits,
+      "Limites cantonales": cantLimits,
+      "Ciudades principales": cities,
+    }
+
+    // Add base map
+    this.map = L.map('map', { center: [-1.7, -78.5], zoom: 7, zoomControl: false });
+    osm.addTo(this.map);
+    cities.addTo(this.map);
+    this.map.on('layeradd', function() {
+      cantLimits.bringToFront();
+      provLimits.bringToFront();
+      cities.bringToFront();
+    });
+
+    // Add controls
+    L.control.layers(baseMaps, overlayers, { position: 'topright' }).addTo(this.map);
+    L.control.zoom({ position: 'topright' }).addTo(this.map);
+
+    // Add logo control
+    const logoControl = new L.Control({ position: 'topleft' });
+    logoControl.onAdd = () => {
+      const image = document.createElement('img');
+      image.className = "inamhi-logo";
+      image.src = 'assets/img/inamhi-white-logo.png';
+      return(image)
+    }
+    logoControl.addTo(this.map);
+
+    // Add pixel info control
+    const infoControl = new L.Control({ position: 'topright' });
+    infoControl.onAdd = () => {
+      const infoDiv = document.createElement('div');
+      infoDiv.className = "d-flex justify-content-center align-items-center info-control"
+      infoDiv.innerHTML = "<i class='fa-regular fa-circle-info'></i>"
+      L.DomEvent.on(infoDiv, 'click', L.DomEvent.stopPropagation);
+      L.DomEvent.on(infoDiv, 'click', L.DomEvent.preventDefault);
+      infoDiv.addEventListener('click', () => {
+        setTimeout(() => {
+          this.isActiveInfoLayers = !this.isActiveInfoLayers;
+          if (this.isActiveInfoLayers) {
+            infoDiv.style.backgroundColor = '#ADADAD';
+            this.isPointPlotClass = true;
+          } else {
+            infoDiv.style.backgroundColor = 'white';
+            this.isPointPlotClass = false;
+          };
+        }, 10);
+      });
+      return(infoDiv)
+    }
+    infoControl.addTo(this.map);
+
+    // Add Point plot info
+    this.map.on('click', async (evt: L.LeafletMouseEvent) => {
+      this.getPointInfo(evt);
+    });
+  }
+
+  public resizeMap(): void {
     setTimeout(() => { this.map.invalidateSize() }, 10);
   }
 
-  // Update state for Product selector
-  updateProduct() {
-    this.prod = [...new Set(
-      this.tabla.filter(
-        item => item.Variable === this.selVars
-      ).map(item => item.Producto))];
-    this.selProd = this.prod[0];
-  }
-
-  // Update state for Temporal selector
-  updateTemporal() {
-    this.temp = [...new Set(
-      this.tabla.filter(
-        item => item.Variable === this.selVars && item.Producto === this.selProd
-      ).map(item => item.Temporalidad))];
-    this.selTemp = this.temp[0];
-  }
-
-  // Update canton selector
-  updateCanton() {
-    this.cant = [...new Set(
-      this.tablaEcuador.filter(
-        item => item.provincia === this.selProv
-      ).map(item => item.canton)
-    )];
-    this.selCant = this.cant[0];
-  }
-
-  // Init datepicker dates
-  initFormDate(): void {
-    const today = new Date();
-    const startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const endDate = new Date(today.getFullYear(), today.getMonth(), 0);
-    this.dateRange = this.fb.group({
-      start: [startDate],
-      end: [endDate]
-    });
-  }
-
-  // Get satellite product
-  translateFrecuency(frecuency: string): string {
-    switch (frecuency.toLowerCase()) {
-      case "diaria":
-        return "daily";
-      case "mensual":
-        return "monthly";
-      case "anual":
-        return "annual";
-      default:
-        return "NA";
-    }
-  }
-
-  // Generate dates
-  generateDates(startDate: Date, endDate: Date, frequency: string): string[] {
-    let generatedDates: string[] = [];
-    let currentDate: Date = new Date(startDate);
-
-    // Iterate while the current date is less than or equal to the end date
-    while (currentDate <= endDate) {
-      // Format the current date as "YYYY-MM-DD"
-      let formattedDate: string = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
-      generatedDates.push(formattedDate);
-
-      // Increment the date based on the specified frequency
-      switch (frequency.toLowerCase()) {
-        case "daily":
-          currentDate.setDate(currentDate.getDate() + 1);
-          break;
-        case "monthly":
-          currentDate.setMonth(currentDate.getMonth() + 1);
-          break;
-        case "annual":
-          currentDate.setFullYear(currentDate.getFullYear() + 1);
-          break;
-        default:
-          throw new Error("Invalid frequency");
-      }
-    }
-
-    return generatedDates;
-  }
-
-
-  // Get layer
-  getLeafletLayer(url: string, layer: string) {
-    let temp_layer = L.tileLayer.wms(url, {
+  public getLeafletLayer(url: string, layer: string): any {
+    let leafletLayer = L.tileLayer.wms(url, {
       layers: layer,
       format: 'image/png',
       transparent: true,
-      version: "1.1.1",
+      version: '1.1.1',
+      crs: L.CRS.EPSG4326,
     });
-    return (temp_layer)
+    leafletLayer.setZIndex(10);
+    return leafletLayer;
   }
 
-  // Update satellite product
-  updateSatelliteProduct() {
-    let product = this.selProd.toLowerCase();
-    let frequency = this.translateFrecuency(this.selTemp);
-    let startDate = this.dateRange.value.start;
-    let endDate = this.dateRange.value.end;
-    let url = `http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver/${product}-${frequency}/wms`;
-    console.log(url)
-    let target_dates = this.generateDates(startDate, endDate, frequency)
-    let target_layers = target_dates.map(date => `${product}-${frequency}:${date}`)
-    console.log(target_layers)
-    let layers = target_layers.map(layer => this.getLeafletLayer(url, layer))
+  async getFeatureInfo(evt: L.LeafletMouseEvent, baseUrl: string, layer: string) {
+    const point = this.map!.latLngToContainerPoint(evt.latlng);
+    const size = this.map!.getSize();
+    const bounds = this.map!.getBounds();
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const params = {
+      request: 'GetFeatureInfo',
+      service: 'WMS',
+      srs: 'EPSG:4326',
+      styles: '',
+      transparent: true,
+      version: '1.1.1',
+      format: 'application/json',
+      bbox: `${sw.lng},${sw.lat},${ne.lng},${ne.lat}`,
+      height: size.y.toString(),
+      width: size.x.toString(),
+      layers: layer,
+      query_layers: layer,
+      info_format: 'application/json',
+      x: point.x.toString(),
+      y: point.y.toString(),
+    };
+    const url = this.utilsApp.buildUrl(baseUrl, params);
+    let data: any;
+    try{
+      const response = await fetch(url);
+      data = await response.json();
+    }catch(error){
+      if (error instanceof Error) {
+        console.error('Error capturado:', error.message);
+      } else {
+        console.error('Error inesperado:', error);
+      }
+      return undefined;
+    }
+    if (data.features && data.features.length > 0 && data.features[0].properties) {
+      const grayIndexString = data.features[0].properties.GRAY_INDEX;
+      return(grayIndexString);
+    }
+    return undefined;
+  }
+
+
+
+
+  public updateSatelliteProduct(): void {
+    const filtered = new Set<string>();
+    this.satelliteData.forEach(item => {
+      if (item.Variable === this.selectedSatelliteVariable) {
+        filtered.add(item.Product)}});
+    this.satelliteProducts = Array.from(filtered);
+    this.selectedSatelliteProduct = this.satelliteProducts[0] || null;
+  }
+
+  public updateSatelliteTemporal(): void {
+    const filtered = new Set<string>();
+    this.satelliteData.forEach(item => {
+      if (item.Variable === this.selectedSatelliteVariable && item.Product === this.selectedSatelliteProduct) {
+        filtered.add(item.Temporal)}});
+    this.satelliteTemporal = Array.from(filtered);
+    this.selectedSatelliteTemporal = this.satelliteTemporal[0] || null;
+  }
+
+  public initFormDate(): void {
+    const startDate = new Date();
+    startDate.setDate(this.satelliteMaxDate.getDate() - 2)
+    const endDate = new Date();
+    endDate.setDate(this.satelliteMaxDate.getDate() - 1)
+    this.satelliteDateRange = this.formBuilder.group({ start: [startDate], end: [endDate]});
+  }
+
+  public updateSatelliteLayer(): void {
+    this.quitAutoUpdateGoes();
+    this.isPlay = false;
+    let layerCode = this.satelliteData.filter(
+        (item) =>
+          item.Variable === this.selectedSatelliteVariable &&
+          item.Product === this.selectedSatelliteProduct &&
+          item.Temporal === this.selectedSatelliteTemporal
+      )[0].Code;
+    let startDate = this.satelliteDateRange.value.start;
+    let endDate = this.satelliteDateRange.value.end;
+    let url = `${environment.urlGeoserver}/${layerCode}/wms`;
+    let layers = this.utilsApp
+                  .generateSatelliteDates(startDate, endDate, this.selectedSatelliteTemporal, true)
+                  .map((date) => this.getLeafletLayer(url, `${layerCode}:${date}`))
+    let dates = this.utilsApp
+                  .generateSatelliteDates(startDate, endDate, this.selectedSatelliteTemporal, false)
+    let layerName = `${this.selectedSatelliteProduct} ${this.selectedSatelliteTemporal}`;
+    let legendSRC = `assets/img/legend-${layerCode}.png`
     if (this.timeControl !== undefined) {
       this.timeControl.destroy();
     }
-    this.timeControl = new WMSLayerTimeControl(
-      this.map,
-      L.control,
-      layers,
-      500,
-      target_dates,
-      `${product} ${frequency}`,
-      frequency);
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, layers, 500, dates, layerName, legendSRC);
+
+    // Status plot
+    this.activeURLLayer = url;
+    this.activeLayers = layers.map(layer => layer.options.layers);
+    this.activeDates = dates;
+    this.plotClass = "satellite";
   }
 
-  playTimeControl() {
-    this.timeControl?.play();
+
+  public updateGoesBand(){
+    const filtered = new Set<string>();
+    this.goesData.forEach(item => {
+      if (item.Product === this.selectedGoesProduct) {
+        filtered.add(item.Band)}});
+    this.goesBands = Array.from(filtered);
+    this.selectedGoesBand = this.goesBands[0];
   }
 
-  stopTimeControl() {
-    this.timeControl?.stop();
+  public async updateGoesLayer(){
+    this.isPlay = false;
+    let layerCode = this.goesData.filter(
+      (item) =>
+        item.Product === this.selectedGoesProduct &&
+        item.Band === this.selectedGoesBand
+    )[0].Code;
+    let url = `${environment.urlGeoserver}/${layerCode}/wms`;
+    let img = `assets/img/${layerCode}.png`;
+    let layers = await this.utilsApp.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
+    console.log(layers);
+    let dates = this.utilsApp.parseGOESDate(layers);
+    console.log(dates);
+    let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
+    if (this.timeControl !== undefined) {
+      this.timeControl.destroy();
+    }
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, layerCode, img);
+
+    // Status plot
+    this.activeURLLayer = url;
+    this.activeLayers = wmsLayers.map(layer => layer.options.layers);
+    this.activeDates = dates;
+    this.plotClass = "goes";
   }
 
-  previousTimeControl() {
+  public autoUpdateGoes(){
+    if(this.isAutoUpdateGoes){
+      this.autoUpdateGoesFun = setInterval(() => {
+        this.updateGoesLayer().then(() => this.playTimeControl());
+      }, 60000);
+    }else{
+      if (this.autoUpdateGoesFun) {
+        clearInterval(this.autoUpdateGoesFun);
+      }
+    }
+  }
+  public quitAutoUpdateGoes(){
+    this.isAutoUpdateGoes = false;
+    if (this.autoUpdateGoesFun) {
+      clearInterval(this.autoUpdateGoesFun);
+    }
+  }
+
+  public updateForecatVariable(){
+    const filtered = new Set<string>();
+    this.forecastData.forEach(item => {
+      if (item.Model === this.selectedForecastModel) {
+        filtered.add(item.Variable)}});
+    this.forecastVariables = Array.from(filtered);
+    this.selectedForecastVariable = this.forecastVariables[0];
+  }
+
+  public updateForecastTemporal(){
+    const filtered = new Set<string>();
+    this.forecastData.forEach(item => {
+      if (item.Model === this.selectedForecastModel && item.Variable === this.selectedForecastVariable) {
+        filtered.add(item.Temporal)}});
+    this.forecastTemporals = Array.from(filtered);
+    this.selectedForecastTemporal = this.forecastTemporals[0];
+  }
+
+  public async updateForecastLayer(){
+    this.quitAutoUpdateGoes();
+    this.isPlay = false;
+    const layerCode = this.forecastData.filter(
+      (item) =>
+        item.Model === this.selectedForecastModel &&
+        item.Variable === this.selectedForecastVariable &&
+        item.Temporal === this.selectedForecastTemporal
+    )[0].Code;
+    const url = `${environment.urlGeoserver}/${layerCode}/wms`;
+    const initForecastDate = this.utilsApp.getInitForecastDate();
+    let timestep: string;
+    if(this.selectedForecastTemporal === "Diaria"){
+      timestep = "24H";
+    }else{
+      timestep = "3H"
+    }
+    let layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDate}-${timestep}`);
+    if(layers.length === 0){
+      const initForecastDateLast = this.utilsApp.getInitForecastDate(false);
+      layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDateLast}-${timestep}`);
+    }
+    const img = `assets/img/${layerCode}.png`;
+    const title = `Pronóstico de ${this.selectedForecastVariable} (${this.selectedForecastModel})`
+    const layerTags = layers.map(layer => `<br>${this.utilsApp.formatForecastDate(layer)}`);
+    let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
+    if (this.timeControl !== undefined) {
+      this.timeControl.destroy();
+    }
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, layerTags, title, img);
+
+    // Status plot
+    this.activeURLLayer = url;
+    this.activeLayers = wmsLayers.map(layer => layer.options.layers);
+    this.activeDates = layers.map(layer => this.utilsApp.formatForecastDatePlot(layer));;
+    this.plotClass = "forecast";
+  }
+
+
+
+
+  public playTimeControl(){
+    if (this.isPlay) {
+      this.isPlay = false;
+      this.timeControl?.stop();
+    } else {
+      this.isPlay = true;
+      this.timeControl?.play();
+    }
+  }
+  public stopTimeControl(){
+    if (this.timeControl !== undefined) {
+      this.timeControl.destroy();
+    }
+    this.isPlay = false;
+  }
+  public previousTimeControl(){
     this.timeControl?.previous();
   }
-
-  nextTimeControl() {
+  public nextTimeControl(){
     this.timeControl?.next();
   }
 
 
-  displayCanton() {
-    let code = this.tablaEcuador.filter(
-      item => item.provincia === this.selProv && item.canton === this.selCant
-    ).map(item => item.code)[0];
+  public async getPointInfo(evt: L.LeafletMouseEvent){
+    if (this.isActiveInfoLayers) {
+      this.latC = evt.latlng.lat;
+      this.lonC = evt.latlng.lng;
+      this.isReadyData = false;
+      this.template.showDataModal();
+      const values = await Promise.all(
+        this.activeLayers.map((layer) => this.getFeatureInfo(evt, this.activeURLLayer, layer)));
 
-    let url = "";
-    if (code && code.endsWith("00")) {
-      url = `http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver/ecuador-limits/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ecuador-limits%3Aprovincias&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=DPA_CANTON=${code}`;
-    } else {
-      url = `http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver/ecuador-limits/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ecuador-limits%3Acantones&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=DPA_CANTON=${code}`;
-    }
-
-    this.codeArea = code;
-
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        this.geojson_data = data;
-        if (this.LGeoJson) {
-          this.map.removeLayer(this.LGeoJson);
-        }
-        this.LGeoJson = L.geoJSON(data, {
-          style: {
-            color: "#000000",
-            weight: 1.5,
-            fillOpacity: 0
-          }
-        }).addTo(this.map)
-        this.map.fitBounds(this.LGeoJson.getBounds())
-      });
-
-  }
-
-  openModal() {
-    if (this.modalComponent) {
-      this.modalComponent.openModal();
-    }
-  }
-
-  plotData(){
-    this.isReadyData = false;
-    let product = this.selProd.toLowerCase();
-    let frequency = this.translateFrecuency(this.selTemp);
-    let startDate = this.dateRange.value.start;
-    let endDate = this.dateRange.value.end;
-    let target_dates = this.generateDates(startDate, endDate, frequency);
-    let startDateS = target_dates[0];
-    let endDateS = target_dates[target_dates.length - 1];
-    let code = this.codeArea;
-
-    let a = this.CTservice.get_metdata(product, frequency, startDateS, endDateS, code);
-    this.openModal();
-
-    a.subscribe({
-      next: (response) => {
-
-        const dates = response.map((item: any) => item.date);
-        const values = response.map((item: any) => item.value);
-
-        if(this.selVars === "Precipitación"){
-          this.precPlot = {
-            data: [{ x: dates, y: values, type: 'bar'}],
-            layout: {
-              title: "Hietograma",
-              autosize: true,
-              margin: { l: 50, r: 30, b: 40, t: 50 },
-              xaxis: {
-                title: '',
-                linecolor: "black",
-                linewidth: 1,
-                showgrid: false,
-                showline: true,
-                mirror: true,
-                ticks: "outside",
-                automargin: true,
-              },
-              yaxis: {
-                title: 'Precipitación (mm)',
-                linecolor: "black",
-                linewidth: 1,
-                showgrid: false,
-                showline: true,
-                mirror: true,
-                ticks: "outside",
-                automargin: true,
-              }
-            }
-          };
-        }
-
-        if(this.selVars === "Temperatura"){
-          this.tempPlot = {
-            data: [{ x: dates, y: values, type: 'scatter', mode: 'lines'}],
-            layout: { autosize: true, xaxis: { title: ''}, yaxis: { title: 'Temperatura (°C)'} }
-          };
-        }
-
-        this.isReadyData = true;
-
-      },
-      error: (err) => {
-        alert("El servidor no pudo procesar su solicitud.")
-        console.log(err);
+      if(this.plotClass==="satellite"){
+        this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
       }
-    })
 
+      if(this.plotClass==="goes"){
+        this.goesBTPlot = this.plotTemplate.goesTempPlotTemplate(this.activeDates, values);
+        this.goesGrayPlot = this.plotTemplate.goesGrayPlotTemplate(this.activeDates, values);
+      }
+
+      if(this.plotClass==="forecast"){
+        this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
+        this.tempPlot = this.plotTemplate.tempPlotTemplate(this.activeDates, values);
+        this.humPlot = this.plotTemplate.hrPlotTemplate(this.activeDates, values);
+        this.windPlot = this.plotTemplate.windPlotTemplate(this.activeDates, values);
+      }
+      this.isReadyData = true;
+      console.log(values);
+      console.log(this.activeDates);
+    }
   }
-
 }
+
+
+// YYYYMMDD00Z-24H-YYYYMMDDHHMM
+// YYYYMMDD00Z-03H-YYYYMMDDHHMM

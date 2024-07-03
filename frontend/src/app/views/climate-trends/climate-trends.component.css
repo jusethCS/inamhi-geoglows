@@ -1,141 +1,84 @@
-/*---------------------------------------------------------------------------*/
-/*                               GENERAL STYLES                              */
-/*---------------------------------------------------------------------------*/
-.app-content{
-  height: calc(100vh - 50px);
-  overflow: hidden;
+.panel-container{
+  padding-left: 12px;
+  padding-right: 8px;
+  padding-top: 12px;
 }
 
-.scale-90{
-  transform: scale(0.9) !important;
+#map{
+  height: calc(100vh - 105px);
+  width: 100%;
+}
+
+::ng-deep .inamhi-logo{
+  width: 125px !important;
+  height: 58px !important;
+}
+
+::ng-deep .info-control{
+  min-width: 33px !important;
+  min-height: 33px !important;
+  border-radius: 4px;
+  font-size: 22px;
+  line-height: 1.5;
+  border: 2px solid rgba(0,0,0,0.2);
+  background-clip: padding-box;
+  background-color: white;
+  padding-top: 2px;
+  cursor: pointer;
+}
+
+.reprod-container{
+  height: 45px;
+  background-color: #162633;
+}
+
+.reprod-title{
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+}
+
+.reprod-panel-button{
+  min-width: 50px !important;
+  width: 250px;
+}
+.reprod-panel-save{
+  min-width: 50px !important;
+  width: 180px;
+}
+
+.reprod-button{
+  min-width: 35px !important;
+  width: 50px !important;
+  height: 30px !important;
+  font-size: 0.8rem !important;
+}
+
+.select{
+  width: 300px !important;
+}
+
+.scaled{
+  transform: scale(0.8) !important;
   transform-origin: top left !important;
 }
-.text-90{
-  font-size: 0.9rem !important;
+
+.scaled-text{
+  font-size: 0.8rem;
 }
+
 .mat-mdc-option{
   min-height: 40px !important;
 }
 
-/* State 1 */
-.app-panel-active{
-  width: 330px;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.8);
-  transition: all 200ms,
-}
-.app-map-partial{
-  width: calc(100vw - 330px);
-}
-
-
-/* State 2 */
-.app-panel-deactivate{
-  display: none !important;
-}
-.app-map-full{
-  width: 100vw;
-  height: 100%;
-}
-
-
-
-.select{
-  width: 305px !important;
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  min-height: 12px !important;
+  height: 12px !important;
 }
 
 .update-button{
-  width: 275px !important;
-  height: 36px !important;
-  background-color: #5B5B5B;
-  font-size: 0.8rem !important;
-}
-
-.button-cont{
-  width: 275px !important;
-}
-
-.time-button{
-  width: 35px !important;
-  height: 35px !important;
-  background-color: #5B5B5B;
-  font-size: 0.8rem !important;
-}
-
-.half-button{
-  width: 48% !important;
-  height: 40px !important;
-  background-color: #5B5B5B;
-}
-
-.modal-header-title{
-  font-size: 1.2rem;
-  font-weight:500;
-  margin-top: 12px;
-  margin-bottom: 10px;
-}
-
-.modal-header-content{
-  font-size: 0.8rem;
-}
-
-
-/*-------------------------------------------------------------------*/
-/*                            SMARTPHONES                            */
-/*-------------------------------------------------------------------*/
-@media screen and (max-width: 576px) {
-
-  .modal-header-title{
-    font-size: 1.1rem;
-    font-weight:500;
-    margin-top: 12px;
-  }
-
-}
-
-/*-------------------------------------------------------------------*/
-/*                              TABLETS                              */
-/*-------------------------------------------------------------------*/
-@media screen and (min-width: 576px) and (max-width: 992px) {
-
-
-}
-
-/*-------------------------------------------------------------------*/
-/*                              TABLETS                              */
-/*-------------------------------------------------------------------*/
-@media screen and (min-width: 992px) {
-
-}
-
-
-
-
-
-
-
-/* width */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: var(--app-primary-color);
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #C8C8C8;
-  border-radius: 5px;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: white;
-}
-
-.leaflet-bottom .leaflet-control {
-  margin-bottom: 0px !important;
+  font-size: 1rem;
+  width: 300px !important;
+  height: 50px !important;
+  background-color: rgba(255,255,255,0.2);
 }
