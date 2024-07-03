@@ -15,33 +15,29 @@ ENDPOINT = "/usr/share/geoserver/data_dir/data"
 def get_raster_value(gdf, raster):
     try:
         geometries = gdf.geometry.values
-        print("Min value in raster:", np.nanmin(raster))
-        print("Max value in raster:", np.nanmax(raster))
-        print("Mean value in raster:", np.nanmean(raster))
         out_image, out_transform = mask(raster, geometries, crop=True)
         out_image = out_image.astype(float)
         if raster.nodata is not None:
             out_image[out_image == raster.nodata] = np.nan
         else:
             print("No nodata value found in raster")
-        print("Min value in masked image:", np.nanmin(out_image))
-        print("Max value in masked image:", np.nanmax(out_image))
-        print("Mean value in masked image:", np.nanmean(out_image))
         mean_value = np.nanmean(out_image)
         return round(mean_value, 2)
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error processing raster: {e}")
         return 0
 
 
 def fetch_raster_value(date, url, gdf):
     try:
-        raster = rasterio.open(url)
-        value = get_raster_value(gdf, raster)
-    except:
-        value = 0
+        with rasterio.open(url) as raster:
+            value = get_raster_value(gdf, raster)
+    except Exception as e:
+        print(f"Error fetching raster from URL: {e}")
+        value = 0    
     print(date, value)
     return {'date': date, 'value': value}
+
 
 def get_metdata(request):
         layers = request.GET.get('layers')
