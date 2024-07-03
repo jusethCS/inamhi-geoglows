@@ -15,6 +15,9 @@ ENDPOINT = "/usr/share/geoserver/data_dir/data"
 def get_raster_value(gdf, raster):
     try:
         geometries = gdf.geometry.values
+        print("Min value in raster:", np.nanmin(raster))
+        print("Max value in raster:", np.nanmax(raster))
+        print("Mean value in raster:", np.nanmean(raster))
         out_image, out_transform = mask(raster, geometries, crop=True)
         out_image = out_image.astype(float)
         if raster.nodata is not None:
