@@ -1,15 +1,30 @@
-
-.time-button{
-  min-width: 35px !important;
-  width: 50px !important;
-  height: 30px !important;
-  font-size: 0.8rem !important;
+.panel-container{
+  padding-left: 12px;
+  padding-right: 8px;
+  padding-top: 12px;
 }
 
 #map{
-  /*height: calc(100vh - 60px) ;*/
   height: calc(100vh - 105px);
   width: 100%;
+}
+
+::ng-deep .inamhi-logo{
+  width: 125px !important;
+  height: 58px !important;
+}
+
+::ng-deep .info-control{
+  min-width: 33px !important;
+  min-height: 33px !important;
+  border-radius: 4px;
+  font-size: 22px;
+  line-height: 1.5;
+  border: 2px solid rgba(0,0,0,0.2);
+  background-clip: padding-box;
+  background-color: white;
+  padding-top: 2px;
+  cursor: pointer;
 }
 
 .reprod-container{
@@ -30,6 +45,13 @@
 .reprod-panel-save{
   min-width: 50px !important;
   width: 180px;
+}
+
+.reprod-button{
+  min-width: 35px !important;
+  width: 50px !important;
+  height: 30px !important;
+  font-size: 0.8rem !important;
 }
 
 .select{
@@ -54,37 +76,11 @@
   height: 12px !important;
 }
 
-
 .update-button{
   font-size: 1rem;
   width: 300px !important;
   height: 50px !important;
   background-color: rgba(255,255,255,0.2);
-}
-
-.form-check{
-  padding-bottom: 6px;
-}
-.form-check-label{
-  font-size: 0.8rem;
-}
-
-.panel-subtitle{
-  font-size: 0.8rem;
-  color: #FCBF10;
-  font-weight: bold;
-  padding-bottom: 6px;
-}
-
-.half-button{
-  width: 48%;
-  height: 45px;
-  font-size: 1rem;
-  background-color: rgba(255,255,255,0.2);
-}
-
-#shpFile{
-  font-size: 0.8rem;
 }
 
 .modal-header-title{
@@ -98,48 +94,27 @@
   font-size: 0.8rem;
 }
 
-
-
-
-
-
-
-/*-------------------------------------------------------------------*/
-/*                            SMARTPHONES                            */
-/*-------------------------------------------------------------------*/
-@media screen and (max-width: 576px) {
-
-  .modal-header-title{
-    font-size: 1.1rem;
-    font-weight:500;
-    margin-top: 12px;
-  }
-
+.panel-subtitle{
+  font-size: 0.8rem;
+  color: #FCBF10;
+  font-weight: bold;
+  padding-bottom: 6px;
 }
 
-/*-------------------------------------------------------------------*/
-/*                              TABLETS                              */
-/*-------------------------------------------------------------------*/
-@media screen and (min-width: 576px) and (max-width: 992px) {
-
-
+.form-check{
+  padding-bottom: 6px;
+}
+.form-check-label{
+  font-size: 0.8rem;
 }
 
-/*-------------------------------------------------------------------*/
-/*                              TABLETS                              */
-/*-------------------------------------------------------------------*/
-@media screen and (min-width: 992px) {
-
+.half-button{
+  width: 48%;
+  height: 45px;
+  font-size: 1rem;
+  background-color: rgba(255,255,255,0.2);
 }
 
-
-
-
-
-/*
-::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused)
-.mdc-floating-label,
-.mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused) .mdc-floating-label--float-above {
-  color: #FCBF10 !important;
+#shpFile{
+  font-size: 0.7rem;
 }
-*/

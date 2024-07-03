@@ -582,18 +582,36 @@ export class ClimateTrendsComponent {
 
   public getAreaInfo(){
     this.isReadyData = false;
+    this.template.showDataModal();
 
     if(this.selectedCode && this.activeLayersCode){
       let encodedLayers = encodeURIComponent(JSON.stringify(this.activeLayersCode));
       let encodedDates = encodeURIComponent(JSON.stringify(this.activeDates));
-      let url = `http://localhost:8000/api/metdata/test?code=${this.selectedCode}&layers=${encodedLayers}&dates=${encodedDates}`;
+      let url = `${environment.urlAPI}/metdata/get-metdata?code=${this.selectedCode}&layers=${encodedLayers}&dates=${encodedDates}`;
       fetch(url)
-        .then((response) => response.json())
-        .then(response => console.log(response))
+        .then(response => response.json())
+        .then(response => {
+          const values = response.map((item: any) => item.value);
+
+          if(this.plotClass==="satellite"){
+            this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
+          }
+
+          if(this.plotClass==="goes"){
+            this.goesBTPlot = this.plotTemplate.goesTempPlotTemplate(this.activeDates, values);
+            this.goesGrayPlot = this.plotTemplate.goesGrayPlotTemplate(this.activeDates, values);
+          }
+
+          if(this.plotClass==="forecast"){
+            this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
+            this.tempPlot = this.plotTemplate.tempPlotTemplate(this.activeDates, values);
+            this.humPlot = this.plotTemplate.hrPlotTemplate(this.activeDates, values);
+            this.windPlot = this.plotTemplate.windPlotTemplate(this.activeDates, values);
+          }
+          this.isReadyData = true;
+        })
     }
-
   }
-
 
 }
 

@@ -309,10 +309,10 @@
             </div>
           } @else {
             <div class="col-sm-12 col-md-4 py-1">
-              <b>Provincia:</b>
+              <b>Provincia:</b> {{selectedProvince}}
             </div>
             <div class="col-sm-12 col-md-4 py-1">
-              <b>Canton:</b>
+              <b>Canton:</b> {{selectedCanton}}
             </div>
           }
         </div>
@@ -326,12 +326,21 @@
           <div class="col-sm-12 col-md-8 py-1">
             <b>Banda:</b> {{selectedGoesBand}}
           </div>
-          <div class="col-sm-12 col-md-4 py-1">
-            <b>Latitud:</b> {{latC}}
-          </div>
-          <div class="col-sm-12 col-md-4 py-1">
-            <b>Longitud:</b> {{lonC}}
-          </div>
+          @if(isPointPlotClass){
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Latitud:</b> {{latC}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Longitud:</b> {{lonC}}
+            </div>
+          } @else {
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Provincia:</b> {{selectedProvince}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Canton:</b> {{selectedCanton}}
+            </div>
+          }
         </div>
       }
       @if(plotClass === "forecast"){
@@ -346,12 +355,21 @@
           <div class="col-sm-12 col-md-4 py-1">
             <b>Temporalidad:</b> {{selectedForecastTemporal}}
           </div>
-          <div class="col-sm-12 col-md-4 py-1">
-            <b>Latitud:</b> {{latC}}
-          </div>
-          <div class="col-sm-12 col-md-4 py-1">
-            <b>Longitud:</b> {{lonC}}
-          </div>
+          @if(isPointPlotClass){
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Latitud:</b> {{latC}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Longitud:</b> {{lonC}}
+            </div>
+          } @else {
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Provincia:</b> {{selectedProvince}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Canton:</b> {{selectedCanton}}
+            </div>
+          }
         </div>
       }
     </div>
