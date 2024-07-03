@@ -25,7 +25,7 @@ import { environment } from '../../../environments/environment';
 import { providers } from '../../modules/providers';
 import { utils } from '../../modules/utils';
 import { plotTemplates } from "../../modules/plotTemplates";
-import { dataApp } from './appConfig';
+import { dataApp } from './climate-trends.component.config';
 
 
 @Component({
