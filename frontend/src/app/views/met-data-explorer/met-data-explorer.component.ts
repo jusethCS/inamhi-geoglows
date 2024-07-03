@@ -9,11 +9,11 @@ import { FormGroup, FormControl, FormsModule, ReactiveFormsModule, FormBuilder }
 import { AppTemplateComponent } from '../../shared/app-template/app-template.component';
 import { DropdownComponent } from "../../shared/dropdown/dropdown.component";
 import { date_custom_format, satelliteProducts, forecastProduct, GOES, ecuador } from './met-data-explorer.variables';
-import { WMSLayerTimeControl } from '../../shared/classes/time-dimension';
+import { WMSLayerTimeControl } from '../../modules/timeDimension';
 import { translateFrecuency, generateDates, convertToCSV, downloadFile } from './met-data-explorer.utils';
 import { buildUrl, generateDatesGOES1, generateDatesGOES2, convertToPlotlyFormat } from './met-data-explorer.utils';
 import { pacum_plot, temp_plot, goes_temp_plot, goes_gray_plot } from './met-data-explorer.plot-templates';
-import { SatelliteDataService } from '../../core/satellite_data.service';
+import { SatelliteDataService } from '../../modules/satellite_data.service';
 import { LoadingComponent } from "../../shared/loading/loading.component";
 import { AuthService } from '../../auth/auth.service';
 import { environment } from '../../../environments/environment';

@@ -17,16 +17,15 @@ import { PlotlyModule } from 'angular-plotly.js';
 PlotlyModule.plotlyjs = PlotlyJS;
 
 // CUSTOM COMPONENTS AND MODULES
-import { WMSLayerTimeControl } from '../../shared/classes/time-dimension';
+import { WMSLayerTimeControl } from '../../modules/timeDimension';
 import { AppTemplateComponent } from '../../shared/app-template/app-template.component';
 import { DropdownComponent } from '../../shared/dropdown/dropdown.component';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 import { environment } from '../../../environments/environment';
-import { providers } from './modules/providers';
-import { dataApp } from './modules/appConfig';
-import { utils } from './modules/utils';
-import { plotTemplates } from "./modules/plotTemplates";
-
+import { providers } from '../../modules/providers';
+import { utils } from '../../modules/utils';
+import { plotTemplates } from "../../modules/plotTemplates";
+import { dataApp } from './appConfig';
 
 
 @Component({
