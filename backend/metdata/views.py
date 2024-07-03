@@ -52,7 +52,7 @@ def get_metdata(request):
         gdf = gpd.GeoDataFrame.from_features(area["features"])
         # 
         with ThreadPoolExecutor(max_workers=10) as executor:
-            results = list(executor.map(lambda date_url: fetch_raster_value2(date_url[0], date_url[1], gdf), zip(dates, urls)))
+            results = list(executor.map(lambda date_url: fetch_raster_value(date_url[0], date_url[1], gdf), zip(dates, urls)))
         #
         return JsonResponse(results, safe=False)
 
