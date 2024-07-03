@@ -82,3 +82,39 @@
   height: 50px !important;
   background-color: rgba(255,255,255,0.2);
 }
+
+.modal-header-title{
+  font-size: 1.2rem;
+  font-weight:500;
+  margin-top: 12px;
+  margin-bottom: 10px;
+}
+
+.modal-header-content{
+  font-size: 0.8rem;
+}
+
+.panel-subtitle{
+  font-size: 0.8rem;
+  color: #FCBF10;
+  font-weight: bold;
+  padding-bottom: 6px;
+}
+
+.form-check{
+  padding-bottom: 6px;
+}
+.form-check-label{
+  font-size: 0.8rem;
+}
+
+.half-button{
+  width: 48%;
+  height: 45px;
+  font-size: 1rem;
+  background-color: rgba(255,255,255,0.2);
+}
+
+#shpFile{
+  font-size: 0.7rem;
+}

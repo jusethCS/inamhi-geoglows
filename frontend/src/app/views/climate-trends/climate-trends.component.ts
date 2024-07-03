@@ -102,9 +102,10 @@ export class ClimateTrendsComponent {
   public isPointPlotClass:boolean = false;
   public activeURLLayer: string = '';
   public activeLayers: string[] = [];
+  public activeLayersCode:string[] = [];
   public activeDates: string[] = [];
   public isReadyData: boolean = false;
-  public plotClass: string = "satellite"; //goes, wrf,
+  public plotClass: string = "satellite";
   public goesBTemp:boolean = false;
 
   // Plot templates
@@ -115,20 +116,39 @@ export class ClimateTrendsComponent {
   public goesGrayPlot: any = {};
   public goesBTPlot: any = {};
 
+  // Base layers
+  public citiesLayer: any;
+  public provinceLayer: any;
+  public cantonLayer:any;
+  public isActiveCitiesLayer:boolean = true;
+  public isActiveProvinceLayer: boolean = false;
+  public isActiveCantonLayer:boolean = false;
+
   // Point plot
-  latC: any;
-  lonC: any;
+  public latC: any;
+  public lonC: any;
 
   // Time control Layers
   public isPlay:boolean = false;
 
+  // Fire options
+  public isActiveFireVIIRS:boolean = false;
+  public fireVIIRSLayer: any;
 
-  constructor(
-    private formBuilder: FormBuilder,
-  ){}
+  // Plot - geographical area
+  public ecuadorData = this.dataAppConfig.ecuador;
+  public provinces = this.dataAppConfig.provinces;
+  public selectedProvince = this.provinces[0];
+  public cantons: string[] = [];
+  public selectedCanton: string = "";
+  public geojsonLayer!: L.GeoJSON;
+  public selectedCode:string = "";
+
+  constructor(private formBuilder: FormBuilder){}
 
   ngOnInit() {
     this.initializeMap();
+    this.initializeOverlays();
     this.resizeMap();
     this.updateSatelliteProduct();
     this.updateSatelliteTemporal();
@@ -136,7 +156,9 @@ export class ClimateTrendsComponent {
     this.updateGoesBand();
     this.updateForecatVariable();
     this.updateForecastTemporal();
+    this.updateCanton();
   }
+
 
 
   public initializeMap() {
@@ -159,38 +181,12 @@ export class ClimateTrendsComponent {
       "Topografico": esri
     };
 
-    // Overlayers
-    const cities = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png');
-    const provLimits = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
-          layers: 'ecuador-limits:provincias',
-          format: 'image/png',
-          transparent: true,
-          version: '1.1.0'
-        });
-    const cantLimits = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
-          layers: 'ecuador-limits:cantones',
-          format: 'image/png',
-          transparent: true,
-          version: '1.1.0'
-        });
-    const overlayers = {
-      "Limites provinciales": provLimits,
-      "Limites cantonales": cantLimits,
-      "Ciudades principales": cities,
-    }
-
     // Add base map
     this.map = L.map('map', { center: [-1.7, -78.5], zoom: 7, zoomControl: false });
     osm.addTo(this.map);
-    cities.addTo(this.map);
-    this.map.on('layeradd', function() {
-      cantLimits.bringToFront();
-      provLimits.bringToFront();
-      cities.bringToFront();
-    });
 
     // Add controls
-    L.control.layers(baseMaps, overlayers, { position: 'topright' }).addTo(this.map);
+    L.control.layers(baseMaps, {}, { position: 'topright' }).addTo(this.map);
     L.control.zoom({ position: 'topright' }).addTo(this.map);
 
     // Add logo control
@@ -232,6 +228,34 @@ export class ClimateTrendsComponent {
       this.getPointInfo(evt);
     });
   }
+
+  public initializeOverlays(){
+    this.citiesLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png');
+    this.citiesLayer.addTo(this.map);
+    this.provinceLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:provincias',
+      format: 'image/png',
+      transparent: true,
+      version: '1.1.0'
+    });
+    this.cantonLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:cantones',
+      format: 'image/png',
+      transparent: true,
+      version: '1.1.0'
+    });
+    this.fireVIIRSLayer = L.tileLayer.wms(
+      'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/time_since_detection_4/75d41dd1e5a2735af15f180c3ef8af81/tsd_4_viirs_all', {
+        layers: 'tsd_4_viirs_all',
+        format: 'image/png',
+        transparent: true,
+      });
+    const overlayers = [this.fireVIIRSLayer, this.cantonLayer, this.provinceLayer, this.citiesLayer];
+    this.map.on('layeradd', function(){
+      overlayers.map(layer => layer.bringToFront());
+    });
+  }
+
 
   public resizeMap(): void {
     setTimeout(() => { this.map.invalidateSize() }, 10);
@@ -348,6 +372,7 @@ export class ClimateTrendsComponent {
     // Status plot
     this.activeURLLayer = url;
     this.activeLayers = layers.map(layer => layer.options.layers);
+    this.activeLayersCode = layers.map(layer => layer.options.layers);
     this.activeDates = dates;
     this.plotClass = "satellite";
   }
@@ -372,18 +397,15 @@ export class ClimateTrendsComponent {
     let url = `${environment.urlGeoserver}/${layerCode}/wms`;
     let img = `assets/img/${layerCode}.png`;
     let layers = await this.utilsApp.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
-    console.log(layers);
     let dates = this.utilsApp.parseGOESDate(layers);
-    console.log(dates);
     let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
-    if (this.timeControl !== undefined) {
-      this.timeControl.destroy();
-    }
+    this.timeControl !== undefined && this.timeControl.destroy();
     this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, layerCode, img);
 
     // Status plot
     this.activeURLLayer = url;
     this.activeLayers = wmsLayers.map(layer => layer.options.layers);
+    this.activeLayersCode = layers.map(layer => `${layerCode}:${layer}`)
     this.activeDates = dates;
     this.plotClass = "goes";
   }
@@ -394,16 +416,12 @@ export class ClimateTrendsComponent {
         this.updateGoesLayer().then(() => this.playTimeControl());
       }, 60000);
     }else{
-      if (this.autoUpdateGoesFun) {
-        clearInterval(this.autoUpdateGoesFun);
-      }
+      this.autoUpdateGoesFun && clearInterval(this.autoUpdateGoesFun);
     }
   }
   public quitAutoUpdateGoes(){
     this.isAutoUpdateGoes = false;
-    if (this.autoUpdateGoesFun) {
-      clearInterval(this.autoUpdateGoesFun);
-    }
+    this.autoUpdateGoesFun && clearInterval(this.autoUpdateGoesFun);
   }
 
   public updateForecatVariable(){
@@ -458,6 +476,7 @@ export class ClimateTrendsComponent {
     // Status plot
     this.activeURLLayer = url;
     this.activeLayers = wmsLayers.map(layer => layer.options.layers);
+    this.activeLayersCode = layers.map(layer => `${layerCode}:${layer}`)
     this.activeDates = layers.map(layer => this.utilsApp.formatForecastDatePlot(layer));;
     this.plotClass = "forecast";
   }
@@ -475,9 +494,7 @@ export class ClimateTrendsComponent {
     }
   }
   public stopTimeControl(){
-    if (this.timeControl !== undefined) {
-      this.timeControl.destroy();
-    }
+    this.timeControl !== undefined && this.timeControl.destroy();
     this.isPlay = false;
   }
   public previousTimeControl(){
@@ -500,12 +517,10 @@ export class ClimateTrendsComponent {
       if(this.plotClass==="satellite"){
         this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
       }
-
       if(this.plotClass==="goes"){
         this.goesBTPlot = this.plotTemplate.goesTempPlotTemplate(this.activeDates, values);
         this.goesGrayPlot = this.plotTemplate.goesGrayPlotTemplate(this.activeDates, values);
       }
-
       if(this.plotClass==="forecast"){
         this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
         this.tempPlot = this.plotTemplate.tempPlotTemplate(this.activeDates, values);
@@ -513,12 +528,72 @@ export class ClimateTrendsComponent {
         this.windPlot = this.plotTemplate.windPlotTemplate(this.activeDates, values);
       }
       this.isReadyData = true;
-      console.log(values);
-      console.log(this.activeDates);
     }
   }
+
+
+  public updateFireVIIRS(){
+    if(this.isActiveFireVIIRS){
+      this.fireVIIRSLayer = L.tileLayer.wms(
+        'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/time_since_detection_4/75d41dd1e5a2735af15f180c3ef8af81/tsd_4_viirs_all', {
+          layers: 'tsd_4_viirs_all',
+          format: 'image/png',
+          transparent: true,
+        });
+      this.fireVIIRSLayer.addTo(this.map);
+      const overlayers = [this.fireVIIRSLayer, this.cantonLayer, this.provinceLayer, this.citiesLayer];
+      this.map.on('layeradd', function(){
+        overlayers.map(layer => layer.bringToFront());
+      });
+    }else{
+      this.map.removeLayer(this.fireVIIRSLayer);
+    }
+  }
+
+  public updateOverlayers(isActiveLayer:boolean, layer:any){
+    isActiveLayer ? layer.addTo(this.map) : this.map.removeLayer(layer);
+  }
+
+  public updateCanton(){
+    const filtered = new Set<string>();
+    this.ecuadorData.forEach(item => {
+      if (item.provincia === this.selectedProvince) {
+        filtered.add(item.canton)}});
+    this.cantons = Array.from(filtered);
+    this.selectedCanton = this.cantons[0];
+  }
+
+  public displayArea(){
+    this.selectedCode = this.ecuadorData
+          .filter((item) => item.provincia === this.selectedProvince && item.canton === this.selectedCanton)
+          .map((item) => item.code)[0];
+    const layer = this.selectedCode.endsWith('00') ? "provincias" : "cantones";
+    const url = `${environment.urlGeoserver}/ecuador-limits/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ecuador-limits%3A${layer}&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=DPA_CANTON=${this.selectedCode}`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        this.geojsonLayer && this.map.removeLayer(this.geojsonLayer);
+        this.geojsonLayer = L.geoJSON(data, {
+          style: { color: '#000000', weight: 1.5, fillOpacity: 0},
+        }).addTo(this.map);
+        this.map.fitBounds(this.geojsonLayer.getBounds());
+      });
+  }
+
+  public getAreaInfo(){
+    this.isReadyData = false;
+
+    if(this.selectedCode && this.activeLayersCode){
+      let encodedLayers = encodeURIComponent(JSON.stringify(this.activeLayersCode));
+      let encodedDates = encodeURIComponent(JSON.stringify(this.activeDates));
+      let url = `http://localhost:8000/api/metdata/test?code=${this.selectedCode}&layers=${encodedLayers}&dates=${encodedDates}`;
+      fetch(url)
+        .then((response) => response.json())
+        .then(response => console.log(response))
+    }
+
+  }
+
+
 }
 
-
-// YYYYMMDD00Z-24H-YYYYMMDDHHMM
-// YYYYMMDD00Z-03H-YYYYMMDDHHMM
