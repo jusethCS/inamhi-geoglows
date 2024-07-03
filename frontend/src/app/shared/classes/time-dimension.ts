@@ -36,7 +36,7 @@ export class WMSLayerTimeControl {
       this.dateControl = this.LControl({ position: 'bottomleft' });
       this.dateControl.onAdd = () => this.dateElement;
       this.dateControl.addTo(this.map);
-      this.dateElement.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+      this.dateElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
       this.dateElement.style.color = 'black';
       this.dateElement.style.fontWeight = "bold";
       this.dateElement.style.padding = '5px';
@@ -48,7 +48,7 @@ export class WMSLayerTimeControl {
       this.legendControl = this.LControl({ position: 'bottomleft' });
       this.legendControl.onAdd = () => this.legendElement;
       this.legendControl.addTo(this.map);
-      this.legendElement.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+      this.legendElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
       this.legendElement.style.color = 'black';
       this.legendElement.style.padding = '5px';
       this.legendElement.style.borderRadius = "5px"

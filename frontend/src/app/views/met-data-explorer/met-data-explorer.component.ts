@@ -1,13 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatSelect, MatOption } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
-
 import { AppTemplateComponent } from '../../shared/app-template/app-template.component';
 import { DropdownComponent } from "../../shared/dropdown/dropdown.component";
 import { date_custom_format, satelliteProducts, forecastProduct, GOES, ecuador } from './met-data-explorer.variables';
@@ -17,16 +15,12 @@ import { buildUrl, generateDatesGOES1, generateDatesGOES2, convertToPlotlyFormat
 import { pacum_plot, temp_plot, goes_temp_plot, goes_gray_plot } from './met-data-explorer.plot-templates';
 import { SatelliteDataService } from '../../core/satellite_data.service';
 import { LoadingComponent } from "../../shared/loading/loading.component";
-
 import { AuthService } from '../../auth/auth.service';
 import { environment } from '../../../environments/environment';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
-
-
 import * as L from 'leaflet';
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
-
 PlotlyModule.plotlyjs = PlotlyJS;
 
 
@@ -55,6 +49,9 @@ PlotlyModule.plotlyjs = PlotlyJS;
     PlotlyModule,
   ],
 })
+
+
+
 export class MetDataExplorerComponent {
   // -------------------------------------------------------------------- //
   //                           CLASS ATTRIBUTES                           //
@@ -392,8 +389,20 @@ export class MetDataExplorerComponent {
       y: point.y.toString(),
     };
     const url = buildUrl(baseUrl, params);
-    const response = await fetch(url);
-    const data = await response.json();
+    let data: any;
+    try{
+      const response = await fetch(url);
+      data = await response.json();
+
+    }catch(error){
+      if (error instanceof Error) {
+        console.error('Error capturado:', error.message);
+      } else {
+        console.error('Error inesperado:', error);
+      }
+      return undefined;
+    }
+
     if (
       data.features &&
       data.features.length > 0 &&
