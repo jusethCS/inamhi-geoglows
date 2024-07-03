@@ -16,11 +16,12 @@ def get_raster_value(gdf, raster):
     try:
         geometries = gdf.geometry.values
         out_image, out_transform = mask(raster, geometries, crop=True)
-        out_image = out_image.astype(float)
+        #out_image = out_image.astype(float)
         out_image[out_image == raster.nodata] = np.nan
         return round(np.nanmean(out_image), 2)
     except:
         return(0)
+
 
 def fetch_raster_value(date, url, gdf):
     try:
