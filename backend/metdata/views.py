@@ -21,6 +21,9 @@ def get_raster_value(gdf, raster):
             out_image[out_image == raster.nodata] = np.nan
         else:
             print("No nodata value found in raster")
+        print("Min value in masked image:", np.nanmin(out_image))
+        print("Max value in masked image:", np.nanmax(out_image))
+        print("Mean value in masked image:", np.nanmean(out_image))
         mean_value = np.nanmean(out_image)
         return round(mean_value, 2)
     except Exception as e:
