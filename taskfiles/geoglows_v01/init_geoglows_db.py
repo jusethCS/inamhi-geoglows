@@ -25,7 +25,7 @@ def insert_into_db(table:str, con:sql.engine.base.Connection,
     chunk_size = 1000
 
     # Read data from CSV into a DataFrame
-    data = pd.read_csv(f"{table}.csv", index_col=0)
+    data = pd.read_csv(f"{table}.csv", index_col=0, sep=";")
     df = pd.DataFrame(data)
 
     # Optionally unstack the DataFrame
