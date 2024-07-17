@@ -2,7 +2,6 @@ __pycache__
 config.sh
 activate.bat
 *.env
-database/data/*
 *data.csv
 *.sqlite3
 *.pyc
