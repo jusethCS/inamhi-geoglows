@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS historical_simulation_2020_2030
 
 CREATE TABLE IF NOT EXISTS ensemble_forecast (
     initialized DATE NOT NULL,
-    datetime DATETIME NOT NULL,
+    datetime TIMESTAMP NOT NULL,
     comid INT NOT NULL,
     ensemble_01 NUMERIC,
     ensemble_02 NUMERIC,

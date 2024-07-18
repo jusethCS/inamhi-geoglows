@@ -10,8 +10,7 @@ from sqlalchemy import create_engine, text
 #                        MODULES AND CUSTOM FUNCTIONS                         #
 ###############################################################################
 def init_db(pg_user:str, pg_pass:str, pg_db:str, pg_file:str) -> None:
-    command = f"PGPASSWORD={pg_pass} psql -h localhost "
-    command = f"-U {pg_user} -d {pg_db} -f {pg_file}"
+    command = f"PGPASSWORD={pg_pass} psql -U {pg_user} -h localhost -f {pg_file}"
     os.system(command)
 
 
@@ -33,6 +32,9 @@ DB_PASS = os.getenv('POSTGRES_PASSWORD')
 DB_NAME = os.getenv('POSTGRES_DB')
 DB_PORT = os.getenv('POSTGRES_PORT')
 
+# Database directory
+sql_file = f"{workdir}/taskfiles/geoglows_v01/init_db.sql"
+init_db(DB_USER, DB_PASS, DB_NAME, sql_file)
 
 
 
