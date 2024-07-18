@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS drainage_network (
 ---------------------------------------------------------------------
 --                      streamflow data table                      --
 ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS streamflow_station (
+CREATE TABLE IF NOT EXISTS streamflow_stations (
     basin TEXT,
     code TEXT NOT NULL PRIMARY KEY,
     name TEXT,
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS streamflow_data_2020_2030
 ---------------------------------------------------------------------
 --                      streamflow data table                      --
 ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS waterlevel_station (
+CREATE TABLE IF NOT EXISTS waterlevel_stations (
     basin TEXT,
     code TEXT NOT NULL PRIMARY KEY,
     name TEXT,

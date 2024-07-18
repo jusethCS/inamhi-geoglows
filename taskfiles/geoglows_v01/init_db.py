@@ -9,10 +9,28 @@ from sqlalchemy import create_engine, text
 ###############################################################################
 #                        MODULES AND CUSTOM FUNCTIONS                         #
 ###############################################################################
-def init_db(pg_user:str, pg_pass:str, pg_db:str, pg_file:str) -> None:
+def init_db(pg_user:str, pg_pass:str, pg_file:str) -> None:
     command = f"PGPASSWORD={pg_pass} psql -U {pg_user} -h localhost -f {pg_file}"
     os.system(command)
 
+def insert_simple_table(table:str, con:sql.engine.base.Connection) -> None:
+    data = pd.read_csv(f"{table}.csv", sep=";")
+    data.to_sql(table, con=con, if_exists='append', index=False)
+    con.commit()
+
+def insert_data_table(table:str, con:sql.engine.base.Connection, partitions:dict) -> None:
+    data = pd.read_csv(f"{table}.csv", sep=";")
+    data['datetime'] = pd.to_datetime(data['datetime'])
+    data_long = data.melt(id_vars=['datetime'], var_name='code', value_name='value').dropna(subset=['value'])
+    for start_date, end_date in partitions.items():
+        mask = (data_long['datetime'] >= start_date) & (data_long['datetime'] < end_date)
+        df_partition = data_long.loc[mask]
+        partition_table_name = f'{table}_{start_date[:4]}_{end_date[:4]}'
+        chunk_size = 1000
+        for i in range(0, len(df_partition), chunk_size):
+            chunk = df_partition.iloc[i:i+chunk_size]
+            chunk.to_sql(partition_table_name, con=con, if_exists='append', index=False)
+        print(f"Inserted from {start_date} to {end_date} into database!")
 
 
 ###############################################################################
@@ -32,10 +50,80 @@ DB_PASS = os.getenv('POSTGRES_PASSWORD')
 DB_NAME = os.getenv('POSTGRES_DB')
 DB_PORT = os.getenv('POSTGRES_PORT')
 
-# Database directory
-sql_file = f"{workdir}/taskfiles/geoglows_v01/init_db.sql"
-init_db(DB_USER, DB_PASS, DB_NAME, sql_file)
+# Generate the conection token
+token = "postgresql+psycopg2://{0}:{1}@localhost:{2}/{3}"
+token = token.format(DB_USER, DB_PASS, DB_PORT, DB_NAME)
 
+# Establish connection
+db = create_engine(token)
+con = db.connect()
+
+# Initialize the database
+sql_file = f"{workdir}/taskfiles/geoglows_v01/init_db.sql"
+init_db(DB_USER, DB_PASS, sql_file)
+
+
+# Change to database directory
+os.chdir("taskfiles/geoglows_v01/data")
+
+# Partitions
+partitions_data = {
+    '1980-01-01': '1990-01-01',
+    '1990-01-01': '2000-01-01',
+    '2000-01-01': '2010-01-01',
+    '2010-01-01': '2020-01-01'
+}
+
+# Insert tables
+insert_simple_table(table="drainage_network", con=con)
+insert_simple_table(table="streamflow_stations", con=con)
+insert_data_table(table="streamflow_data", con=con, partitions=partitions_data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Insert drainage network table
+data = pd.read_csv("drainage_network.csv", sep=";")
+data.to_sql("drainage_network", con=con, if_exists='append', index=False)
+con.commit()
+
+# Insert streamflow station table
+data = pd.read_csv("streamflow_stations.csv", sep=";")
+data.to_sql("streamflow_station", con=con, if_exists='append', index=False)
+con.commit()
+
+# Insert streamflow data table
+data = pd.read_csv("streamflow_data.csv", sep=";")
+data['datetime'] = pd.to_datetime(data['datetime'])
+data_long = data.melt(id_vars=['datetime'], var_name='code', value_name='value').dropna(subset=['value'])
+
+
+
+for start_date, end_date in partitions.items():
+    mask = (data_long['datetime'] >= start_date) & (data_long['datetime'] < end_date)
+    df_partition = data_long.loc[mask]
+    partition_table_name = f'streamflow_data_{start_date[:4]}_{end_date[:4]}'
+    chunk_size = 1000
+    for i in range(0, len(df_partition), chunk_size):
+        chunk = df_partition.iloc[i:i+chunk_size]
+        chunk.to_sql(partition_table_name, con=con, if_exists='append', index=False)
+    print(f"Inserted from {start_date} to {end_date} into database!")
+
+
+con.close()
 
 
 
@@ -112,16 +200,7 @@ def insert_historical(con:sql.engine.base.Connection):
 
 
 
-# Generate the conection token
-token = "postgresql+psycopg2://{0}:{1}@localhost:{2}/{3}"
-token = token.format(DB_USER, DB_PASS, DB_PORT, DB_NAME)
 
-# Establish connection
-db = create_engine(token)
-con = db.connect()
-
-# Database directory
-os.chdir("taskfiles/geoglows_v01/data")
 
 
 # Inserting data
