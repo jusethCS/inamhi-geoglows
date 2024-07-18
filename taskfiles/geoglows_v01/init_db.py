@@ -50,6 +50,10 @@ DB_PASS = os.getenv('POSTGRES_PASSWORD')
 DB_NAME = os.getenv('POSTGRES_DB')
 DB_PORT = os.getenv('POSTGRES_PORT')
 
+# Initialize the database
+sql_file = f"{workdir}/taskfiles/geoglows_v01/init_db.sql"
+init_db(DB_USER, DB_PASS, sql_file)
+
 # Generate the conection token
 token = "postgresql+psycopg2://{0}:{1}@localhost:{2}/{3}"
 token = token.format(DB_USER, DB_PASS, DB_PORT, DB_NAME)
@@ -57,10 +61,6 @@ token = token.format(DB_USER, DB_PASS, DB_PORT, DB_NAME)
 # Establish connection
 db = create_engine(token)
 con = db.connect()
-
-# Initialize the database
-sql_file = f"{workdir}/taskfiles/geoglows_v01/init_db.sql"
-init_db(DB_USER, DB_PASS, sql_file)
 
 
 # Change to database directory
