@@ -81,52 +81,50 @@ def insert_data_table(table: str, con: sql.engine.base.Connection,
               f"{partition_table_name}!")
 
 
-def insert_ensemble_forecast(data:pd.DataFrame, con: sql.engine.base.Connection):
+def insert_ensemble_forecast(data: pd.DataFrame, con: sql.engine.base.Connection) -> None:
     """
     Inserts ensemble forecast data from a DataFrame into partitioned tables in 
     the PostgreSQL database. The data is partitioned by month.
 
     Parameters:
     data (pd.DataFrame): DataFrame containing the ensemble forecast data. 
-                         Must include a 'datetime' column.
-    con (sql.engine.base.Connection): SQLAlchemy Connection object for the 
-                                      PostgreSQL database.
+                         Must include 'datetime', 'comid', 'initialized' and
+                         ensemble columns ('ensemble_01', 'ensemble_02', ...).
+    con (Connection): SQLAlchemy Connection object for the PostgreSQL database.
     """
+    # Define partitions
     partitions = {
-        "2024-06-01":"2024-07-01",
-        "2024-07-01":"2024-08-01",
-        "2024-08-01":"2024-09-01",
-        "2024-09-01":"2024-10-01",
-        "2024-10-01":"2024-11-01",
-        "2024-11-01":"2024-12-01",
-        "2024-12-01":"2025-01-01",
-        "2025-01-01":"2025-02-01",
-        "2024-02-01":"2025-03-01",
-        "2024-03-01":"2025-04-01",
-        "2024-04-01":"2025-05-01",
-        "2024-05-01":"2025-06-01"
+        "2024-06-01": "2024-07-01",
+        "2024-07-01": "2024-08-01",
+        "2024-08-01": "2024-09-01",
+        "2024-09-01": "2024-10-01",
+        "2024-10-01": "2024-11-01",
+        "2024-11-01": "2024-12-01",
+        "2024-12-01": "2025-01-01",
+        "2025-01-01": "2025-02-01",
+        "2025-02-01": "2025-03-01",
+        "2025-03-01": "2025-04-01",
+        "2025-04-01": "2025-05-01",
+        "2025-05-01": "2025-06-01"
     }
     table = "ensemble_forecast"
+    #
     for start_date, end_date in partitions.items():
         # Filter the data for the current partition
-        mask = (data['datetime'] >= start_date) & (
-               data['datetime'] < end_date)
+        mask = (data['initialized'] >= start_date) & (data['initialized'] < end_date)
         df_partition = data.loc[mask]
         #
-        # Define the name of the partition table
-        partition_table_name = f'{table}_{start_date[:4]}_{start_date[5:7]}'
-        #
-        # Insert the data in chunks to avoid memory issues
-        chunk_size = 1000
-        for i in range(0, len(df_partition), chunk_size):
-            chunk = df_partition.iloc[i:i+chunk_size]
-            chunk.to_sql(partition_table_name, con=con, if_exists='append', 
-                         index=False)
-        #
-        #
-        print(f"Inserted data from {start_date} to {end_date} into "
-              f"{partition_table_name}!")
-        
+        if not df_partition.empty():
+            # Define the name of the partition table
+            partition_table_name = f'{table}_{start_date[:4]}_{start_date[5:7]}'
+            #
+            # Insert the data in chunks to avoid memory issues
+            chunk_size = 1000
+            for i in range(0, len(df_partition), chunk_size):
+                chunk = df_partition.iloc[i:i + chunk_size]
+                chunk.to_sql(partition_table_name, con=con, if_exists='append', index=False)
+            #
+            print(f"Inserted data from {start_date} to {end_date} into {partition_table_name}!")
 
 
 def get_geoglows_data(comid: int, data_type: str, 

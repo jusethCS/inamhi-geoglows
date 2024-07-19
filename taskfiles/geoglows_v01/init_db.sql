@@ -153,9 +153,7 @@ CREATE TABLE IF NOT EXISTS historical_simulation_2020_2030
 --                     ensemble forecast data                      --
 ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS ensemble_forecast (
-    initialized DATE NOT NULL,
     datetime TIMESTAMP NOT NULL,
-    comid INT NOT NULL,
     ensemble_01 NUMERIC,
     ensemble_02 NUMERIC,
     ensemble_03 NUMERIC,
@@ -207,7 +205,9 @@ CREATE TABLE IF NOT EXISTS ensemble_forecast (
     ensemble_49 NUMERIC,
     ensemble_50 NUMERIC,
     ensemble_51 NUMERIC,
-    ensemble_52 NUMERIC
+    ensemble_52 NUMERIC,
+    comid INT NOT NULL,
+    initialized DATE NOT NULL
 ) PARTITION BY RANGE (initialized);
 
 CREATE TABLE IF NOT EXISTS ensemble_forecast_2024_06
