@@ -356,11 +356,13 @@ today = dt.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
 start = today - dt.timedelta(days=40)
 date_range = pd.date_range(start=start, end=today, freq="D")
 for date in date_range:
-    ensemble_forecast = join_ensemble_forecast(comids=drainage.comid[0:5], date=date)
+    ensemble_forecast = join_ensemble_forecast(comids=drainage.comid, date=date)
     insert_ensemble_forecast(data=ensemble_forecast, con=con)
 
 # Download and insert forecast records
-forecast_records = join_forecast_records(drainage.comid[0:1], date=today)
+forecast_records = join_forecast_records(drainage.comid, date=today)
+forecast_records["datetime"] = forecast_records.index
 partitions = { "2024-01-01": "2025-01-01", "2025-01-01": "2026-01-01"}
 insert_data_table_file("forecast_records", con=con, data=forecast_records, 
                        var="comid", partitions=partitions)
+

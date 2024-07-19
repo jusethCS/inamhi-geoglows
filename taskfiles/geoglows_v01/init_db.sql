@@ -1,15 +1,13 @@
 \set ON_ERROR_STOP on
+
+-- Conectar a la base de datos postgres
 \c postgres
 
-\echo
-\echo
-\echo
-
-\c postgres
-
-DROP DATABASE geoglows;
+-- Eliminar y crear la base de datos geoglows
+DROP DATABASE IF EXISTS geoglows;
 CREATE DATABASE geoglows;
 
+-- Conectar a la base de datos geoglows
 \c geoglows
 
 ---------------------------------------------------------------------
@@ -25,8 +23,6 @@ CREATE TABLE IF NOT EXISTS drainage_network (
     alert TEXT NOT NULL
 );
 
-
-
 ---------------------------------------------------------------------
 --                      streamflow data table                      --
 ---------------------------------------------------------------------
@@ -34,10 +30,10 @@ CREATE TABLE IF NOT EXISTS streamflow_stations (
     basin TEXT,
     code TEXT NOT NULL PRIMARY KEY,
     name TEXT,
-    latitude NUMERIC,	
+    latitude NUMERIC,    
     longitude NUMERIC,
     elevation NUMERIC,
-    comid INT NOT NULL,
+    comid INT NOT NULL REFERENCES drainage_network(comid),
     river TEXT,
     location1 TEXT,
     location2 TEXT,
@@ -46,7 +42,7 @@ CREATE TABLE IF NOT EXISTS streamflow_stations (
 
 CREATE TABLE IF NOT EXISTS streamflow_data (
     datetime DATE NOT NULL,
-    code TEXT NOT NULL,
+    code TEXT NOT NULL REFERENCES streamflow_stations(code),
     value NUMERIC
 ) PARTITION BY RANGE (datetime);
 
@@ -70,20 +66,20 @@ CREATE TABLE IF NOT EXISTS streamflow_data_2020_2030
     PARTITION OF streamflow_data
     FOR VALUES FROM ('2020-01-01') TO ('2030-01-01');
 
-
-
+CREATE INDEX idx_streamflow_data_code_datetime 
+    ON streamflow_data (code, datetime);
 
 ---------------------------------------------------------------------
---                      streamflow data table                      --
+--                      waterlevel data table                      --
 ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS waterlevel_stations (
     basin TEXT,
     code TEXT NOT NULL PRIMARY KEY,
     name TEXT,
-    latitude NUMERIC,	
+    latitude NUMERIC,    
     longitude NUMERIC,
     elevation NUMERIC,
-    comid INT NOT NULL,
+    comid INT NOT NULL REFERENCES drainage_network(comid),
     river TEXT,
     location1 TEXT,
     location2 TEXT,
@@ -92,7 +88,7 @@ CREATE TABLE IF NOT EXISTS waterlevel_stations (
 
 CREATE TABLE IF NOT EXISTS waterlevel_data (
     datetime DATE NOT NULL,
-    code TEXT NOT NULL,
+    code TEXT NOT NULL REFERENCES waterlevel_stations(code),
     value NUMERIC
 ) PARTITION BY RANGE (datetime);
 
@@ -116,15 +112,15 @@ CREATE TABLE IF NOT EXISTS waterlevel_data_2020_2030
     PARTITION OF waterlevel_data
     FOR VALUES FROM ('2020-01-01') TO ('2030-01-01');
 
-
-
+CREATE INDEX idx_waterlevel_data_code_datetime 
+    ON waterlevel_data (code, datetime);
 
 ---------------------------------------------------------------------
 --                   historical simulation data                    --
 ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS historical_simulation (
     datetime DATE NOT NULL,
-    comid INT NOT NULL,
+    comid INT NOT NULL REFERENCES drainage_network(comid),
     value NUMERIC NOT NULL
 ) PARTITION BY RANGE (datetime);
 
@@ -148,6 +144,8 @@ CREATE TABLE IF NOT EXISTS historical_simulation_2020_2030
     PARTITION OF historical_simulation
     FOR VALUES FROM ('2020-01-01') TO ('2030-01-01');
 
+CREATE INDEX idx_historical_simulation_comid_datetime 
+    ON historical_simulation (comid, datetime);
 
 ---------------------------------------------------------------------
 --                     ensemble forecast data                      --
@@ -206,7 +204,7 @@ CREATE TABLE IF NOT EXISTS ensemble_forecast (
     ensemble_50 NUMERIC,
     ensemble_51 NUMERIC,
     ensemble_52 NUMERIC,
-    comid INT NOT NULL,
+    comid INT NOT NULL REFERENCES drainage_network(comid),
     initialized DATE NOT NULL
 ) PARTITION BY RANGE (initialized);
 
@@ -258,14 +256,17 @@ CREATE TABLE IF NOT EXISTS ensemble_forecast_2025_05
     PARTITION OF ensemble_forecast
     FOR VALUES FROM ('2025-05-01') TO ('2025-06-01');
 
--- add more tables if necesary
+-- add more tables if necessary
+
+CREATE INDEX idx_ensemble_forecast_comid_initialized
+    ON ensemble_forecast (comid, initialized);
 
 ---------------------------------------------------------------------
 --                      forecast records data                      --
 ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS forecast_records (
     datetime DATE NOT NULL,
-    comid INT NOT NULL,
+    comid INT NOT NULL REFERENCES drainage_network(comid),
     value NUMERIC NOT NULL
 ) PARTITION BY RANGE (datetime);
 
@@ -276,3 +277,6 @@ CREATE TABLE IF NOT EXISTS forecast_records_2024_2025
 CREATE TABLE IF NOT EXISTS forecast_records_2025_2026
     PARTITION OF forecast_records
     FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+
+CREATE INDEX idx_forecast_records_comid_datetime 
+    ON forecast_records (comid, datetime);
