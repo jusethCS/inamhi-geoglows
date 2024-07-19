@@ -1,36 +1,214 @@
 import os
-import sys
 import pandas as pd
 import sqlalchemy as sql
+import datetime as dt
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 
 
 ###############################################################################
 #                        MODULES AND CUSTOM FUNCTIONS                         #
 ###############################################################################
 def init_db(pg_user:str, pg_pass:str, pg_file:str) -> None:
+    """
+    Initializes the PostgreSQL database by executing the SQL commands 
+    from the provided SQL file.
+    
+    Parameters:
+    pg_user (str): PostgreSQL username
+    pg_pass (str): PostgreSQL password
+    pg_file (str): Path to the SQL file containing the initialization commands
+
+    """
     command = f"PGPASSWORD={pg_pass} psql -U {pg_user} -h localhost -f {pg_file}"
     os.system(command)
 
-def insert_simple_table(table:str, con:sql.engine.base.Connection) -> None:
-    data = pd.read_csv(f"{table}.csv", sep=";")
+
+
+def insert_simple_table(table:str, con:sql.engine.base.Connection, 
+                        df:pd.DataFrame=None) -> None:
+    """
+    Inserts data from a CSV file into a simple table in the PostgreSQL database.
+    
+    Parameters:
+    table (str): Name of the table into which data will be inserted
+    con (Connection): SQLAlchemy Connection object
+    
+    """
+    data = df if not df.empty else pd.read_csv(f"{table}.csv", sep=";")
     data.to_sql(table, con=con, if_exists='append', index=False)
     con.commit()
 
-def insert_data_table(table:str, con:sql.engine.base.Connection, partitions:dict) -> None:
+
+
+def insert_data_table(table: str, con: sql.engine.base.Connection, 
+                      partitions: dict, var: str) -> None:
+    """
+    Inserts data from a CSV file into partitioned tables in the PostgreSQL 
+    database.
+    
+    Parameters:
+    table (str): Base name of the table into which data will be inserted
+    con (Connection): SQLAlchemy Connection object
+    partitions (dict): Dictionary mapping start dates to end dates for 
+                       table partitions
+    var (str): Name of the variable column in the melted dataframe
+
+    """
     data = pd.read_csv(f"{table}.csv", sep=";")
     data['datetime'] = pd.to_datetime(data['datetime'])
-    data_long = data.melt(id_vars=['datetime'], var_name='code', value_name='value').dropna(subset=['value'])
+    #
+    # Convert the dataframe to long format
+    data_long = data.melt(id_vars=['datetime'], var_name=var, 
+                          value_name='value').dropna(subset=['value'])
+    #
     for start_date, end_date in partitions.items():
-        mask = (data_long['datetime'] >= start_date) & (data_long['datetime'] < end_date)
+        # Filter the data for the current partition
+        mask = (data_long['datetime'] >= start_date) & (
+               data_long['datetime'] < end_date)
         df_partition = data_long.loc[mask]
+        #
+        # Define the name of the partition table
         partition_table_name = f'{table}_{start_date[:4]}_{end_date[:4]}'
+        #
+        # Insert the data in chunks to avoid memory issues
         chunk_size = 1000
         for i in range(0, len(df_partition), chunk_size):
             chunk = df_partition.iloc[i:i+chunk_size]
-            chunk.to_sql(partition_table_name, con=con, if_exists='append', index=False)
-        print(f"Inserted from {start_date} to {end_date} into database!")
+            chunk.to_sql(partition_table_name, con=con, if_exists='append', 
+                         index=False)
+        #
+        print(f"Inserted data from {start_date} to {end_date} into "
+              f"{partition_table_name}!")
+
+
+def get_geoglows_data(comid: int, data_type: str, 
+                      date:dt.datetime = dt.datetime.now()) -> pd.DataFrame:
+    """
+    Fetches data from GEOGLOWS API for a given reach (comid).
+
+    Args:
+        comid (int): Reach identifier for which data are requested.
+        data_type (str): Type of the requested data:
+            - ForecastRecords
+            - EnsembleForecast
+
+    Returns:
+        pandas.DataFrame: DataFrame containing the requested data.
+    """
+    # Get the current date
+    current_date = date
+    #
+    # Determine the start and end date to request
+    start_date = current_date - dt.timedelta(days=60)
+    start_date = start_date.strftime('%Y%m%d')
+    end_date = current_date.strftime('%Y%m%d')
+    #
+    # Construct the URL for data request
+    if data_type == "ForecastRecords":
+        url = 'https://geoglows.ecmwf.int/api/ForecastRecords'
+        url = f'{url}/?reach_id={comid}&start_date={start_date}'
+        url = f'{url}&end_date={end_date}&return_format=csv'
+    #
+    elif data_type == "EnsembleForecast":
+        url = f'https://geoglows.ecmwf.int/api/ForecastEnsembles'
+        url = f'{url}/?reach_id={comid}&date={end_date}&return_format=csv'
+        
+    #
+    else:
+        er = "data_type should be: ForecastRecords or EnsembleForecast"
+        raise(er)
+    #
+    # Variable to check the status of the request
+    status = False
+    #
+    # Try to fetch the data until successful
+    while not status:
+        try:
+            # Read data from the URL
+            df = pd.read_csv(url, index_col=0)
+            status = True
+        except Exception as e:
+            # Handle any exception and retry
+            print("Error retrieving data:", e)
+            print("Retrying to fetch data...", end="\n")
+    #
+    # Filter and correct the data
+    df[df < 0] = 0
+    df.index = pd.to_datetime(df.index)
+    df.index = df.index.to_series().dt.strftime("%Y-%m-%d %H:%M:%S")
+    if data_type == "EnsembleForecast":
+        df["datetime"] = df.index
+        columnas_ordenadas = ["datetime"] + [f'ensemble_{i:02d}_m^3/s' for i in range(1, 53)]
+        df = df.reindex(columns=columnas_ordenadas)
+    return df
+
+
+def join_ensemble_forecast(comids: list, date:dt.datetime) -> pd.DataFrame:
+    """
+    Joins ensemble forecasts from GEOGLOWS API, for multiple reachs in 
+    an single DataFrame.
+
+    Parameters:
+        - comids (list): A list of reach ids for which ensemble forecasts 
+          are requested.
+
+    Returns:
+        - pd.DataFrame: DataFrame containing joined ensemble forecasts.
+    """
+    # Initialize an empty list to store ensemble forecast for each COMID
+    ensemble_forecast = []
+    #
+    # Iterate over each COMID in the provided list
+    for comid in comids:
+        # Fetch forecast records for the current COMID
+        df = get_geoglows_data(comid=comid, date=date, data_type="EnsembleForecast")
+        df = df.round(3)
+        print(f"Downloaded ensemble forecast, comid: {comid}")
+        #
+        # Add comid to data
+        df['comid'] = comid
+        df['initialized'] = date
+        #
+        # Append the DataFrame with renamed column to the list
+        ensemble_forecast.append(df)
+    #
+    # Concatenate all DataFrames in the list along the row axis to join them
+    print("Donwloaded forecast records data.")
+    return pd.concat(ensemble_forecast, ignore_index=True)
+
+
+def join_forecast_records(comids: list, date:dt.datetime) -> pd.DataFrame:
+    """
+    Joins forecast records from GEOGLOWS API, for multiple reachs in 
+    an single DataFrame.
+
+    Parameters:
+        - comids (list): A list of reach ids for which forecast records 
+          are requested.
+
+    Returns:
+        - pd.DataFrame: DataFrame containing joined forecast records.
+    """
+    # Initialize an empty list to store forecast records for each COMID
+    forecast_records = []
+    #
+    # Iterate over each COMID in the provided list
+    for comid in comids:
+        # Fetch forecast records for the current COMID
+        df = get_geoglows_data(comid=comid, date=date, data_type="ForecastRecords")
+        df = df.round(3)
+        print(f"Downloaded forecast records, comid: {comid}")
+        #
+        # Rename the column containing streamflow data to the COMID
+        df.rename(columns={'streamflow_m^3/s': comid}, inplace=True)
+        #
+        # Append the DataFrame with renamed column to the list
+        forecast_records.append(df)
+    #
+    # Concatenate all DataFrames in the list along the columns axis to join them
+    print("Donwloaded forecast records data.")
+    return pd.concat(forecast_records, axis=1)
 
 
 ###############################################################################
@@ -71,150 +249,27 @@ partitions_data = {
     '1980-01-01': '1990-01-01',
     '1990-01-01': '2000-01-01',
     '2000-01-01': '2010-01-01',
-    '2010-01-01': '2020-01-01'
+    '2010-01-01': '2020-01-01',
+    '2020-01-01': '2030-01-01'
 }
 
 # Insert tables
 insert_simple_table(table="drainage_network", con=con)
 insert_simple_table(table="streamflow_stations", con=con)
-insert_data_table(table="streamflow_data", con=con, partitions=partitions_data)
+insert_data_table(table="streamflow_data", con=con, partitions=partitions_data, var='code')
+insert_simple_table(table="waterlevel_stations", con=con)
+insert_data_table(table="waterlevel_data", con=con, partitions=partitions_data, var='code')
+insert_data_table(table="historical_simulation", con=con, partitions=partitions_data, var="comid")
 
+# Query comids from drainage network
+drainage = pd.read_sql("select comid from drainage_network;", con)
 
+# Download ensemble forecast for lasted 40 days
+today = dt.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+start = today - dt.timedelta(days=1)
+date_range = pd.date_range(start=start, end=today, freq="D")
+for date in date_range:
+    ensemble_forecast = join_ensemble_forecast(comids=drainage.comid[0:5], date=date)
+    insert_simple_table("ensemble_forecast", con=con, df=ensemble_forecast)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Insert drainage network table
-data = pd.read_csv("drainage_network.csv", sep=";")
-data.to_sql("drainage_network", con=con, if_exists='append', index=False)
-con.commit()
-
-# Insert streamflow station table
-data = pd.read_csv("streamflow_stations.csv", sep=";")
-data.to_sql("streamflow_station", con=con, if_exists='append', index=False)
-con.commit()
-
-# Insert streamflow data table
-data = pd.read_csv("streamflow_data.csv", sep=";")
-data['datetime'] = pd.to_datetime(data['datetime'])
-data_long = data.melt(id_vars=['datetime'], var_name='code', value_name='value').dropna(subset=['value'])
-
-
-
-for start_date, end_date in partitions.items():
-    mask = (data_long['datetime'] >= start_date) & (data_long['datetime'] < end_date)
-    df_partition = data_long.loc[mask]
-    partition_table_name = f'streamflow_data_{start_date[:4]}_{end_date[:4]}'
-    chunk_size = 1000
-    for i in range(0, len(df_partition), chunk_size):
-        chunk = df_partition.iloc[i:i+chunk_size]
-        chunk.to_sql(partition_table_name, con=con, if_exists='append', index=False)
-    print(f"Inserted from {start_date} to {end_date} into database!")
-
-
-con.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def insert_table(table:str, con:sql.engine.base.Connection) -> None:
-    """
-    Insert data from a CSV file into a specified table in a sql database.
-
-    Args:
-        table (str): Table name in the database where the data will be inserted.
-        con (sqlalchemy conection): Connection object to the database.
-    """
-    # Define the chunk size for insertion
-    chunk_size = 1000
-    #
-    # Read data from CSV into a DataFrame
-    data = pd.read_csv(f"{table}.csv", sep=";")
-    df = pd.DataFrame(data)
-    df.columns = df.columns.str.lower()
-    #
-    # Drop the table if it exists
-    con.execute(text(f"DROP TABLE IF EXISTS {table}"))
-    #
-    # Insert data into the database in chunks
-    for i in range(0, len(df), chunk_size):
-        chunk = df.iloc[i:i+chunk_size]
-        chunk.to_sql(table, con=con, if_exists='append', index=False)
-        con.commit()
-        print(f"Inserted rows: {i} - {i+chunk_size}", end='\r')
-        sys.stdout.flush()
-    print(f"Inserted {table} into database!")
-
-
-def insert_historical(con:sql.engine.base.Connection):
-    """
-    Insert historical simulation data from a CSV file into a sql database.
-
-    Args:
-        con (sqlalchemy conection): Connection object to the database.
-    """
-    # Read data from CSV into a DataFrame
-    data = pd.read_csv("historical_simulation.csv", sep=";")
-    df = pd.DataFrame(data)
-    #
-    comids = df.columns.difference(["datetime"])
-    for comid in comids[0:5]:
-        table = f"hs_{comid}"
-        con.execute(text(f"DROP TABLE IF EXISTS {table}"))
-        table_data = df[["datetime", comid]]
-        table_data.columns = ["datetime", "streamflow"]
-        table_data.to_sql(table, con=con, if_exists='append', index=False)
-        con.commit()
-        print(f"Inserted historical simulation for comid: {comid}")
-        sys.stdout.flush()
-    print("Inserted historical simulation into database!")
-
-
-
-
-
-
-
-
-
-
-
-# Inserting data
-insert_table(table='drainage_network', con=con)
-insert_table(table='streamflow_stations', con=con)
-insert_table(table='waterlevel_stations', con=con)
-insert_table(table='streamflow_data', con=con)
-insert_table(table='waterlevel_data', con=con)
-
-insert_historical(con=con)
-
-#insert_table(table='historical_simulation', con=con, unstack=True, colname="comid")
-#insert_into_db(table='forecast_records', con=con, unstack=True, colname="comid")
-#insert_into_db(table='ensemble_forecast', con=con)
-
-# Close connection
-con.close()
+forecast_records = join_forecast_records(drainage.comid[0:5])
