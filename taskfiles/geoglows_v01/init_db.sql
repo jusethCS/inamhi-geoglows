@@ -263,3 +263,16 @@ CREATE TABLE IF NOT EXISTS ensemble_forecast_2025_05
 ---------------------------------------------------------------------
 --                      forecast records data                      --
 ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS forecast_records (
+    datetime DATE NOT NULL,
+    comid INT NOT NULL,
+    value NUMERIC NOT NULL
+) PARTITION BY RANGE (datetime);
+
+CREATE TABLE IF NOT EXISTS forecast_records_2024_2025
+    PARTITION OF forecast_records
+    FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
+
+CREATE TABLE IF NOT EXISTS forecast_records_2025_2026
+    PARTITION OF forecast_records
+    FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');

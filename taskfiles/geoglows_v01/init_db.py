@@ -76,10 +76,50 @@ def insert_data_table(table: str, con: sql.engine.base.Connection,
             chunk = df_partition.iloc[i:i+chunk_size]
             chunk.to_sql(partition_table_name, con=con, if_exists='append', 
                          index=False)
+            con.commit()
         #
         print(f"Inserted data from {start_date} to {end_date} into "
               f"{partition_table_name}!")
 
+def insert_data_table_file(table: str, con: sql.engine.base.Connection, 
+                      partitions: dict, var: str, data: pd.DataFrame) -> None:
+    """
+    Inserts data from a CSV file into partitioned tables in the PostgreSQL 
+    database.
+    
+    Parameters:
+    table (str): Base name of the table into which data will be inserted
+    con (Connection): SQLAlchemy Connection object
+    partitions (dict): Dictionary mapping start dates to end dates for 
+                       table partitions
+    var (str): Name of the variable column in the melted dataframe
+
+    """
+    data['datetime'] = pd.to_datetime(data['datetime'])
+    #
+    # Convert the dataframe to long format
+    data_long = data.melt(id_vars=['datetime'], var_name=var, 
+                          value_name='value').dropna(subset=['value'])
+    #
+    for start_date, end_date in partitions.items():
+        # Filter the data for the current partition
+        mask = (data_long['datetime'] >= start_date) & (
+               data_long['datetime'] < end_date)
+        df_partition = data_long.loc[mask]
+        #
+        # Define the name of the partition table
+        partition_table_name = f'{table}_{start_date[:4]}_{end_date[:4]}'
+        #
+        # Insert the data in chunks to avoid memory issues
+        chunk_size = 1000
+        for i in range(0, len(df_partition), chunk_size):
+            chunk = df_partition.iloc[i:i+chunk_size]
+            chunk.to_sql(partition_table_name, con=con, if_exists='append', 
+                         index=False)
+            con.commit()
+        #
+        print(f"Inserted data from {start_date} to {end_date} into "
+              f"{partition_table_name}!")
 
 def insert_ensemble_forecast(data: pd.DataFrame, con: sql.engine.base.Connection) -> None:
     """
@@ -114,7 +154,7 @@ def insert_ensemble_forecast(data: pd.DataFrame, con: sql.engine.base.Connection
         mask = (data['initialized'] >= start_date) & (data['initialized'] < end_date)
         df_partition = data.loc[mask]
         #
-        if not df_partition.empty():
+        if not df_partition.empty:
             # Define the name of the partition table
             partition_table_name = f'{table}_{start_date[:4]}_{start_date[5:7]}'
             #
@@ -123,6 +163,7 @@ def insert_ensemble_forecast(data: pd.DataFrame, con: sql.engine.base.Connection
             for i in range(0, len(df_partition), chunk_size):
                 chunk = df_partition.iloc[i:i + chunk_size]
                 chunk.to_sql(partition_table_name, con=con, if_exists='append', index=False)
+                con.commit()
             #
             print(f"Inserted data from {start_date} to {end_date} into {partition_table_name}!")
 
@@ -145,7 +186,7 @@ def get_geoglows_data(comid: int, data_type: str,
     current_date = date
     #
     # Determine the start and end date to request
-    start_date = current_date - dt.timedelta(days=60)
+    start_date = current_date - dt.timedelta(days=400)
     start_date = start_date.strftime('%Y%m%d')
     end_date = current_date.strftime('%Y%m%d')
     #
@@ -154,7 +195,7 @@ def get_geoglows_data(comid: int, data_type: str,
         url = 'https://geoglows.ecmwf.int/api/ForecastRecords'
         url = f'{url}/?reach_id={comid}&start_date={start_date}'
         url = f'{url}&end_date={end_date}&return_format=csv'
-    #
+    # 
     elif data_type == "EnsembleForecast":
         url = f'https://geoglows.ecmwf.int/api/ForecastEnsembles'
         url = f'{url}/?reach_id={comid}&date={end_date}&return_format=csv'
@@ -310,7 +351,7 @@ insert_data_table(table="historical_simulation", con=con, partitions=partitions_
 # Query comids from drainage network
 drainage = pd.read_sql("select comid from drainage_network;", con)
 
-# Download ensemble forecast for lasted 40 days
+# Download and insert ensemble forecast for lasted 40 days
 today = dt.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
 start = today - dt.timedelta(days=40)
 date_range = pd.date_range(start=start, end=today, freq="D")
@@ -318,6 +359,8 @@ for date in date_range:
     ensemble_forecast = join_ensemble_forecast(comids=drainage.comid[0:5], date=date)
     insert_ensemble_forecast(data=ensemble_forecast, con=con)
 
-# Download forecast records
-forecast_records = join_forecast_records(drainage.comid[0:5], date=today)
-#insert_data_table_file("forecast_records", con=con, data=forecast_records)
+# Download and insert forecast records
+forecast_records = join_forecast_records(drainage.comid[0:1], date=today)
+partitions = { "2024-01-01": "2025-01-01", "2025-01-01": "2026-01-01"}
+insert_data_table_file("forecast_records", con=con, data=forecast_records, 
+                       var="comid", partitions=partitions)
