@@ -3,7 +3,7 @@ import pandas as pd
 import sqlalchemy as sql
 import datetime as dt
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData, Table, select
 
 
 ###############################################################################
@@ -25,8 +25,7 @@ def init_db(pg_user:str, pg_pass:str, pg_file:str) -> None:
 
 
 
-def insert_simple_table(table:str, con:sql.engine.base.Connection, 
-                        df:pd.DataFrame=None) -> None:
+def insert_simple_table(table:str, con:sql.engine.base.Connection) -> None:
     """
     Inserts data from a CSV file into a simple table in the PostgreSQL database.
     
@@ -35,7 +34,7 @@ def insert_simple_table(table:str, con:sql.engine.base.Connection,
     con (Connection): SQLAlchemy Connection object
     
     """
-    data = df if not df.empty else pd.read_csv(f"{table}.csv", sep=";")
+    data = pd.read_csv(f"{table}.csv", sep=";")
     data.to_sql(table, con=con, if_exists='append', index=False)
     con.commit()
 
@@ -80,6 +79,54 @@ def insert_data_table(table: str, con: sql.engine.base.Connection,
         #
         print(f"Inserted data from {start_date} to {end_date} into "
               f"{partition_table_name}!")
+
+
+def insert_ensemble_forecast(data:pd.DataFrame, con: sql.engine.base.Connection):
+    """
+    Inserts ensemble forecast data from a DataFrame into partitioned tables in 
+    the PostgreSQL database. The data is partitioned by month.
+
+    Parameters:
+    data (pd.DataFrame): DataFrame containing the ensemble forecast data. 
+                         Must include a 'datetime' column.
+    con (sql.engine.base.Connection): SQLAlchemy Connection object for the 
+                                      PostgreSQL database.
+    """
+    partitions = {
+        "2024-06-01":"2024-07-01",
+        "2024-07-01":"2024-08-01",
+        "2024-08-01":"2024-09-01",
+        "2024-09-01":"2024-10-01",
+        "2024-10-01":"2024-11-01",
+        "2024-11-01":"2024-12-01",
+        "2024-12-01":"2025-01-01",
+        "2025-01-01":"2025-02-01",
+        "2024-02-01":"2025-03-01",
+        "2024-03-01":"2025-04-01",
+        "2024-04-01":"2025-05-01",
+        "2024-05-01":"2025-06-01"
+    }
+    table = "ensemble_forecast"
+    for start_date, end_date in partitions.items():
+        # Filter the data for the current partition
+        mask = (data['datetime'] >= start_date) & (
+               data['datetime'] < end_date)
+        df_partition = data.loc[mask]
+        #
+        # Define the name of the partition table
+        partition_table_name = f'{table}_{start_date[:4]}_{start_date[5:7]}'
+        #
+        # Insert the data in chunks to avoid memory issues
+        chunk_size = 1000
+        for i in range(0, len(df_partition), chunk_size):
+            chunk = df_partition.iloc[i:i+chunk_size]
+            chunk.to_sql(partition_table_name, con=con, if_exists='append', 
+                         index=False)
+        #
+        #
+        print(f"Inserted data from {start_date} to {end_date} into "
+              f"{partition_table_name}!")
+        
 
 
 def get_geoglows_data(comid: int, data_type: str, 
@@ -169,6 +216,7 @@ def join_ensemble_forecast(comids: list, date:dt.datetime) -> pd.DataFrame:
         # Add comid to data
         df['comid'] = comid
         df['initialized'] = date
+        df.columns = [col.replace('_m^3/s', '') for col in df.columns]
         #
         # Append the DataFrame with renamed column to the list
         ensemble_forecast.append(df)
@@ -176,6 +224,7 @@ def join_ensemble_forecast(comids: list, date:dt.datetime) -> pd.DataFrame:
     # Concatenate all DataFrames in the list along the row axis to join them
     print("Donwloaded forecast records data.")
     return pd.concat(ensemble_forecast, ignore_index=True)
+
 
 
 def join_forecast_records(comids: list, date:dt.datetime) -> pd.DataFrame:
@@ -240,7 +289,6 @@ token = token.format(DB_USER, DB_PASS, DB_PORT, DB_NAME)
 db = create_engine(token)
 con = db.connect()
 
-
 # Change to database directory
 os.chdir("taskfiles/geoglows_v01/data")
 
@@ -266,10 +314,12 @@ drainage = pd.read_sql("select comid from drainage_network;", con)
 
 # Download ensemble forecast for lasted 40 days
 today = dt.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
-start = today - dt.timedelta(days=1)
+start = today - dt.timedelta(days=40)
 date_range = pd.date_range(start=start, end=today, freq="D")
 for date in date_range:
     ensemble_forecast = join_ensemble_forecast(comids=drainage.comid[0:5], date=date)
-    insert_simple_table("ensemble_forecast", con=con, df=ensemble_forecast)
+    insert_ensemble_forecast(data=ensemble_forecast, con=con)
 
-forecast_records = join_forecast_records(drainage.comid[0:5])
+# Download forecast records
+forecast_records = join_forecast_records(drainage.comid[0:5], date=today)
+#insert_data_table_file("forecast_records", con=con, data=forecast_records)
