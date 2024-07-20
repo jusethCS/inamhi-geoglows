@@ -19,9 +19,20 @@ CREATE TABLE IF NOT EXISTS drainage_network (
     longitude NUMERIC,
     river TEXT,
     location1 TEXT,
-    location2 TEXT,
-    alert TEXT NOT NULL
+    location2 TEXT
 );
+
+CREATE TABLE IF NOT EXISTS alert_geoglows (
+    comid INT NOT NULL REFERENCES drainage_network(comid),
+    datetime TIMESTAMP NOT NULL,
+    d01 TEXT, d02 TEXT, d03 TEXT, d04 TEXT,
+    d05 TEXT, d06 TEXT, d07 TEXT, d08 TEXT,
+    d09 TEXT, d10 TEXT, d11 TEXT, d12 TEXT,
+    d13 TEXT, d14 TEXT, d15 TEXT, alert TEXT
+);
+
+CREATE INDEX idx_alert_geoglows_datetime
+    ON alert_geoglows (datetime);
 
 ---------------------------------------------------------------------
 --                      streamflow data table                      --
@@ -36,12 +47,11 @@ CREATE TABLE IF NOT EXISTS streamflow_stations (
     comid INT NOT NULL REFERENCES drainage_network(comid),
     river TEXT,
     location1 TEXT,
-    location2 TEXT,
-    alert TEXT NOT NULL
+    location2 TEXT
 );
 
 CREATE TABLE IF NOT EXISTS streamflow_data (
-    datetime DATE NOT NULL,
+    datetime TIMESTAMP NOT NULL,
     code TEXT NOT NULL REFERENCES streamflow_stations(code),
     value NUMERIC
 ) PARTITION BY RANGE (datetime);
@@ -69,6 +79,19 @@ CREATE TABLE IF NOT EXISTS streamflow_data_2020_2030
 CREATE INDEX idx_streamflow_data_code_datetime 
     ON streamflow_data (code, datetime);
 
+CREATE TABLE IF NOT EXISTS alert_streamflow (
+    comid INT NOT NULL REFERENCES drainage_network(comid),
+    datetime TIMESTAMP NOT NULL,
+    d01 TEXT, d02 TEXT, d03 TEXT, d04 TEXT,
+    d05 TEXT, d06 TEXT, d07 TEXT, d08 TEXT,
+    d09 TEXT, d10 TEXT, d11 TEXT, d12 TEXT,
+    d13 TEXT, d14 TEXT, d15 TEXT, alert TEXT
+);
+
+CREATE INDEX idx_alert_streamflow_datetime
+    ON alert_streamflow (datetime);
+
+
 ---------------------------------------------------------------------
 --                      waterlevel data table                      --
 ---------------------------------------------------------------------
@@ -82,12 +105,11 @@ CREATE TABLE IF NOT EXISTS waterlevel_stations (
     comid INT NOT NULL REFERENCES drainage_network(comid),
     river TEXT,
     location1 TEXT,
-    location2 TEXT,
-    alert TEXT NOT NULL
+    location2 TEXT
 );
 
 CREATE TABLE IF NOT EXISTS waterlevel_data (
-    datetime DATE NOT NULL,
+    datetime TIMESTAMP NOT NULL,
     code TEXT NOT NULL REFERENCES waterlevel_stations(code),
     value NUMERIC
 ) PARTITION BY RANGE (datetime);
@@ -115,11 +137,23 @@ CREATE TABLE IF NOT EXISTS waterlevel_data_2020_2030
 CREATE INDEX idx_waterlevel_data_code_datetime 
     ON waterlevel_data (code, datetime);
 
+CREATE TABLE IF NOT EXISTS alert_waterlevel (
+    comid INT NOT NULL REFERENCES drainage_network(comid),
+    datetime TIMESTAMP NOT NULL,
+    d01 TEXT, d02 TEXT, d03 TEXT, d04 TEXT,
+    d05 TEXT, d06 TEXT, d07 TEXT, d08 TEXT,
+    d09 TEXT, d10 TEXT, d11 TEXT, d12 TEXT,
+    d13 TEXT, d14 TEXT, d15 TEXT, alert TEXT
+);
+
+CREATE INDEX idx_alert_waterlevel_datetime
+    ON alert_waterlevel (datetime);
+
 ---------------------------------------------------------------------
 --                   historical simulation data                    --
 ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS historical_simulation (
-    datetime DATE NOT NULL,
+    datetime TIMESTAMP NOT NULL,
     comid INT NOT NULL REFERENCES drainage_network(comid),
     value NUMERIC NOT NULL
 ) PARTITION BY RANGE (datetime);
@@ -205,7 +239,7 @@ CREATE TABLE IF NOT EXISTS ensemble_forecast (
     ensemble_51 NUMERIC,
     ensemble_52 NUMERIC,
     comid INT NOT NULL REFERENCES drainage_network(comid),
-    initialized DATE NOT NULL
+    initialized TIMESTAMP NOT NULL
 ) PARTITION BY RANGE (initialized);
 
 CREATE TABLE IF NOT EXISTS ensemble_forecast_2024_06
@@ -265,7 +299,7 @@ CREATE INDEX idx_ensemble_forecast_comid_initialized
 --                      forecast records data                      --
 ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS forecast_records (
-    datetime DATE NOT NULL,
+    datetime TIMESTAMP NOT NULL,
     comid INT NOT NULL REFERENCES drainage_network(comid),
     value NUMERIC NOT NULL
 ) PARTITION BY RANGE (datetime);

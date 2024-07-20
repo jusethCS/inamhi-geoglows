@@ -353,9 +353,10 @@ drainage = pd.read_sql("select comid from drainage_network;", con)
 
 # Download and insert ensemble forecast for lasted 40 days
 today = dt.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
-start = today - dt.timedelta(days=40)
+start = today - dt.timedelta(days=5)
 date_range = pd.date_range(start=start, end=today, freq="D")
 for date in date_range:
+    print(date)
     ensemble_forecast = join_ensemble_forecast(comids=drainage.comid, date=date)
     insert_ensemble_forecast(data=ensemble_forecast, con=con)
 
