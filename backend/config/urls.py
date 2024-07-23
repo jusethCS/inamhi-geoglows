@@ -5,4 +5,6 @@ urlpatterns = [
     path('api/admin/', admin.site.urls),
     path('api/', include('users.urls') ),
     path('api/metdata/', include('metdata.urls') ),
+    path('api/geoserver/', include('geoserver.urls') ),
+
 ]

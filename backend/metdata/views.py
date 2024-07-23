@@ -10,7 +10,7 @@ import pandas as pd
 
 SERVER = "http://ec2-3-211-227-44.compute-1.amazonaws.com"
 GEOSERVER = f"{SERVER}/geoserver"
-ENDPOINT = "/usr/share/geoserver/data_dir/data"
+ENDPOINT = "/usr/share/geoserver/data_dir/data" 
 
 def get_raster_value(gdf, raster):
     try:
