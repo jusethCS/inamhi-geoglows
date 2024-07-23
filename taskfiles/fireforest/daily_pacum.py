@@ -168,6 +168,42 @@ def get_daily_persiann():
     mask('persiann.tif', "persiann.tif", bounds)
 
 
+def get_3days_persiann():
+    """
+    Downloads hourly PERSIANN data for the past 72 hours, sums the data,
+    and saves the result to a daily GeoTIFF file.
+
+    """
+    # Establish start and end date and geographical bounds
+    now = datetime.now()
+    end = now.replace(hour=12, minute=0)
+    start = end - timedelta(days=3)
+    dates = pd.date_range(start, end, freq = "h")
+    bounds = (-94, -7.5, -70, 4)
+    #
+    # Download data
+    ch = meteosatpy.PERSIANN()
+    for date in dates:
+        filename = date.strftime("persiann3d_%Y%m%d%H00.tif")
+        for attempt in range(10):
+            try:
+                ch.download(
+                    date=date, 
+                    timestep="hourly",
+                    dataset="PDIR", 
+                    outpath=filename)
+                break
+            except Exception as e:
+                print(f"Attempt {attempt + 1} failed for {date}: {e}")
+        else:
+            print(f"Failed to download data for {date} after 10 attempts")
+    #
+    # Read persiann data
+    sum_and_save_geotiffs(
+        file_list=list_files(pattern="persiann3d_*.tif"),
+        output_file="persiann3d.tif")
+    mask('persiann3d.tif', "persiann3d.tif", bounds)
+
 
 def get_no_rain_days(noprec_file, persiann_file):
     with rasterio.open(noprec_file) as src:
@@ -232,15 +268,20 @@ os.chdir("data/fireforest")
 
 # Download data and publish on geoserver - PERSIANN
 get_daily_persiann()
-
-
-# Delete files
 delete_files(pattern="persiann_*.tif")
 upload_to_geoserver("daily_precipitation", "persiann.tif", "pacum-style")
+print("Upload daily precipitation!")
+
+# Download data and publish on geoserver - PERSIANN
+get_3days_persiann()
+delete_files(pattern="persiann3d_*.tif")
+upload_to_geoserver("3days_precipitation", "persiann3d.tif", "pacum-style")
+print("Upload 3 days precipitation!")
 
 # Compute the no rain days
 get_no_rain_days("noprec.tif", "persiann.tif")
 upload_to_geoserver("no_precipitation_days", "noprec.tif", "pacum-style")
+print("Upload no precipitation days")
 
 
 
