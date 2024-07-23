@@ -292,3 +292,4 @@ print("Upload no precipitation days")
 #
 # http://ec2-3-211-227-44.compute-1.amazonaws.com/api/geoglows/daily-precipitation
 # http://ec2-3-211-227-44.compute-1.amazonaws.com/api/geoglows/days-without-precipitation
+# http://ec2-3-211-227-44.compute-1.amazonaws.com/api/geoglows/3days-precipitation
