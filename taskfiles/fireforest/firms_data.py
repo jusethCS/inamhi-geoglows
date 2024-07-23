@@ -35,7 +35,7 @@ url = ("https://firms.modaps.eosdis.nasa.gov/mapserver/wfs/South_America/"
 # Leer el archivo CSV desde la URL
 data = pd.read_csv(url)
 data = data.drop(columns=['WKT', "acq_date", "acq_time"])
-dts = pd.to_datetime(data['acq_datetime'])
+dts = pd.to_datetime(data['acq_datetime']) - pd.to_timedelta(5, unit='h')
 data['acq_datetime'] = dts.apply(lambda x:x.strftime("%Y-%m-%d %H:%M:00"))
 data['acq_datetime'] = pd.to_datetime(data['acq_datetime'])
 
