@@ -6,4 +6,4 @@ activate.bat
 *.sqlite3
 *.pyc
 inamhi-geoglows.pem
-conect.bat
+connect.bat
