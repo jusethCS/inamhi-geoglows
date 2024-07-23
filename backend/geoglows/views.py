@@ -4,12 +4,14 @@ from django.http import HttpResponse
 ENDPOINT = "/usr/share/geoserver/data_dir/data" 
 
 
-def download_from_geoserver(workspace, layer):
+def stream_file(workspace, layer, output):
     file_path = f'{ENDPOINT}/{workspace}/{layer}/{layer}.geotiff'
     try:
         with rasterio.open(file_path) as dataset:
-            response = HttpResponse(open(file_path, 'rb').read(), content_type='application/octet-stream')
-            response['Content-Disposition'] = f'attachment; filename={workspace}-{layer}'
+            response = HttpResponse(
+                open(file_path, 'rb').read(), 
+                content_type='application/octet-stream')
+            response['Content-Disposition'] = f'attachment; filename={output}'
             return response
     except FileNotFoundError:
         return HttpResponse('File not found', status=404)
@@ -19,4 +21,7 @@ def download_from_geoserver(workspace, layer):
 
 
 def download_daily_precipitaion(request):
-    return download_from_geoserver("fireforest", "daily_precipitation")
+    return stream_file("fireforest", "daily_precipitation", "daily-precipitation")
+
+def download_days_without_precipitation(request):
+    return stream_file("fireforest", "no_precipitation_days", "days-without-precipitation")
