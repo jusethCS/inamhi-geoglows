@@ -314,3 +314,18 @@ CREATE TABLE IF NOT EXISTS forecast_records_2025_2026
 
 CREATE INDEX idx_forecast_records_comid_datetime 
     ON forecast_records (comid, datetime);
+
+
+
+
+CREATE TABLE heatpoint(
+    latitude NUMERIC,
+    longitude NUMERIC,
+    brightness NUMERIC,
+    scan NUMERIC,
+    track NUMERIC,
+    acq_datetime TIMESTAMP NOT NULL,
+    confidence TEXT,
+    brightness_2 NUMERIC,
+    frp NUMERIC
+)
