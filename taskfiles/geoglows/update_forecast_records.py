@@ -80,7 +80,7 @@ comids = pd.read_sql(query, con=con).comid
 
 # Generate datetimes
 end_date = dt.datetime.today()
-start_date = end_date - dt.timedelta(days=10)
+start_date = end_date - dt.timedelta(days=4)
 start_date = start_date.strftime('%Y%m%d')
 end_date = end_date.strftime('%Y%m%d')
 
