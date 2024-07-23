@@ -21,7 +21,7 @@ def stream_file(workspace, layer, output):
 
 
 def download_daily_precipitaion(request):
-    return stream_file("fireforest", "daily_precipitation", "daily-precipitation")
+    return stream_file("fireforest", "daily_precipitation", "daily-precipitation.tif")
 
 def download_days_without_precipitation(request):
-    return stream_file("fireforest", "no_precipitation_days", "days-without-precipitation")
+    return stream_file("fireforest", "no_precipitation_days", "days-without-precipitation.tif")
