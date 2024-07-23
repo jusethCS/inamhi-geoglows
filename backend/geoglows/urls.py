@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import download_daily_precipitaion, download_days_without_precipitation
+from .views import *
 
 urlpatterns = [
     path('daily-precipitation', 
