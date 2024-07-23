@@ -7,3 +7,4 @@ activate.bat
 *.pyc
 inamhi-geoglows.pem
 connect.bat
+crontab.sh
