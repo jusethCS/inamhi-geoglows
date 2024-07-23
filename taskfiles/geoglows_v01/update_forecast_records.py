@@ -90,3 +90,5 @@ for comid in comids:
 
 # Close the connection
 con.close()
+
+# Empieza 12:14
