@@ -14,3 +14,8 @@ def download_3days_precipitation(request):
     response = stream_file(
         "fireforest", "3days_precipitation", "3days-precipitation.tif")
     return response
+
+def download_soil_moisture(request):
+    response = stream_file(
+        "fireforest", "soil_moisture", "soil_moisture.tif")
+    return response

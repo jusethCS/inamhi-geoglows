@@ -12,7 +12,12 @@ urlpatterns = [
 
     path('3days-precipitation', 
           download_3days_precipitation, 
-          name="days-without-precipitation")
+          name="days-without-precipitation"),
+
+    path('soil-moisture', 
+          download_soil_moisture, 
+          name="soil-moisture"),
+      
 
 
 ]
