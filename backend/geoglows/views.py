@@ -1,4 +1,6 @@
+from django.http import JsonResponse
 from .controllers.download import stream_file
+from .controllers.fireforest import get_heatpoints_24h
 
 def download_daily_precipitation(request):
     response = stream_file(
@@ -19,3 +21,7 @@ def download_soil_moisture(request):
     response = stream_file(
         "fireforest", "soil_moisture", "soil_moisture.tif")
     return response
+
+def heatpoints_24h(request):
+    data = get_heatpoints_24h()
+    return JsonResponse(data)

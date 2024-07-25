@@ -17,6 +17,10 @@ urlpatterns = [
     path('soil-moisture', 
           download_soil_moisture, 
           name="soil-moisture"),
+
+    path('firms-data-24', 
+          heatpoints_24h, 
+          name="firms-data-24"),
       
 
 
