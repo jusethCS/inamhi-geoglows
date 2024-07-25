@@ -24,4 +24,4 @@ def download_soil_moisture(request):
 
 def heatpoints_24h(request):
     data = get_heatpoints_24h()
-    return JsonResponse(data, safe=False)
+    return JsonResponse(data)

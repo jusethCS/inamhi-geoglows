@@ -59,6 +59,6 @@ def get_heatpoints_24h():
     con.close()
     query['geometry'] = query.apply(lambda row: Point(row['longitude'], row['latitude']), axis=1)
     gdf = gpd.GeoDataFrame(query, geometry='geometry')
-    geojson_str = gdf.to_json()
-    return(geojson_str)
+    geojson_dict = gdf.__geo_interface__
+    return(geojson_dict)
 
