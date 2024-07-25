@@ -52,7 +52,7 @@ def get_heatpoints_24h():
     now = dt.datetime.now() - dt.timedelta(hours=5)
     start = (now - dt.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:00")
     con = db.connect()
-    sql = f"select * from heatpoint where acq_datetime>'{start}'"
+    sql = f"select * from heatpoint where acq_datetime>'{start}' order by frp"
     query = pd.read_sql(sql, con)
     query['icon'] = query['frp'].apply(assign_icon)
     query['acq_datetime'] = query['acq_datetime'].apply(lambda x:x.strftime("%Y-%m-%d %H:%M:00"))
