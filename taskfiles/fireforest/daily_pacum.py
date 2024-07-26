@@ -283,7 +283,7 @@ print("Upload 3 days precipitation!")
 # Compute the no rain days
 get_no_rain_days("noprec.tif", "persiann.tif")
 os.system("gdalwarp -cutline /home/ubuntu/inamhi-geoglows/taskfiles/shp/ffgs.shp -crop_to_cutline -dstalpha noprec.tif noprec-cut.tif")
-upload_to_geoserver("no_precipitation_days", "noprec-cut.tif", "pacum-style")
+upload_to_geoserver("no_precipitation_days", "noprec-cut.tif", "noprec-style")
 print("Upload no precipitation days")
 
 
