@@ -629,7 +629,7 @@ export class MetDataExplorerComponent {
 
   public updateFireVIIRS(): void {
     if (this.isActiveFireVIIRS24) {
-      const url = "http://ec2-3-211-227-44.compute-1.amazonaws.com/api/geoglows/firms-data-24";
+      const url = `${environment.urlAPI}/geoglows/firms-data-24`;
       fetch(url)
         .then((response) => response.json())
         .then((response) => {
