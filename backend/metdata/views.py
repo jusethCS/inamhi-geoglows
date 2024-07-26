@@ -8,7 +8,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
-SERVER = "http://ec2-54-234-81-180.compute-1.amazonaws.com"
+SERVER = "https://inamhi.geoglows.org"
 GEOSERVER = f"{SERVER}/geoserver"
 ENDPOINT = "/usr/share/geoserver/data_dir/data" 
 

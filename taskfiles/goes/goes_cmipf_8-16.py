@@ -165,7 +165,7 @@ def goes_to_geoserver(product, band, workdir, styled=False):
     #
     # Instance the geoserver
     geo = Geoserver(
-            'http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver', 
+            'https://inamhi.geoglows.org/geoserver', 
                 username=GEOSERVER_USER, 
                 password=GEOSERVER_PASS)
     #
@@ -237,7 +237,7 @@ def delete_coverage(product, band):
     #
     # Instance the geoserver
     geo = Geoserver(
-            'http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver', 
+            'https://inamhi.geoglows.org/geoserver', 
                 username=GEOSERVER_USER, 
                 password=GEOSERVER_PASS)
     #

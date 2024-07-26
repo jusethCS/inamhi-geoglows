@@ -145,7 +145,7 @@ def download_persiann(date_start, date_end, frequency):
     #
     # Instance the geoserver
     geo = Geoserver(
-        'http://ec2-3-211-227-44.compute-1.amazonaws.com/geoserver', 
+        'https://inamhi.geoglows.org/geoserver', 
             username=GEOSERVER_USER, 
             password=GEOSERVER_PASS)
     #
