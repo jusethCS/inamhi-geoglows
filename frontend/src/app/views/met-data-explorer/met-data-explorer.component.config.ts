@@ -5,13 +5,13 @@ export class dataApp{
 
   // Satellite based products
   public satelliteData =   [
-    { Variable: 'Precipitación',  Product: 'PERSIANN CCS',     Code:"persiann-ccs-hourly",   Temporal: 'Horaria' },
+    //{ Variable: 'Precipitación',  Product: 'PERSIANN CCS',     Code:"persiann-ccs-hourly",   Temporal: 'Horaria' },
     { Variable: 'Precipitación',  Product: 'PERSIANN CCS',     Code:"persiann-ccs-daily",    Temporal: 'Diaria' },
-    { Variable: 'Precipitación',  Product: 'PERSIANN PDIR',    Code:"persiann-pdir-hourly",  Temporal: 'Horaria' },
+    //{ Variable: 'Precipitación',  Product: 'PERSIANN PDIR',    Code:"persiann-pdir-hourly",  Temporal: 'Horaria' },
     { Variable: 'Precipitación',  Product: 'PERSIANN PDIR',    Code:"persiann-pdir-daily",   Temporal: 'Diaria' },
-    { Variable: 'Precipitación',  Product: 'IMERG Early Run',  Code:"imerg-early-hourly",    Temporal: 'Horaria' },
+    //{ Variable: 'Precipitación',  Product: 'IMERG Early Run',  Code:"imerg-early-hourly",    Temporal: 'Horaria' },
     { Variable: 'Precipitación',  Product: 'IMERG Early Run',  Code:"imerg-early-daily",     Temporal: 'Diaria' },
-    { Variable: 'Precipitación',  Product: 'IMERG Late Run',   Code:"imerg-late-hourly",     Temporal: 'Horaria' },
+    //{ Variable: 'Precipitación',  Product: 'IMERG Late Run',   Code:"imerg-late-hourly",     Temporal: 'Horaria' },
     { Variable: 'Precipitación',  Product: 'IMERG Late Run',   Code:"imerg-late-daily",      Temporal: 'Diaria' },
   ];
 

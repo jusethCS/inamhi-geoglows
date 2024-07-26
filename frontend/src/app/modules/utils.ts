@@ -117,12 +117,30 @@ export class utils{
   public getInitForecastDate(today:boolean = true): string {
     const now = new Date();
     if(!today){
-      now.setUTCDate(now.getUTCDate() - 3)
+      now.setUTCDate(now.getUTCDate() - 1)
     }
     const year = now.getUTCFullYear();
     const month = String(now.getUTCMonth() + 1).padStart(2, '0');
     const day = String(now.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}00Z`;
+  }
+
+  public getAcumulatedDate7():string{
+    let today = new Date();
+    if (today.getHours() < 8) {
+      today.setDate(today.getDate() - 1);
+    }
+    const year_today = today.getUTCFullYear();
+    const month_today = String(today.getUTCMonth() + 1).padStart(2, '0');
+    const day_today = String(today.getUTCDate()).padStart(2, '0');
+
+    let yesterday = new Date(today);
+    yesterday.setUTCDate(today.getUTCDate() - 1);
+    const year_yesterday = yesterday.getUTCFullYear();
+    const month_yesterday = String(yesterday.getUTCMonth() + 1).padStart(2, '0');
+    const day_yesterday = String(yesterday.getUTCDate()).padStart(2, '0');
+
+    return `<br>Desde ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 hasta ${year_today}-${month_today}-${day_today} 07:00`
   }
 
   public formatForecastDate(input: string): string {

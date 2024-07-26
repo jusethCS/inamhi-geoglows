@@ -121,7 +121,7 @@ export class MetDataExplorerComponent {
   public provinceLayer: any;
   public cantonLayer:any;
   public isActiveCitiesLayer:boolean = true;
-  public isActiveProvinceLayer: boolean = false;
+  public isActiveProvinceLayer: boolean = true;
   public isActiveCantonLayer:boolean = false;
 
   // Point plot
@@ -132,8 +132,13 @@ export class MetDataExplorerComponent {
   public isPlay:boolean = false;
 
   // Fire options
-  public isActiveFireVIIRS:boolean = false;
-  public fireVIIRSLayer: any;
+  public isActivePacum24:boolean = false;
+  public isActiveNoRain = false;
+  public isActiveSoilMoisture:boolean = false;
+  public isActiveFireVIIRS24:boolean = false;
+  public isActiveHaines: boolean = false;
+  public FireVIIRSLayer: any;
+  public fireVIIRSLegend: any;
 
   // Plot - geographical area
   public ecuadorData = this.dataAppConfig.ecuador;
@@ -171,14 +176,9 @@ export class MetDataExplorerComponent {
       'https://abcd.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
         zIndex: -1
       });
-    const esri = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
-        zIndex: -1
-      });
     const baseMaps = {
       "Mapa claro": osm,
-      'Mapa oscuro': carto,
-      "Topografico": esri
+      'Mapa oscuro': carto
     };
 
     // Add base map
@@ -230,27 +230,27 @@ export class MetDataExplorerComponent {
   }
 
   public initializeOverlays(){
-    this.citiesLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png');
+    this.citiesLayer = L.tileLayer(
+      'https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png', {
+        zIndex: 1100
+      });
     this.citiesLayer.addTo(this.map);
     this.provinceLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
       layers: 'ecuador-limits:provincias',
       format: 'image/png',
       transparent: true,
-      version: '1.1.0'
+      version: '1.1.0',
+      zIndex: 1000
     });
+    this.provinceLayer.addTo(this.map);
     this.cantonLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
       layers: 'ecuador-limits:cantones',
       format: 'image/png',
       transparent: true,
-      version: '1.1.0'
+      version: '1.1.0',
+      zIndex: 900
     });
-    this.fireVIIRSLayer = L.tileLayer.wms(
-      'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/time_since_detection_4/75d41dd1e5a2735af15f180c3ef8af81/tsd_4_viirs_all', {
-        layers: 'tsd_4_viirs_all',
-        format: 'image/png',
-        transparent: true,
-      });
-    const overlayers = [this.fireVIIRSLayer, this.cantonLayer, this.provinceLayer, this.citiesLayer];
+    const overlayers = [this.cantonLayer, this.provinceLayer, this.citiesLayer];
     this.map.on('layeradd', function(){
       overlayers.map(layer => layer.bringToFront());
     });
@@ -348,6 +348,10 @@ export class MetDataExplorerComponent {
   public updateSatelliteLayer(): void {
     this.quitAutoUpdateGoes();
     this.isPlay = false;
+    this.isActivePacum24 = false;
+    this.isActiveNoRain = false;
+    this.isActiveSoilMoisture = false;
+    this.isActiveHaines = false;
     let layerCode = this.satelliteData.filter(
         (item) =>
           item.Variable === this.selectedSatelliteVariable &&
@@ -389,6 +393,10 @@ export class MetDataExplorerComponent {
 
   public async updateGoesLayer(){
     this.isPlay = false;
+    this.isActivePacum24 = false;
+    this.isActiveNoRain = false;
+    this.isActiveSoilMoisture = false;
+    this.isActiveHaines = false;
     let layerCode = this.goesData.filter(
       (item) =>
         item.Product === this.selectedGoesProduct &&
@@ -445,6 +453,10 @@ export class MetDataExplorerComponent {
   public async updateForecastLayer(){
     this.quitAutoUpdateGoes();
     this.isPlay = false;
+    this.isActivePacum24 = false;
+    this.isActiveNoRain = false;
+    this.isActiveSoilMoisture = false;
+    this.isActiveHaines = false;
     const layerCode = this.forecastData.filter(
       (item) =>
         item.Model === this.selectedForecastModel &&
@@ -496,6 +508,10 @@ export class MetDataExplorerComponent {
   public stopTimeControl(){
     this.timeControl !== undefined && this.timeControl.destroy();
     this.isPlay = false;
+    this.isActivePacum24 = false;
+    this.isActiveNoRain = false;
+    this.isActiveSoilMoisture = false;
+    this.isActiveHaines = false;
   }
   public previousTimeControl(){
     this.timeControl?.previous();
@@ -532,21 +548,158 @@ export class MetDataExplorerComponent {
   }
 
 
-  public updateFireVIIRS(){
-    if(this.isActiveFireVIIRS){
-      this.fireVIIRSLayer = L.tileLayer.wms(
-        'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/time_since_detection_4/75d41dd1e5a2735af15f180c3ef8af81/tsd_4_viirs_all', {
-          layers: 'tsd_4_viirs_all',
-          format: 'image/png',
-          transparent: true,
-        });
-      this.fireVIIRSLayer.addTo(this.map);
-      const overlayers = [this.fireVIIRSLayer, this.cantonLayer, this.provinceLayer, this.citiesLayer];
-      this.map.on('layeradd', function(){
-        overlayers.map(layer => layer.bringToFront());
-      });
+  public updatePacum24(){
+    this.quitAutoUpdateGoes();
+    this.isPlay = false;
+    if(this.isActivePacum24){
+      //this.isActivePacum24 = false;
+      this.isActiveNoRain = false;
+      this.isActiveSoilMoisture = false;
+      this.isActiveHaines = false;
+      const url = `${environment.urlGeoserver}/fireforest/wms`;
+      const layer = 'fireforest:daily_precipitation';
+      const wmsLayer = [this.getLeafletLayer(url, layer)];
+      const layerTag = [this.utilsApp.getAcumulatedDate7()];
+      const title = "Precipitacion acumulada"
+      const img = `assets/img/legend-persiann-pdir-daily.png`;
+      this.timeControl !== undefined && this.timeControl.destroy();
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img);
+      this.activeURLLayer = url;
+      this.activeLayers = wmsLayer.map(layer => layer.options.layers);
+      this.activeLayersCode = [layer];
+      this.activeDates = layerTag;
+      this.plotClass = "satellite";
     }else{
-      this.map.removeLayer(this.fireVIIRSLayer);
+      this.timeControl !== undefined && this.timeControl.destroy();
+    }
+  }
+
+
+  public updateNoRain(){
+    this.quitAutoUpdateGoes();
+    this.isPlay = false;
+    if(this.isActiveNoRain){
+      this.isActivePacum24 = false;
+      //this.isActiveNoRain = false;
+      this.isActiveSoilMoisture = false;
+      this.isActiveHaines = false;
+      const url = `${environment.urlGeoserver}/fireforest/wms`;
+      const layer = 'fireforest:no_precipitation_days';
+      const wmsLayer = [this.getLeafletLayer(url, layer)];
+      const layerTag = [this.utilsApp.getAcumulatedDate7()];
+      const title = "Dias consecutivos sin lluvia"
+      const img = `assets/img/days-without-precipitation.png`;
+      this.timeControl !== undefined && this.timeControl.destroy();
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img);
+      this.activeURLLayer = url;
+      this.activeLayers = wmsLayer.map(layer => layer.options.layers);
+      this.activeLayersCode = [layer];
+      this.activeDates = layerTag;
+      this.plotClass = "satellite";
+    }else{
+      this.timeControl !== undefined && this.timeControl.destroy();
+    }
+  }
+
+  public updateSoilMoisture(){
+    this.quitAutoUpdateGoes();
+    this.isPlay = false;
+    if(this.isActiveSoilMoisture){
+      this.isActivePacum24 = false;
+      this.isActiveNoRain = false;
+      //this.isActiveSoilMoisture = false;
+      this.isActiveHaines = false;
+      const url = `${environment.urlGeoserver}/fireforest/wms`;
+      const layer = 'fireforest:soil_moisture';
+      const wmsLayer = [this.getLeafletLayer(url, layer)];
+      const layerTag = [this.utilsApp.getAcumulatedDate7()];
+      const title = "Humedad del suelo"
+      const img = `assets/img/soil-moisture.png`;
+      this.timeControl !== undefined && this.timeControl.destroy();
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img);
+      this.activeURLLayer = url;
+      this.activeLayers = wmsLayer.map(layer => layer.options.layers);
+      this.activeLayersCode = [layer];
+      this.activeDates = layerTag;
+      this.plotClass = "satellite";
+    }else{
+      this.timeControl !== undefined && this.timeControl.destroy();
+    }
+  }
+
+  public updateFireVIIRS(): void {
+    if (this.isActiveFireVIIRS24) {
+      const url = "http://ec2-3-211-227-44.compute-1.amazonaws.com/api/geoglows/firms-data-24";
+      fetch(url)
+        .then((response) => response.json())
+        .then((response) => {
+
+          this.FireVIIRSLayer =  L.geoJSON(response, {
+            pointToLayer: (feature, latlng) => {
+              return L.marker(latlng, {
+                icon: L.icon({
+                  iconUrl: `assets/icons/fireforest/${feature.properties.icon}.svg`,
+                  iconSize: [16, 16],
+                  iconAnchor: [8, 8],
+                })
+              });
+            }
+          }).addTo(this.map);
+
+          let legendElement = document.createElement('div');
+          this.fireVIIRSLegend = new L.Control({ position: 'bottomright' });
+          this.fireVIIRSLegend.onAdd = () => legendElement;
+          this.fireVIIRSLegend.addTo(this.map);
+
+          legendElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+          legendElement.style.color = 'black';
+          legendElement.style.padding = '5px';
+          legendElement.style.borderRadius = "5px"
+
+          const imageElement = document.createElement('img');
+          imageElement.src = `assets/img/firepower.png`;
+          imageElement.height = 250;
+          legendElement.innerHTML = "";
+          legendElement.appendChild(imageElement);
+        });
+    } else {
+      this.FireVIIRSLayer !== undefined && this.map.removeLayer(this.FireVIIRSLayer);
+      this.fireVIIRSLegend !== undefined && this.fireVIIRSLegend.remove();
+    }
+  }
+
+  public async updateHaines(){
+    this.quitAutoUpdateGoes();
+    this.isPlay = false;
+    if (this.isActiveHaines) {
+      this.isActivePacum24 = false;
+      this.isActiveNoRain = false;
+      this.isActiveSoilMoisture = false;
+      //this.isActiveHaines = false;
+
+      const url = `${environment.urlGeoserver}/wrf-haines/wms`;
+      const initForecastDate = this.utilsApp.getInitForecastDate();
+      let layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDate}-3H`);
+      if(layers.length === 0){
+        const initForecastDateLast = this.utilsApp.getInitForecastDate(false);
+        layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDateLast}-3H`);
+      }
+
+      const img = `assets/img/haines.png`;
+      const title = `Indice de Haines`
+      const layerTags = layers.map(layer => `<br>${this.utilsApp.formatForecastDate(layer)}`);
+      let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
+      if (this.timeControl !== undefined) {
+        this.timeControl.destroy();
+      }
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, layerTags, title, img);
+
+      // Status plot
+      this.activeURLLayer = url;
+      this.activeLayers = wmsLayers.map(layer => layer.options.layers);
+      this.activeLayersCode = layers.map(layer => `wrf-haines:${layer}`)
+      this.activeDates = layers.map(layer => this.utilsApp.formatForecastDatePlot(layer));;
+      this.plotClass = "forecast";
     }
   }
 

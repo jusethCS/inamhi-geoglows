@@ -147,12 +147,29 @@
     <!--------------------------------------------------------------------------------------->
     <app-dropdown iconClass="fa-regular fa-fire" title="Incendios forestales">
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="drougth-days">
+        <input class="form-check-input" type="checkbox" id="pacum24"
+          [(ngModel)]="isActivePacum24" (ngModelChange)="updatePacum24()">
+        <label class="form-check-label" for="pacum24">Precipitación diaria</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="drougth-days"
+          [(ngModel)]="isActiveNoRain"  (ngModelChange)="updateNoRain()">
         <label class="form-check-label" for="drougth-days">Días consecutivos sin lluvia</label>
       </div>
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="fire-viirs" [(ngModel)]="isActiveFireVIIRS" (ngModelChange)="updateFireVIIRS()">
-        <label class="form-check-label" for="fire-viirs">Focos de calor VIIRS (24 horas)</label>
+        <input class="form-check-input" type="checkbox" id="soilmoisture"
+          [(ngModel)]="isActiveSoilMoisture"  (ngModelChange)="updateSoilMoisture()">
+        <label class="form-check-label" for="soilmoisture">Humedad del suelo</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="fire-viirs-24"
+          [(ngModel)]="isActiveFireVIIRS24" (ngModelChange)="updateFireVIIRS()">
+        <label class="form-check-label" for="fire-viirs-24">Focos de calor MODIS/VIIRS</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="haines"
+          [(ngModel)]="isActiveHaines" (ngModelChange)="updateHaines()">
+        <label class="form-check-label" for="haines">Indice de Haines</label>
       </div>
     </app-dropdown>
 
