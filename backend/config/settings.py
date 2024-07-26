@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-(+pym@eth3h+d^8e+ui)gsr(d9j920ec@8k=tpr5brtg@h5sg9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'ec2-3-211-227-44.compute-1.amazonaws.com']
+ALLOWED_HOSTS = [
+    'localhost', 
+    'ec2-54-234-81-180.compute-1.amazonaws.com',
+    'inamhi.geoglows.org'
+]
 
 
 # Application definition
@@ -128,8 +132,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://ec2-3-211-227-44.compute-1.amazonaws.com",
-    "https://ec2-3-211-227-44.compute-1.amazonaws.com",
+    "http://ec2-54-234-81-180.compute-1.amazonaws.com",
+    "https://ec2-54-234-81-180.compute-1.amazonaws.com",
+    "http://inamhi.geoglows.org",
+    "https://inamhi.geoglows.org",
     "http://localhost:4200",
 ]
 
