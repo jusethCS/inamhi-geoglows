@@ -700,6 +700,8 @@ export class MetDataExplorerComponent {
       this.activeLayersCode = layers.map(layer => `wrf-haines:${layer}`)
       this.activeDates = layers.map(layer => this.utilsApp.formatForecastDatePlot(layer));;
       this.plotClass = "forecast";
+    } else {
+      this.timeControl !== undefined && this.timeControl.destroy();
     }
   }
 
