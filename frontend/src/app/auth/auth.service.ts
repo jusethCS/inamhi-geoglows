@@ -28,14 +28,14 @@ export class AuthService {
 
   // Retrieve JWT token for user authentication
   get_token(email:string, password:string):Observable<any>{
-    const url = environment.urlAPI + "login?user=" + email + "&pass=" + password;
+    const url = environment.urlAPI + "/login?user=" + email + "&pass=" + password;
     return this.http.get(url)
   }
 
   // Register user
   register_user(data:any):Observable<any>{
     const url = environment.urlAPI +
-                  "register?email=" + data.email +
+                  "/register?email=" + data.email +
                   "&pass=" + data.pass +
                   "&firstname=" + data.firstname +
                   "&lastname=" + data.lastname +
