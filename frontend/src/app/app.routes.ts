@@ -6,6 +6,7 @@ import { AppsComponent } from './views/apps/apps.component';
 import { ClimateTrendsComponent } from './views/climate-trends/climate-trends.component';
 import { MetDataExplorerComponent } from './views/met-data-explorer/met-data-explorer.component';
 import { LoginRedirectComponent } from './views/login-redirect/login-redirect.component';
+import { HydroviewerComponent } from './views/hydroviewer/hydroviewer.component';
 
 export const routes: Routes = [
   // ----------------------------------------------------------------------- //
@@ -40,5 +41,9 @@ export const routes: Routes = [
   {
     path: "apps/met-data-explorer",
     component: MetDataExplorerComponent,
+  },
+  {
+    path: "apps/hydroviewer-ecuador",
+    component: HydroviewerComponent,
   },
 ];

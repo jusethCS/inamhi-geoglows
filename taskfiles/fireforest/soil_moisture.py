@@ -159,6 +159,7 @@ dfs = [asm1, asm2, asm3, asm4]
 ffgs = dfs[0]
 for df in dfs[1:]:
     ffgs = pd.merge(ffgs, df, on="BASIN", how="outer")
+    
 ffgs['asm'] = ffgs[['asm1', 'asm2', 'asm3', 'asm4']].mean(axis=1, skipna=True)
 
 # Combine data with shapefile
