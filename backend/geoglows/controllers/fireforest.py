@@ -50,7 +50,7 @@ def assign_icon(frp):
 
 def get_heatpoints_24h():
     now = dt.datetime.now() - dt.timedelta(hours=5)
-    start = (now - dt.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:00")
+    start = (now - dt.timedelta(days=2)).strftime("%Y-%m-%d %H:%M:00")
     con = db.connect()
     sql = f"select * from heatpoint where acq_datetime>'{start}' order by frp ASC"
     query = pd.read_sql(sql, con)

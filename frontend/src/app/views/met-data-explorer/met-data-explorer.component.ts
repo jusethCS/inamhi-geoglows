@@ -586,7 +586,7 @@ export class MetDataExplorerComponent {
       const url = `${environment.urlGeoserver}/fireforest/wms`;
       const layer = 'fireforest:no_precipitation_days';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
-      const layerTag = [this.utilsApp.getAcumulatedDate7()];
+      const layerTag = [this.utilsApp.getUpdateNoRain()];
       const title = "Dias consecutivos sin lluvia"
       const img = `assets/img/days-without-precipitation.png`;
       this.timeControl !== undefined && this.timeControl.destroy();

@@ -143,6 +143,18 @@ export class utils{
     return `<br>Desde ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 hasta ${year_today}-${month_today}-${day_today} 07:00`
   }
 
+  public getUpdateNoRain():string{
+    let today = new Date();
+    if (today.getHours() < 8) {
+      today.setDate(today.getDate() - 1);
+    }
+    const year_today = today.getUTCFullYear();
+    const month_today = String(today.getUTCMonth() + 1).padStart(2, '0');
+    const day_today = String(today.getUTCDate()).padStart(2, '0');
+
+    return `<br>Última actualización: ${year_today}-${month_today}-${day_today} 07:00<br><span style='font-size:10px; font-weigth:200'>*Se considera sin lluvia a días con precipitaciones acumuladas menores a 2mm</span>`
+  }
+
   public formatForecastDate(input: string): string {
     const regex = /(\d{4}-\d{2}-\d{2})(\d{2}Z)-(\d+H)-(\d{8})(\d{2}h\d{2})/;
     const matches = input.match(regex);
