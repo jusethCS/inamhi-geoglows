@@ -214,7 +214,7 @@ def get_no_rain_days(noprec_file, persiann_file):
     #
     with rasterio.open(persiann_file) as src:
         persiann_data = src.read(1)
-        mask = persiann_data < 1
+        mask = persiann_data < 2
     #
     out = mask * (noprec_data + 1)
     #
