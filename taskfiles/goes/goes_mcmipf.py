@@ -34,7 +34,7 @@ def write_RGB(R, G, B, profile, output):
     #
     # Apply the gamma correction to Red channel.
     gamma = 0.4
-    R = np.power(R, 1/gamma)
+    R = np.power(R, gamma)
     #
     # Write the RGB file
     with rasterio.open(output, 'w', **profile) as dst:
