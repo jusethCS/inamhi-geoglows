@@ -171,6 +171,11 @@
           [(ngModel)]="isActiveHaines" (ngModelChange)="updateHaines()">
         <label class="form-check-label" for="haines">Indice de Haines</label>
       </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="fire-goes"
+          [(ngModel)]="isActiveFireGOES" (ngModelChange)="autoUpdateFireGOES()">
+        <label class="form-check-label" for="fire-goes">Fire Temperature GOES</label>
+      </div>
     </app-dropdown>
 
     <!--------------------------------------------------------------------------------------->

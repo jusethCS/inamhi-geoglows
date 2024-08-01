@@ -152,7 +152,7 @@ export class utils{
     const month_today = String(today.getUTCMonth() + 1).padStart(2, '0');
     const day_today = String(today.getUTCDate()).padStart(2, '0');
 
-    return `<br>Última actualización: ${year_today}-${month_today}-${day_today} 07:00<br><span style='font-size:10px; font-weigth:200'>*Se considera sin lluvia a días con precipitaciones acumuladas menores a 2mm</span>`
+    return `<br>Última actualización: ${year_today}-${month_today}-${day_today} 07:00<br><span style='font-size:10px; font-weigth:200'>*Se considera "sin lluvia significativa" a días con precipitaciones acumuladas menores a 2mm</span>`
   }
 
   public formatForecastDate(input: string): string {

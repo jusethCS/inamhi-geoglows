@@ -58,7 +58,7 @@ export class WMSLayerTimeControl {
       if (this.layers.length > 0) {
           this.updateLegend();
           this.layers.forEach(layer => {layer.setOpacity(0).addTo(this.map);});
-          this.layers[0].setOpacity(0.6);
+          this.layers[0].setOpacity(0.9);
       }
   }
 
@@ -111,12 +111,12 @@ export class WMSLayerTimeControl {
 
   private updateLayerNext() {
       this.layers[this.currentDateIndex - 1]?.setOpacity(0);
-      this.layers[this.currentDateIndex]?.setOpacity(0.6);
+      this.layers[this.currentDateIndex]?.setOpacity(0.9);
   }
 
   private updateLayerPrevious() {
     this.layers[this.currentDateIndex + 1]?.setOpacity(0);
-    this.layers[this.currentDateIndex]?.setOpacity(0.6);
+    this.layers[this.currentDateIndex]?.setOpacity(0.9);
   }
 
   private updateLegend() {

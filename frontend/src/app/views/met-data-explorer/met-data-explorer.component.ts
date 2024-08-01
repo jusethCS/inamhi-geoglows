@@ -137,6 +137,7 @@ export class MetDataExplorerComponent {
   public isActiveSoilMoisture:boolean = false;
   public isActiveFireVIIRS24:boolean = false;
   public isActiveHaines: boolean = false;
+  public isActiveFireGOES: boolean = false;
   public FireVIIRSLayer: any;
   public fireVIIRSLegend: any;
 
@@ -352,6 +353,7 @@ export class MetDataExplorerComponent {
     this.isActiveNoRain = false;
     this.isActiveSoilMoisture = false;
     this.isActiveHaines = false;
+    this.isActiveFireGOES = false;
     let layerCode = this.satelliteData.filter(
         (item) =>
           item.Variable === this.selectedSatelliteVariable &&
@@ -397,6 +399,7 @@ export class MetDataExplorerComponent {
     this.isActiveNoRain = false;
     this.isActiveSoilMoisture = false;
     this.isActiveHaines = false;
+    this.isActiveFireGOES = false;
     let layerCode = this.goesData.filter(
       (item) =>
         item.Product === this.selectedGoesProduct &&
@@ -556,6 +559,7 @@ export class MetDataExplorerComponent {
       this.isActiveNoRain = false;
       this.isActiveSoilMoisture = false;
       this.isActiveHaines = false;
+      this.isActiveFireGOES = false;
       const url = `${environment.urlGeoserver}/fireforest/wms`;
       const layer = 'fireforest:daily_precipitation';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
@@ -583,11 +587,12 @@ export class MetDataExplorerComponent {
       //this.isActiveNoRain = false;
       this.isActiveSoilMoisture = false;
       this.isActiveHaines = false;
+      this.isActiveFireGOES = false;
       const url = `${environment.urlGeoserver}/fireforest/wms`;
       const layer = 'fireforest:no_precipitation_days';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
       const layerTag = [this.utilsApp.getUpdateNoRain()];
-      const title = "Dias consecutivos sin lluvia"
+      const title = "Dias consecutivos sin lluvia significativa"
       const img = `assets/img/days-without-precipitation.png`;
       this.timeControl !== undefined && this.timeControl.destroy();
       this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img);
@@ -609,6 +614,7 @@ export class MetDataExplorerComponent {
       this.isActiveNoRain = false;
       //this.isActiveSoilMoisture = false;
       this.isActiveHaines = false;
+      this.isActiveFireGOES = false;
       const url = `${environment.urlGeoserver}/fireforest/wms`;
       const layer = 'fireforest:soil_moisture';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
@@ -676,6 +682,7 @@ export class MetDataExplorerComponent {
       this.isActiveNoRain = false;
       this.isActiveSoilMoisture = false;
       //this.isActiveHaines = false;
+      this.isActiveFireGOES = false;
 
       const url = `${environment.urlGeoserver}/wrf-haines/wms`;
       const initForecastDate = this.utilsApp.getInitForecastDate();
@@ -700,6 +707,38 @@ export class MetDataExplorerComponent {
       this.activeLayersCode = layers.map(layer => `wrf-haines:${layer}`)
       this.activeDates = layers.map(layer => this.utilsApp.formatForecastDatePlot(layer));;
       this.plotClass = "forecast";
+    } else {
+      this.timeControl !== undefined && this.timeControl.destroy();
+    }
+  }
+
+  public async updateFireGOES(){
+    const layerCode = "GOES-fire-product"
+    let url = `${environment.urlGeoserver}/${layerCode}/wms`;
+    let img = `assets/img/${layerCode}.png`;
+    let layers = await this.utilsApp.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
+    let dates = this.utilsApp.parseGOESDate(layers);
+    let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
+    this.timeControl !== undefined && this.timeControl.destroy();
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, "Fire temperature", img);
+    // Status plot
+    this.activeURLLayer = url;
+    this.activeLayers = wmsLayers.map(layer => layer.options.layers);
+    this.activeLayersCode = layers.map(layer => `${layerCode}:${layer}`)
+    this.activeDates = dates;
+    this.plotClass = "goes";
+  }
+
+  public async autoUpdateFireGOES(){
+    this.quitAutoUpdateGoes();
+    this.isPlay = false;
+    if(this.isActiveFireGOES){
+      this.isActivePacum24 = false;
+      this.isActiveNoRain = false;
+      this.isActiveSoilMoisture = false;
+      this.isActiveHaines = false;
+      //this.isActiveFireGOES = false;
+      this.updateFireGOES();
     } else {
       this.timeControl !== undefined && this.timeControl.destroy();
     }
