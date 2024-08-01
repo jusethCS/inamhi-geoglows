@@ -36,6 +36,11 @@ def write_RGB(R, G, B, profile, output):
     gamma = 0.4
     R = np.power(R, 1/gamma)
     #
+    # Scale to 0-255 and convert to uint8
+    R = (R * 255).astype(np.uint8)
+    G = (G * 255).astype(np.uint8)
+    B = (B * 255).astype(np.uint8)
+    #
     # Write the RGB file
     with rasterio.open(output, 'w', **profile) as dst:
         dst.write(R, 1)
@@ -148,7 +153,7 @@ for filename in files:
             B = src.read(1)
         #
         # Update the geotiff profile
-        profile.update(count=3) #, dtype=rasterio.uint8)
+        profile.update(count=3, dtype=rasterio.uint8)
         #
         # Generate and upload the fire product
         write_RGB(R, G, B, profile, f"{filename}.tif")
