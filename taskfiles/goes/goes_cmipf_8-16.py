@@ -101,7 +101,7 @@ def parse_goes(path, outpath):
     time_bounds = CMI.time_bounds
     #
     # Crea una rejilla de mapa en proyección cilíndrica equidistante
-    LonCenCyl, LatCenCyl = GOES.create_gridmap(domain, PixResol=2.0)
+    LonCenCyl, LatCenCyl = GOES.create_gridmap(domain, PixResol=0.5)
     #
     # Define la proyección utilizando pyproj
     Prj = pyproj.Proj('+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +a=6378.137 +b=6378.137 +units=km')
