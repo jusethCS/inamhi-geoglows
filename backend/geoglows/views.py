@@ -22,6 +22,12 @@ def download_soil_moisture(request):
         "fireforest", "soil_moisture", "soil_moisture.tif")
     return response
 
+def download_layer(request):
+    workspace = request.GET.get('workspace')
+    layer = request.GET.get('layer')
+    response = stream_file(workspace, layer, f"{workspace}-{layer}.tif")
+    return response
+
 def heatpoints_24h(request):
     data = get_heatpoints_24h()
     return JsonResponse(data)

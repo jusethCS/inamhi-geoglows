@@ -15,4 +15,4 @@ def stream_file(workspace, layer, output):
     except FileNotFoundError:
         return HttpResponse('File not found', status=404)
     except Exception as e:
-        return HttpResponse(f'Error processing file: {e}', status=500)
+        return HttpResponse(f'Error processing file: {e}', status=500) 
