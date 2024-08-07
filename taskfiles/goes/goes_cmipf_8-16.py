@@ -6,8 +6,6 @@ import datetime
 import subprocess
 import numpy as np
 import pandas as pd
-from osgeo import osr
-from osgeo import gdal
 import pyproj as pyproj
 from pyresample import utils
 from dotenv import load_dotenv
@@ -15,7 +13,9 @@ from geo.Geoserver import Geoserver
 from pyresample.geometry import SwathDefinition
 from pyresample.kd_tree import resample_nearest
 from dateutil.relativedelta import relativedelta
-
+import rasterio
+from rasterio.transform import from_bounds
+from rasterio.crs import CRS
 
 
 ###############################################################################
@@ -31,49 +31,7 @@ GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
 ###############################################################################
 #                             AUXILIAR FUNCTIONS                              #
 ###############################################################################
-def save_as_geotiff(Field, LonsCen, LatsCen, OutputFileName):
-    """
-    Guarda una matriz de datos como un archivo GeoTIFF georreferenciado.
-
-    Parámetros:
-        Field : 2D numpy array
-            La matriz de datos a guardar.
-        LonsCen : 2D numpy array
-            Longitudes de los centros de las celdas.
-        LatsCen : 2D numpy array
-            Latitudes de los centros de las celdas.
-        OutputFileName : str
-            Nombre del archivo de salida GeoTIFF.
-    """
-    # Calcula las diferencias de longitud y latitud entre las celdas
-    deltaLon = LonsCen[0, 1] - LonsCen[0, 0]
-    deltaLat = LatsCen[1, 0] - LatsCen[0, 0]
-    #
-    # Calcula las coordenadas de la esquina superior izquierda
-    LonCor = LonsCen[0, 0] - (deltaLon) / 2.0
-    LatCor = LatsCen[0, 0] - (deltaLat) / 2.0
-    #
-    # Crea el archivo GeoTIFF con las dimensiones y tipo de dato apropiado
-    driver = gdal.GetDriverByName('GTiff')
-    outRaster = driver.Create(OutputFileName, Field.shape[1], Field.shape[0], 1, gdal.GDT_Float32)
-    #
-    # Define la transformación geográfica (origen, tamaño de pixel y rotación)
-    outRaster.SetGeoTransform((LonCor, deltaLon, 0, LatCor, 0, deltaLat))
-    #
-    # Escribe la matriz de datos en el archivo GeoTIFF
-    outband = outRaster.GetRasterBand(1)
-    outband.WriteArray(Field)
-    #
-    # Define el sistema de referencia espacial (EPSG:4326 corresponde a WGS 84)
-    outRasterSRS = osr.SpatialReference()
-    outRasterSRS.ImportFromEPSG(4326)
-    outRaster.SetProjection(outRasterSRS.ExportToWkt())
-    #
-    # Asegura que todos los datos se escriban en el archivo
-    outband.FlushCache()
-
-
-def parse_goes(path, outpath):
+def parse_goes(path, outpath, pixel):
     """
     Parse y procesa un archivo de datos GOES para generar una imagen GeoTIFF.
 
@@ -101,7 +59,7 @@ def parse_goes(path, outpath):
     time_bounds = CMI.time_bounds
     #
     # Crea una rejilla de mapa en proyección cilíndrica equidistante
-    LonCenCyl, LatCenCyl = GOES.create_gridmap(domain, PixResol=0.5)
+    LonCenCyl, LatCenCyl = GOES.create_gridmap(domain, PixResol=pixel)
     #
     # Define la proyección utilizando pyproj
     Prj = pyproj.Proj('+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +a=6378.137 +b=6378.137 +units=km')
@@ -130,8 +88,27 @@ def parse_goes(path, outpath):
     CMICyl = resample_nearest(SwathDef, CMI.data, AreaDef, radius_of_influence=6000,
                               fill_value=np.nan, epsilon=3, reduce_data=True)
     #
-    # Guarda los datos re-muestreados como un archivo GeoTIFF
-    save_as_geotiff(CMICyl, LonCenCyl.data, LatCenCyl.data, outpath)
+    # Definir la transformación afín usando los límites del dominio
+    lon_min, lon_max, lat_min, lat_max = domain
+    transform = from_bounds(lon_min, lat_min, lon_max, lat_max, nx, ny)
+    #
+    # Definir el sistema de coordenadas (CRS)
+    crs = CRS.from_epsg(4326)
+    #
+    # Guardar los datos en un archivo GeoTIFF
+    with rasterio.open(
+        outpath,
+        'w',
+        driver='GTiff',
+        height=CMICyl.shape[0],
+        width=CMICyl.shape[1],
+        count=1,
+        dtype=CMICyl.dtype,
+        crs=crs,
+        transform=transform,
+    ) as dst:
+        dst.write(CMICyl, 1)
+
 
 
 def extract_datetime_from_path(path):
@@ -153,7 +130,7 @@ def extract_datetime_from_path(path):
     return date_time
 
 
-def goes_to_geoserver(product, band, workdir, styled=False):     
+def goes_to_geoserver(product, band, workdir, pixelBand, styled=False):     
     # Generate dates (start and end)
     now = datetime.datetime.now()
     start = now - relativedelta(hours=1)
@@ -188,7 +165,7 @@ def goes_to_geoserver(product, band, workdir, styled=False):
         layer_name = start.strftime('%Y%m%d%H%M')
         outpath = start.strftime('%Y%m%d%H%M.tif')
         try:
-            parse_goes(nc_file, outpath)
+            parse_goes(nc_file, outpath, pixelBand)
         except:
             print("GOES data was not parse to TIFF")
             pass
@@ -223,8 +200,6 @@ def goes_to_geoserver(product, band, workdir, styled=False):
         if os.path.isfile(ruta_completa):
             os.unlink(ruta_completa)
 
-
-
 def delete_coverage(product, band):
     # Generate dates (start and end)
     now = datetime.datetime.now()
@@ -257,8 +232,6 @@ def delete_coverage(product, band):
                 print(f"File {product}-{band}:{layer_name} cannot be deleted!")
 
 
-
-
 ###############################################################################
 #                                MAIN ROUTINE                                 #
 ###############################################################################
@@ -269,29 +242,29 @@ workdir = "/home/ubuntu/data/goes"
 product = "ABI-L2-CMIPF"
 
 # Brigthness temperature Bands
-goes_to_geoserver(product=product, band="08", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="08", workdir=workdir, styled=True, pixelBand=0.5)
 delete_coverage(product=product, band="08")
 
-goes_to_geoserver(product=product, band="09", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="09", workdir=workdir, styled=True, pixelBand=0.5)
 delete_coverage(product=product, band="09")
 
-goes_to_geoserver(product=product, band="10", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="10", workdir=workdir, styled=True, pixelBand=0.5)
 delete_coverage(product=product, band="10")
 
-goes_to_geoserver(product=product, band="11", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="11", workdir=workdir, styled=True, pixelBand=0.5)
 delete_coverage(product=product, band="11")
 
-goes_to_geoserver(product=product, band="12", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="12", workdir=workdir, styled=True, pixelBand=0.5)
 delete_coverage(product=product, band="12")
 
-goes_to_geoserver(product=product, band="13", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="13", workdir=workdir, styled=True, pixelBand=0.5)
 delete_coverage(product=product, band="13")
 
-goes_to_geoserver(product=product, band="14", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="14", workdir=workdir, styled=True, pixelBand=0.5)
 delete_coverage(product=product, band="14")
 
-goes_to_geoserver(product=product, band="15", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="15", workdir=workdir, styled=True, pixelBand=0.5)
 delete_coverage(product=product, band="15")
 
-goes_to_geoserver(product=product, band="16", workdir=workdir, styled=True)
+goes_to_geoserver(product=product, band="16", workdir=workdir, styled=True, pixelBand=0.5)
 delete_coverage(product=product, band="16")
