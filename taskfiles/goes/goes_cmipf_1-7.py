@@ -133,7 +133,7 @@ def extract_datetime_from_path(path):
 def goes_to_geoserver(product, band, workdir, pixelBand, styled=False):     
     # Generate dates (start and end)
     now = datetime.datetime.now()
-    start = now - relativedelta(hours=1)
+    start = now - relativedelta(minutes=30)
     end = now + relativedelta(minutes=30)
     start_str = start.strftime("%Y%m%d-%H%M00")
     end_str = end.strftime("%Y%m%d-%H%M00")
