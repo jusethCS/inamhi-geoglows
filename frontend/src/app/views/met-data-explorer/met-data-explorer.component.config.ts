@@ -35,7 +35,10 @@ export class dataApp{
     {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-14", B:14, Band: 'Banda 14: 11.2 µm ("IR" Longwave Window)'},
     {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-15", B:15, Band: 'Banda 15: 12.3 µm ("Dirty" Longwave Window)'},
     {Product: "Cloud and Moisture Imagery", Code:"GOES-ABI-L2-CMIPF-16", B:16, Band: 'Banda 16: 13.3 µm ("CO2" Longwave Infrared)'},
-    {Product: "Custom RGB Products", Code:"GOES-fire-product", B:16, Band: 'Fire Temperature RGB'}
+
+    {Product: "Custom RGB Products", Code:"GOES-RGB-TRUE-COLOR",       B:16, Band: 'True Color'},
+    {Product: "Custom RGB Products", Code:"GOES-RGB-DAY-CLOUD-PHASE",  B:16, Band: 'Day Cloud Phase Distinction'},
+    {Product: "Custom RGB Products", Code:"GOES-RGB-FIRE-TEMPERATURE", B:16, Band: 'Fire Temperature'}
   ];
 
   public forecastModels: string[] = ["WRF", "GFS", "ECMWF", "ICON"];

@@ -23,7 +23,7 @@ export class WMSLayerTimeControl {
       this.map = map;
       this.layers = layers;
       this.timeInterval = timeInterval;
-      this.currentDateIndex = 0;
+      this.currentDateIndex = this.layers.length-1;
       this.intervalId = null;
       this.timeSerie = timeSerie;
       this.LControl = LControl;
@@ -57,8 +57,11 @@ export class WMSLayerTimeControl {
       // Cargar todas las capas y solo dejar visible la primera
       if (this.layers.length > 0) {
           this.updateLegend();
-          this.layers.forEach(layer => {layer.setOpacity(0).addTo(this.map);});
-          this.layers[0].setOpacity(0.9);
+          for (let i = this.layers.length - 1; i >= 0; i--) {
+            const layer = this.layers[i];
+            layer.setOpacity(0).addTo(this.map);
+          }
+          this.layers[this.layers.length-1].setOpacity(0.9);
       }
   }
 

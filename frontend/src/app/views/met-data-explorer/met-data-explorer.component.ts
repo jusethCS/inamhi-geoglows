@@ -713,7 +713,7 @@ export class MetDataExplorerComponent {
   }
 
   public async updateFireGOES(){
-    const layerCode = "GOES-fire-product"
+    const layerCode = "GOES-RGB-FIRE-TEMPERATURE"
     let url = `${environment.urlGeoserver}/${layerCode}/wms`;
     let img = `assets/img/${layerCode}.png`;
     let layers = await this.utilsApp.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
