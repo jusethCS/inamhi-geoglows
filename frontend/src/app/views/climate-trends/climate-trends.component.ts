@@ -52,8 +52,7 @@ import { dataApp } from './climate-trends.component.config';
   ],
 })
 
-export class ClimateTrendsComponent {
-  // Components variables
+export class ClimateTrendsComponent {  // Components variables
   public isAuth: boolean = false;
   @ViewChild('template') template!: AppTemplateComponent;
 
@@ -78,24 +77,6 @@ export class ClimateTrendsComponent {
   public satelliteMinDate: Date = new Date(2004, 0, 1); //2004-01-01
   public satelliteMaxDate: Date = new Date();
 
-  // GOES product
-  public goesData = this.dataAppConfig.goesData;
-  public goesProducts: string[] = this.dataAppConfig.goesProducts;
-  public selectedGoesProduct: string = this.goesProducts[0];
-  public goesBands: string[] = [];
-  public selectedGoesBand: string = "";
-  public isAutoUpdateGoes: boolean = false;
-  public autoUpdateGoesFun: any;
-
-  // Meteorological modeling
-  public forecastData = this.dataAppConfig.forecastData;
-  public forecastModels: string[] = this.dataAppConfig.forecastModels;
-  public selectedForecastModel: string = this.forecastModels[0];
-  public forecastVariables: string[] = [];
-  public selectedForecastVariable: string = "";
-  public forecastTemporals: string[] = [];
-  public selectedForecastTemporal: string = "";
-
   // Layer information and plot
   public timeControl: WMSLayerTimeControl | undefined;
   public isActiveInfoLayers:boolean = false;
@@ -113,15 +94,13 @@ export class ClimateTrendsComponent {
   public tempPlot: any = {};
   public humPlot: any = {};
   public windPlot: any = {};
-  public goesGrayPlot: any = {};
-  public goesBTPlot: any = {};
 
   // Base layers
   public citiesLayer: any;
   public provinceLayer: any;
   public cantonLayer:any;
   public isActiveCitiesLayer:boolean = true;
-  public isActiveProvinceLayer: boolean = false;
+  public isActiveProvinceLayer: boolean = true;
   public isActiveCantonLayer:boolean = false;
 
   // Point plot
@@ -131,9 +110,6 @@ export class ClimateTrendsComponent {
   // Time control Layers
   public isPlay:boolean = false;
 
-  // Fire options
-  public isActiveFireVIIRS:boolean = false;
-  public fireVIIRSLayer: any;
 
   // Plot - geographical area
   public ecuadorData = this.dataAppConfig.ecuador;
@@ -153,9 +129,6 @@ export class ClimateTrendsComponent {
     this.updateSatelliteProduct();
     this.updateSatelliteTemporal();
     this.initFormDate();
-    this.updateGoesBand();
-    this.updateForecatVariable();
-    this.updateForecastTemporal();
     this.updateCanton();
   }
 
@@ -171,14 +144,9 @@ export class ClimateTrendsComponent {
       'https://abcd.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
         zIndex: -1
       });
-    const esri = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
-        zIndex: -1
-      });
     const baseMaps = {
       "Mapa claro": osm,
-      'Mapa oscuro': carto,
-      "Topografico": esri
+      'Mapa oscuro': carto
     };
 
     // Add base map
@@ -230,27 +198,27 @@ export class ClimateTrendsComponent {
   }
 
   public initializeOverlays(){
-    this.citiesLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png');
+    this.citiesLayer = L.tileLayer(
+      'https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png', {
+        zIndex: 1100
+      });
     this.citiesLayer.addTo(this.map);
     this.provinceLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
       layers: 'ecuador-limits:provincias',
       format: 'image/png',
       transparent: true,
-      version: '1.1.0'
+      version: '1.1.0',
+      zIndex: 1000
     });
+    this.provinceLayer.addTo(this.map);
     this.cantonLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
       layers: 'ecuador-limits:cantones',
       format: 'image/png',
       transparent: true,
-      version: '1.1.0'
+      version: '1.1.0',
+      zIndex: 900
     });
-    this.fireVIIRSLayer = L.tileLayer.wms(
-      'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/time_since_detection_4/75d41dd1e5a2735af15f180c3ef8af81/tsd_4_viirs_all', {
-        layers: 'tsd_4_viirs_all',
-        format: 'image/png',
-        transparent: true,
-      });
-    const overlayers = [this.fireVIIRSLayer, this.cantonLayer, this.provinceLayer, this.citiesLayer];
+    const overlayers = [this.cantonLayer, this.provinceLayer, this.citiesLayer];
     this.map.on('layeradd', function(){
       overlayers.map(layer => layer.bringToFront());
     });
@@ -346,7 +314,6 @@ export class ClimateTrendsComponent {
   }
 
   public updateSatelliteLayer(): void {
-    this.quitAutoUpdateGoes();
     this.isPlay = false;
     let layerCode = this.satelliteData.filter(
         (item) =>
@@ -376,111 +343,6 @@ export class ClimateTrendsComponent {
     this.activeDates = dates;
     this.plotClass = "satellite";
   }
-
-
-  public updateGoesBand(){
-    const filtered = new Set<string>();
-    this.goesData.forEach(item => {
-      if (item.Product === this.selectedGoesProduct) {
-        filtered.add(item.Band)}});
-    this.goesBands = Array.from(filtered);
-    this.selectedGoesBand = this.goesBands[0];
-  }
-
-  public async updateGoesLayer(){
-    this.isPlay = false;
-    let layerCode = this.goesData.filter(
-      (item) =>
-        item.Product === this.selectedGoesProduct &&
-        item.Band === this.selectedGoesBand
-    )[0].Code;
-    let url = `${environment.urlGeoserver}/${layerCode}/wms`;
-    let img = `assets/img/${layerCode}.png`;
-    let layers = await this.utilsApp.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
-    let dates = this.utilsApp.parseGOESDate(layers);
-    let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
-    this.timeControl !== undefined && this.timeControl.destroy();
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, layerCode, img);
-
-    // Status plot
-    this.activeURLLayer = url;
-    this.activeLayers = wmsLayers.map(layer => layer.options.layers);
-    this.activeLayersCode = layers.map(layer => `${layerCode}:${layer}`)
-    this.activeDates = dates;
-    this.plotClass = "goes";
-  }
-
-  public autoUpdateGoes(){
-    if(this.isAutoUpdateGoes){
-      this.autoUpdateGoesFun = setInterval(() => {
-        this.updateGoesLayer().then(() => this.playTimeControl());
-      }, 60000);
-    }else{
-      this.autoUpdateGoesFun && clearInterval(this.autoUpdateGoesFun);
-    }
-  }
-  public quitAutoUpdateGoes(){
-    this.isAutoUpdateGoes = false;
-    this.autoUpdateGoesFun && clearInterval(this.autoUpdateGoesFun);
-  }
-
-  public updateForecatVariable(){
-    const filtered = new Set<string>();
-    this.forecastData.forEach(item => {
-      if (item.Model === this.selectedForecastModel) {
-        filtered.add(item.Variable)}});
-    this.forecastVariables = Array.from(filtered);
-    this.selectedForecastVariable = this.forecastVariables[0];
-  }
-
-  public updateForecastTemporal(){
-    const filtered = new Set<string>();
-    this.forecastData.forEach(item => {
-      if (item.Model === this.selectedForecastModel && item.Variable === this.selectedForecastVariable) {
-        filtered.add(item.Temporal)}});
-    this.forecastTemporals = Array.from(filtered);
-    this.selectedForecastTemporal = this.forecastTemporals[0];
-  }
-
-  public async updateForecastLayer(){
-    this.quitAutoUpdateGoes();
-    this.isPlay = false;
-    const layerCode = this.forecastData.filter(
-      (item) =>
-        item.Model === this.selectedForecastModel &&
-        item.Variable === this.selectedForecastVariable &&
-        item.Temporal === this.selectedForecastTemporal
-    )[0].Code;
-    const url = `${environment.urlGeoserver}/${layerCode}/wms`;
-    const initForecastDate = this.utilsApp.getInitForecastDate();
-    let timestep: string;
-    if(this.selectedForecastTemporal === "Diaria"){
-      timestep = "24H";
-    }else{
-      timestep = "3H"
-    }
-    let layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDate}-${timestep}`);
-    if(layers.length === 0){
-      const initForecastDateLast = this.utilsApp.getInitForecastDate(false);
-      layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDateLast}-${timestep}`);
-    }
-    const img = `assets/img/${layerCode}.png`;
-    const title = `Pronóstico de ${this.selectedForecastVariable} (${this.selectedForecastModel})`
-    const layerTags = layers.map(layer => `<br>${this.utilsApp.formatForecastDate(layer)}`);
-    let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
-    if (this.timeControl !== undefined) {
-      this.timeControl.destroy();
-    }
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, layerTags, title, img);
-
-    // Status plot
-    this.activeURLLayer = url;
-    this.activeLayers = wmsLayers.map(layer => layer.options.layers);
-    this.activeLayersCode = layers.map(layer => `${layerCode}:${layer}`)
-    this.activeDates = layers.map(layer => this.utilsApp.formatForecastDatePlot(layer));;
-    this.plotClass = "forecast";
-  }
-
 
 
 
@@ -517,38 +379,10 @@ export class ClimateTrendsComponent {
       if(this.plotClass==="satellite"){
         this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
       }
-      if(this.plotClass==="goes"){
-        this.goesBTPlot = this.plotTemplate.goesTempPlotTemplate(this.activeDates, values);
-        this.goesGrayPlot = this.plotTemplate.goesGrayPlotTemplate(this.activeDates, values);
-      }
-      if(this.plotClass==="forecast"){
-        this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
-        this.tempPlot = this.plotTemplate.tempPlotTemplate(this.activeDates, values);
-        this.humPlot = this.plotTemplate.hrPlotTemplate(this.activeDates, values);
-        this.windPlot = this.plotTemplate.windPlotTemplate(this.activeDates, values);
-      }
       this.isReadyData = true;
     }
   }
 
-
-  public updateFireVIIRS(){
-    if(this.isActiveFireVIIRS){
-      this.fireVIIRSLayer = L.tileLayer.wms(
-        'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/time_since_detection_4/75d41dd1e5a2735af15f180c3ef8af81/tsd_4_viirs_all', {
-          layers: 'tsd_4_viirs_all',
-          format: 'image/png',
-          transparent: true,
-        });
-      this.fireVIIRSLayer.addTo(this.map);
-      const overlayers = [this.fireVIIRSLayer, this.cantonLayer, this.provinceLayer, this.citiesLayer];
-      this.map.on('layeradd', function(){
-        overlayers.map(layer => layer.bringToFront());
-      });
-    }else{
-      this.map.removeLayer(this.fireVIIRSLayer);
-    }
-  }
 
   public updateOverlayers(isActiveLayer:boolean, layer:any){
     isActiveLayer ? layer.addTo(this.map) : this.map.removeLayer(layer);
@@ -592,21 +426,8 @@ export class ClimateTrendsComponent {
         .then(response => response.json())
         .then(response => {
           const values = response.map((item: any) => item.value);
-
           if(this.plotClass==="satellite"){
             this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
-          }
-
-          if(this.plotClass==="goes"){
-            this.goesBTPlot = this.plotTemplate.goesTempPlotTemplate(this.activeDates, values);
-            this.goesGrayPlot = this.plotTemplate.goesGrayPlotTemplate(this.activeDates, values);
-          }
-
-          if(this.plotClass==="forecast"){
-            this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
-            this.tempPlot = this.plotTemplate.tempPlotTemplate(this.activeDates, values);
-            this.humPlot = this.plotTemplate.hrPlotTemplate(this.activeDates, values);
-            this.windPlot = this.plotTemplate.windPlotTemplate(this.activeDates, values);
           }
           this.isReadyData = true;
         })
