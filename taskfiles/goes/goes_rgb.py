@@ -264,7 +264,7 @@ path_b13 = f"{workdir}/GOES-ABI-L2-CMIPF-13"
 
 files = os.listdir(path_b02)
 files.sort()
-files = files[-15:]
+files = files[-5:]
 
 
 
