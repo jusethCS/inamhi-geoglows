@@ -286,15 +286,3 @@ os.remove("noprec-cut.tif")
 os.system("gdalwarp -cutline /home/ubuntu/inamhi-geoglows/taskfiles/shp/ffgs.shp -crop_to_cutline -dstalpha noprec.tif noprec-cut.tif")
 upload_to_geoserver("no_precipitation_days", "noprec-cut.tif", "noprec-style")
 print("Upload no precipitation days")
-
-
-
-# /usr/share/geoserver/data_dir/data
-#
-# http://ec2-3-211-227-44.compute-1.amazonaws.com:4200/fireforest/daily_precipitation/daily_precipitation.geotiff
-# http://ec2-3-211-227-44.compute-1.amazonaws.com:4200/fireforest/no_precipitation_days/no_precipitation_days.geotiff
-#
-# http://ec2-3-211-227-44.compute-1.amazonaws.com/api/geoglows/daily-precipitation
-# http://ec2-3-211-227-44.compute-1.amazonaws.com/api/geoglows/days-without-precipitation
-# http://ec2-3-211-227-44.compute-1.amazonaws.com/api/geoglows/3days-precipitation
-# http://ec2-3-211-227-44.compute-1.amazonaws.com/api/geoglows/soil-moisture
