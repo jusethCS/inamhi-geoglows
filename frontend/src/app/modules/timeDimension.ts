@@ -14,11 +14,12 @@ export class WMSLayerTimeControl {
   private LControl: any;
   private product: string;
   private img: string;
+  private imgCond: boolean;
 
   constructor(
-    map: L.Map, LControl: any,layers: L.TileLayer.WMS[],
+    map: L.Map, LControl: any, layers: L.TileLayer.WMS[],
     timeInterval: number, timeSerie: string[], product: string,
-    img:string ) {
+    img:string, imgCond:boolean = true ) {
 
       this.map = map;
       this.layers = layers;
@@ -29,6 +30,7 @@ export class WMSLayerTimeControl {
       this.LControl = LControl;
       this.product = product;
       this.img = img;
+      this.imgCond = imgCond;
 
       // Añadir la fecha al mapa
       this.dateElement = document.createElement('div');
@@ -126,11 +128,13 @@ export class WMSLayerTimeControl {
     const currentDate = this.timeSerie[this.currentDateIndex];
     if (currentDate) {
         // Add legend image
-        const imageElement = document.createElement('img');
-        imageElement.src = this.img;
-        imageElement.height = 300;
         this.legendElement.innerHTML = "";
-        this.legendElement.appendChild(imageElement);
+        if(this.imgCond){
+          const imageElement = document.createElement('img');
+          imageElement.src = this.img;
+          imageElement.height = 300;
+          this.legendElement.appendChild(imageElement);
+        }
         // Add text legend
         this.dateElement.innerHTML = `${this.product.toUpperCase()}: ${currentDate} <br>`;
 

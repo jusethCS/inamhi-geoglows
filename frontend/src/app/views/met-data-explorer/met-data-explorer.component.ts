@@ -407,11 +407,15 @@ export class MetDataExplorerComponent {
     )[0].Code;
     let url = `${environment.urlGeoserver}/${layerCode}/wms`;
     let img = `assets/img/${layerCode}.png`;
+    let imgCond = true;
+    if(layerCode === "GOES-RGB-TRUE-COLOR"){
+      imgCond = false;
+    }
     let layers = await this.utilsApp.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
     let dates = this.utilsApp.parseGOESDate(layers);
     let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
     this.timeControl !== undefined && this.timeControl.destroy();
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, layerCode, img);
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, layerCode, img, imgCond);
 
     // Status plot
     this.activeURLLayer = url;
