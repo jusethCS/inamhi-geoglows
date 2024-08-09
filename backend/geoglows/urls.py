@@ -25,8 +25,10 @@ urlpatterns = [
     path('download-layer', 
           download_layer, 
           name="download-layer"),
-      
 
+    path('geoglows-flood-warnings', 
+          get_geoglows_flood_warnings, 
+          name="geoglows-flood-warnings"),
 
 ]
 

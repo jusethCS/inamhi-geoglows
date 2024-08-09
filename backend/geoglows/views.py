@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from .controllers.download import stream_file
 from .controllers.fireforest import get_heatpoints_24h
+from .controllers.geoglows import *
 
 def download_daily_precipitation(request):
     response = stream_file(
@@ -30,4 +31,9 @@ def download_layer(request):
 
 def heatpoints_24h(request):
     data = get_heatpoints_24h()
+    return JsonResponse(data)
+
+def get_geoglows_flood_warnings(request):
+    date = request.GET.get('date')
+    data = get_flood_alerts(date)
     return JsonResponse(data)
