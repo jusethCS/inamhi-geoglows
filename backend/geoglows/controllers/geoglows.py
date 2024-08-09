@@ -10,14 +10,8 @@ import geopandas as gpd
 from shapely.geometry import Point
 
 
-# Change the work directory
-user = os.getlogin()
-workdir = os.path.expanduser('~{}'.format(user))
-workdir = os.path.join(workdir, 'inamhi-geoglows') 
-os.chdir(workdir)
-
 # Import enviromental variables
-load_dotenv("db.env")
+load_dotenv("/home/ubuntu/inamhi-geoglows/.env")
 DB_USER = os.getenv('POSTGRES_USER')
 DB_PASS = os.getenv('POSTGRES_PASSWORD')
 DB_NAME = os.getenv('POSTGRES_DB')
