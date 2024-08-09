@@ -15,22 +15,25 @@ export class WMSLayerTimeControl {
   private product: string;
   private img: string;
   private imgCond: boolean;
+  private reverse:boolean;
 
   constructor(
     map: L.Map, LControl: any, layers: L.TileLayer.WMS[],
     timeInterval: number, timeSerie: string[], product: string,
-    img:string, imgCond:boolean = true ) {
+    img:string, imgCond:boolean = true, reverse:boolean = false) {
 
       this.map = map;
       this.layers = layers;
       this.timeInterval = timeInterval;
-      this.currentDateIndex = this.layers.length-1;
+      this.currentDateIndex = reverse ? this.layers.length - 1 : 0;
       this.intervalId = null;
       this.timeSerie = timeSerie;
       this.LControl = LControl;
       this.product = product;
       this.img = img;
       this.imgCond = imgCond;
+      this.reverse = reverse;
+
 
       // Añadir la fecha al mapa
       this.dateElement = document.createElement('div');
@@ -59,11 +62,16 @@ export class WMSLayerTimeControl {
       // Cargar todas las capas y solo dejar visible la primera
       if (this.layers.length > 0) {
           this.updateLegend();
-          for (let i = this.layers.length - 1; i >= 0; i--) {
-            const layer = this.layers[i];
-            layer.setOpacity(0).addTo(this.map);
+
+          if(this.reverse){
+            for (let i = this.layers.length - 1; i >= 0; i--) {
+              this.layers[i].setOpacity(0).addTo(this.map);
+            }
+          }else{
+            this.layers.forEach(layer => {layer.setOpacity(0).addTo(this.map);});
           }
-          this.layers[this.layers.length-1].setOpacity(0.9);
+
+          this.layers[this.currentDateIndex].setOpacity(0.9);
       }
   }
 

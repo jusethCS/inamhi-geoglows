@@ -415,7 +415,7 @@ export class MetDataExplorerComponent {
     let dates = this.utilsApp.parseGOESDate(layers);
     let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
     this.timeControl !== undefined && this.timeControl.destroy();
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, layerCode, img, imgCond);
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, layerCode, img, imgCond, true);
 
     // Status plot
     this.activeURLLayer = url;
@@ -724,7 +724,7 @@ export class MetDataExplorerComponent {
     let dates = this.utilsApp.parseGOESDate(layers);
     let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
     this.timeControl !== undefined && this.timeControl.destroy();
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, "Fire temperature", img);
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, "Fire temperature", img, true);
     // Status plot
     this.activeURLLayer = url;
     this.activeLayers = wmsLayers.map(layer => layer.options.layers);
