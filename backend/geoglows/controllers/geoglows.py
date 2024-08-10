@@ -405,6 +405,131 @@ def daily_plot(sim, comid):
 
 
 
+def monthly_plot(sim, comid):
+    # Generar los valores promedio
+    daily = sim.groupby(sim.index.strftime("%m"))
+    day25_df = daily.quantile(0.25)
+    day75_df = daily.quantile(0.75)
+    dayavg_df = daily.quantile(0.5)
+    #
+    # Convertir ndarrays a listas para JSON
+    x_data_75_25 = np.concatenate([day75_df.index, day25_df.index[::-1]]).tolist()
+    y_data_75_25 = np.concatenate([day75_df.iloc[:, 0].values, day25_df.iloc[:, 0].values[::-1]]).tolist()
+    x_data_75 = day75_df.index.tolist()
+    y_data_75 = day75_df.iloc[:, 0].values.tolist()
+    x_data_25 = day25_df.index.tolist()
+    y_data_25 = day25_df.iloc[:, 0].values.tolist()
+    x_data_avg = dayavg_df.index.tolist()
+    y_data_avg = dayavg_df.iloc[:, 0].values.tolist()
+    #
+    # Configuración de la gráfica
+    layout = go.Layout(
+        title=f'Caudal medio multi-mensual<br>COMID: {comid}',
+        xaxis=dict(title='Mes'), 
+        yaxis=dict(title='Caudal (m<sup>3</sup>/s)', autorange=True),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        template='simple_white',
+        showlegend=True
+    )
+    #
+    hydroviewer_figure = go.Figure(layout=layout)
+    hydroviewer_figure.add_trace(go.Scatter(
+        name='Percentil 25-75',
+        x=x_data_75_25,
+        y=y_data_75_25,
+        legendgroup='percentile_flow',
+        line=dict(color='lightgreen'),
+        fill='toself'
+    ))
+    #
+    hydroviewer_figure.add_trace(go.Scatter(
+        name='75%',
+        x=x_data_75,
+        y=y_data_75,
+        legendgroup='percentile_flow',
+        showlegend=False,
+        line=dict(color='lightgreen')
+    ))
+    #
+    hydroviewer_figure.add_trace(go.Scatter(
+        name='25%',
+        x=x_data_25,
+        y=y_data_25,
+        legendgroup='percentile_flow',
+        showlegend=False,
+        line=dict(color='lightgreen')
+    ))
+    #
+    hydroviewer_figure.add_trace(go.Scatter(
+        name='Caudal medio',
+        x=x_data_avg,
+        y=y_data_avg,
+        line=dict(color='blue')
+    ))
+    #
+    hydroviewer_figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    hydroviewer_figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
+    return hydroviewer_figure.to_dict()
+
+
+
+
+def volumen_plot(sim, comid):
+    # Parse dataframe to array
+    sim_array = sim.iloc[:, 0].values * 0.0864  # Conversión de m3/s a Hm3
+    sim_volume = sim_array.cumsum()  # Cálculo del volumen acumulado
+    #
+    # Convertir a listas para garantizar la serialización JSON
+    x_data = sim.index.tolist()
+    y_data = sim_volume.tolist()
+    #
+    # Generar traza para el volumen simulado
+    simulated_volume = go.Scatter(
+        x=x_data, 
+        y=y_data, 
+        name='Simulated'
+    )
+    #
+    # Configuración de la gráfica
+    layout = go.Layout(
+        title=f'Volumen acumulado simulado <br>COMID:{comid}',
+        xaxis=dict(title='Fecha'), 
+        yaxis=dict(title='Volumen (Mm<sup>3</sup>)', autorange=True),
+        showlegend=False,
+        template='simple_white'
+    )
+    #
+    # Integrando la gráfica
+    hydroviewer_figure = go.Figure(data=[simulated_volume], layout=layout)
+    hydroviewer_figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    hydroviewer_figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
+    #
+    # Convertir la figura a un diccionario JSON serializable
+    return hydroviewer_figure.to_dict()
+
+
+
+def fd_plot(sim, comid):
+    # Generar la curva de duración de caudales con geoglows.plots
+    hydroviewer_figure = geoglows.plots.flow_duration_curve(
+        hist=sim,
+        outformat="plotly",
+        titles={'COMID': comid}
+    )
+    #
+    # Actualizar el layout de la figura
+    hydroviewer_figure.update_layout(
+        title=f"Curva de duración de caudales <br>COMID: {comid}",
+        xaxis_title="Probabilidad de excedencia",
+        yaxis_title="Caudal (m<sup>3</sup>/s)",
+        template='simple_white'
+    )
+    hydroviewer_figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    hydroviewer_figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
+    return hydroviewer_figure.to_dict()
+
+
 
 ###############################################################################
 #                                MAIN ROUTINE                                 #
@@ -461,8 +586,11 @@ def all_data_plot(comid):
     return_periods = get_return_periods(comid, historical_simulation)
     hs = hs_plot(historical_simulation, return_periods, comid)
     dp = daily_plot(historical_simulation, comid)
+    mp = monthly_plot(historical_simulation, comid)
+    vp = volumen_plot(historical_simulation, comid)
+    fd = fd_plot(historical_simulation, comid)
     con.close()
-    return({"hs":hs, "dp":dp})
+    return({"hs":hs, "dp":dp, "mp":mp, "vp":vp, "fd": fd})
 
 
 #a = historical_simulation_plot(9027193)
