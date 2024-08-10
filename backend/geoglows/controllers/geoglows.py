@@ -612,9 +612,9 @@ def all_data_plot(comid):
     dp = daily_plot(historical_simulation, comid)
     mp = monthly_plot(historical_simulation, comid)
     vp = volumen_plot(historical_simulation, comid)
-    #fd = fd_plot(historical_simulation, comid)
+    fd = fd_plot(historical_simulation, comid)
     con.close()
-    return({"hs":hs, "dp":dp, "mp":mp, "vp":vp, "fd": vp})
+    return({"hs":hs, "dp":dp, "mp":mp, "vp":vp, "fd": fd})
 
 
 #a = historical_simulation_plot(9027193)
