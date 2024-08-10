@@ -328,6 +328,46 @@ def hs_plot(hist, rperiods, comid):
     
 
 
+def hs_plot(hist, rperiods, comid):
+    dates = hist.index.tolist()
+    startdate = dates[0]
+    enddate = dates[-1]
+    # Convert ndarray to list
+    y_flow = hist.values.flatten().tolist()
+    y_max = float(max(hist.values))  # Ensure that y_max is a float
+    plot_data = {
+        'x_datetime': dates,
+        'y_flow': y_flow,
+        'y_max': y_max,
+    }
+    # Convert rperiods to dictionary and ensure all values are serializable
+    rperiods_dict = rperiods.to_dict(orient='index')
+    for key, value in rperiods_dict.items():
+        if isinstance(value, np.ndarray):
+            rperiods_dict[key] = value.tolist()
+    plot_data.update(rperiods_dict)
+    rperiod_scatters = _rperiod_scatters(startdate, enddate, rperiods, y_max, y_max)
+    scatter_plots = [go.Scatter(
+        name='Simulación histórica',
+        x=plot_data['x_datetime'],
+        y=plot_data['y_flow'])
+    ]
+    scatter_plots += rperiod_scatters
+    layout = go.Layout(
+        title=f"Simulación histórica <br>COMID: {comid}",
+        yaxis={'title': 'Caudal (m<sup>3</sup>/s)', 'range': [0, 'auto']},
+        xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y', 'tickformat': '%Y'},
+    )
+    figure = go.Figure(scatter_plots, layout=layout)
+    figure.update_layout(template='simple_white')
+    figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
+    # Convert the figure to a dictionary
+    figure_dict = figure.to_dict()
+    return figure_dict
+
+
+
 ###############################################################################
 #                                MAIN ROUTINE                                 #
 ###############################################################################
