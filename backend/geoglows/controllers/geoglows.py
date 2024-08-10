@@ -554,6 +554,162 @@ def fd_plot(hist, comid):
 
 
 
+def get_date_values(startdate, enddate, df):
+    date_range = pd.date_range(start=startdate, end=enddate)
+    month_day = date_range.strftime("%m-%d")
+    pddf = pd.DataFrame(index=month_day)
+    pddf.index.name = "datetime"
+    combined_df = pd.merge(pddf, df, how='left', left_index=True, right_index=True)
+    combined_df.index = pd.to_datetime(date_range)
+    return combined_df
+
+
+def forecast_plot(stats, rperiods, comid, records, sim):
+    # Define los registros
+    records = records.loc[records.index >= pd.to_datetime(stats.index[0] - dt.timedelta(days=8))]
+    records = records.loc[records.index <= pd.to_datetime(stats.index[0])]
+    #
+    # Comienza el procesamiento de los inputs
+    dates_forecast = stats.index.tolist()
+    dates_records = records.index.tolist()
+    try:
+        startdate = dates_records[0]
+    except IndexError:
+        startdate = dates_forecast[0]
+    enddate = dates_forecast[-1]
+    #
+    # Genera los valores promedio
+    daily = sim.groupby(sim.index.strftime("%m-%d"))
+    daymin_df = get_date_values(startdate, enddate, daily.min())
+    daymax_df = get_date_values(startdate, enddate, daily.max()) 
+    #
+    plot_data = {
+        'x_stats': stats['flow_avg'].dropna(axis=0).index.tolist(),
+        'x_hires': stats['high_res'].dropna(axis=0).index.tolist(),
+        'y_max': max(stats['flow_max']),
+        'flow_max': stats['flow_max'].dropna(axis=0).tolist(),
+        'flow_75%': stats['flow_75%'].dropna(axis=0).tolist(),
+        'flow_avg': stats['flow_avg'].dropna(axis=0).tolist(),
+        'flow_25%': stats['flow_25%'].dropna(axis=0).tolist(),
+        'flow_min': stats['flow_min'].dropna(axis=0).tolist(),
+        'high_res': stats['high_res'].dropna(axis=0).tolist(),
+    }
+    #
+    plot_data.update(rperiods.to_dict(orient='index').items())
+    max_visible = max(max(plot_data['flow_max']), max(plot_data['flow_avg']), max(plot_data['high_res']))
+    rperiod_scatters = _rperiod_scatters(startdate, enddate, rperiods, plot_data['y_max'], max_visible)
+    #
+    scatter_plots = [
+        go.Scatter(
+            name='Máximos y mínimos históricos',
+            x=np.concatenate([daymax_df.index, daymin_df.index[::-1]]).tolist(),
+            y=np.concatenate([daymax_df.iloc[:, 0].values, daymin_df.iloc[:, 0].values[::-1]]).tolist(),
+            legendgroup='historical',
+            fill='toself',
+            line=dict(color='lightgrey', dash='dash'),
+            mode="lines",
+        ),
+        go.Scatter(
+            name='Maximum',
+            x=daymax_df.index.tolist(),
+            y=daymax_df.iloc[:, 0].values.tolist(),
+            legendgroup='historical',
+            showlegend=False,
+            line=dict(color='grey', dash='dash'),
+            mode="lines",
+        ),
+        go.Scatter(
+            name='Minimum',
+            x=daymin_df.index.tolist(),
+            y=daymin_df.iloc[:, 0].values.tolist(),
+            legendgroup='historical',
+            showlegend=False,
+            line=dict(color='grey', dash='dash'),
+            mode="lines",
+        ),
+        go.Scatter(
+            name='Máximos y mínimos pronosticados',
+            x=(plot_data['x_stats'] + plot_data['x_stats'][::-1]),
+            y=(plot_data['flow_max'] + plot_data['flow_min'][::-1]),
+            legendgroup='boundaries',
+            fill='toself',
+            line=dict(color='lightblue', dash='dash'),
+        ),
+        go.Scatter(
+            name='Máximo pronosticado',
+            x=plot_data['x_stats'],
+            y=plot_data['flow_max'],
+            legendgroup='boundaries',
+            showlegend=False,
+            line=dict(color='darkblue', dash='dash'),
+        ),
+        go.Scatter(
+            name='Mínimo pronosticado',
+            x=plot_data['x_stats'],
+            y=plot_data['flow_min'],
+            legendgroup='boundaries',
+            showlegend=False,
+            line=dict(color='darkblue', dash='dash'),
+        ),
+        go.Scatter(
+            name='Rango percentílico 25%-75%',
+            x=(plot_data['x_stats'] + plot_data['x_stats'][::-1]),
+            y=(plot_data['flow_75%'] + plot_data['flow_25%'][::-1]),
+            legendgroup='percentile_flow',
+            fill='toself',
+            line=dict(color='lightgreen'), 
+        ),
+        go.Scatter(
+            name='75%',
+            x=plot_data['x_stats'],
+            y=plot_data['flow_75%'],
+            showlegend=False,
+            legendgroup='percentile_flow',
+            line=dict(color='green'), 
+        ),
+        go.Scatter(
+            name='25%',
+            x=plot_data['x_stats'],
+            y=plot_data['flow_25%'],
+            showlegend=False,
+            legendgroup='percentile_flow',
+            line=dict(color='green'), 
+        ),
+        go.Scatter(
+            name='Pronóstico de alta resolución',
+            x=plot_data['x_hires'],
+            y=plot_data['high_res'],
+            line={'color': 'black'}, 
+        ),
+        go.Scatter(
+            name='Promedio del ensamble',
+            x=plot_data['x_stats'],
+            y=plot_data['flow_avg'],
+            line=dict(color='blue'), 
+        ),
+    ]
+    #
+    if len(records.index) > 0:
+        records_plot = [go.Scatter(
+            name='Condiciones antecedentes',
+            x=records.index.tolist(),
+            y=records.iloc[:, 0].values.tolist(),
+            line=dict(color='#FFA15A'),
+        )]
+        scatter_plots += records_plot
+    #
+    scatter_plots += rperiod_scatters
+    layout = go.Layout(
+        title=f"Pronóstico de caudales <br>COMID:{comid}",
+        yaxis={'title': 'Caudal (m<sup>3</sup>/s)', 'range': [0, 'auto']},
+        xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y %H:%M',
+               'tickformat': '%b %d %Y'},
+    )
+    figure = go.Figure(scatter_plots, layout=layout)
+    figure.update_layout(template='simple_white')
+    figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
+    return figure.to_dict()
 
 ###############################################################################
 #                                MAIN ROUTINE                                 #
@@ -602,21 +758,27 @@ def historical_simulation_plot(comid):
 
 
 
-def all_data_plot(comid):
+def all_data_plot(comid, date):
     db = create_engine(token)
     con = db.connect()
     sql = f"SELECT datetime,value FROM historical_simulation where comid={comid}"
     historical_simulation = get_format_data(sql, con)
     return_periods = get_return_periods(comid, historical_simulation)
+    sql = f"SELECT * FROM ensemble_forecast WHERE initialized='{date}' AND comid={comid}"
+    ensemble_forecast = get_format_data(sql, con).drop(columns=['comid', "initialized"])
+    stats = get_ensemble_stats(ensemble_forecast)
+    sql = f"SELECT datetime,value FROM forecast_records where comid={comid}"
+    records = get_format_data(sql, con)
     hs = hs_plot(historical_simulation, return_periods, comid)
     dp = daily_plot(historical_simulation, comid)
     mp = monthly_plot(historical_simulation, comid)
     vp = volumen_plot(historical_simulation, comid)
     fd = fd_plot(historical_simulation, comid)
+    fp = forecast_plot(stats, return_periods, comid, records, historical_simulation)
     con.close()
-    return({"hs":hs, "dp":dp, "mp":mp, "vp":vp, "fd": fd})
+    return({"hs":hs, "dp":dp, "mp":mp, "vp":vp, "fd": fd, "fp":fp})
 
 
-#a = historical_simulation_plot(9027193)
+#a = all_data_plot(9027193, "2024-08-10")
 
 
