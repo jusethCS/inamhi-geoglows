@@ -600,15 +600,15 @@ def forecast_plot(stats, rperiods, comid, records, sim):
     rperiod_scatters = _rperiod_scatters(startdate, enddate, rperiods, plot_data['y_max'], max_visible)
     #
     scatter_plots = [
-        #go.Scatter(
-        #    name='Máximos y mínimos históricos',
-        #    x=np.concatenate([daymax_df.index, daymin_df.index[::-1]]).tolist(),
-        #    y=np.concatenate([daymax_df.iloc[:, 0].values, daymin_df.iloc[:, 0].values[::-1]]).tolist(),
-        #    legendgroup='historical',
-        #    fill='toself',
-        #    line=dict(color='lightgrey', dash='dash'),
-        #    mode="lines",
-        #),
+        go.Scatter(
+            name='Máximos y mínimos históricos',
+            x=list(daymax_df.index) + list(daymin_df.index[::-1]),
+            y=list(daymax_df.iloc[:, 0].values) + list(daymin_df.iloc[:, 0].values[::-1]),
+            legendgroup='historical',
+            fill='toself',
+            line=dict(color='lightgrey', dash='dash'),
+            mode="lines",
+        ),
         go.Scatter(
             name='Maximum',
             x=daymax_df.index.tolist(),
