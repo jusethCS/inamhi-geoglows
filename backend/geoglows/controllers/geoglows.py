@@ -600,15 +600,15 @@ def forecast_plot(stats, rperiods, comid, records, sim):
     rperiod_scatters = _rperiod_scatters(startdate, enddate, rperiods, plot_data['y_max'], max_visible)
     #
     scatter_plots = [
-        go.Scatter(
-            name='Máximos y mínimos históricos',
-            x=np.concatenate([daymax_df.index, daymin_df.index[::-1]]).tolist(),
-            y=np.concatenate([daymax_df.iloc[:, 0].values, daymin_df.iloc[:, 0].values[::-1]]).tolist(),
-            legendgroup='historical',
-            fill='toself',
-            line=dict(color='lightgrey', dash='dash'),
-            mode="lines",
-        ),
+        #go.Scatter(
+        #    name='Máximos y mínimos históricos',
+        #    x=np.concatenate([daymax_df.index, daymin_df.index[::-1]]).tolist(),
+        #    y=np.concatenate([daymax_df.iloc[:, 0].values, daymin_df.iloc[:, 0].values[::-1]]).tolist(),
+        #    legendgroup='historical',
+        #    fill='toself',
+        #    line=dict(color='lightgrey', dash='dash'),
+        #    mode="lines",
+        #),
         go.Scatter(
             name='Maximum',
             x=daymax_df.index.tolist(),
@@ -758,6 +758,7 @@ def historical_simulation_plot(comid):
 
 
 
+
 def all_data_plot(comid, date):
     db = create_engine(token)
     con = db.connect()
@@ -780,5 +781,6 @@ def all_data_plot(comid, date):
 
 
 #a = all_data_plot(9027193, "2024-08-10")
+
 
 
