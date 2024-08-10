@@ -322,43 +322,7 @@ def hs_plot(hist, rperiods, comid):
     figure.update_layout(template='simple_white')
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
-    # Convert to JSON
-    figure_json = figure.to_plotly_json()
-    return figure_json
-
-
-
-def get_historical_simulation_plot(hist, rperiods, comid):
-    dates = hist.index.tolist()
-    startdate = dates[0]
-    enddate = dates[-1]
-    # Convertir el ndarray a lista
-    plot_data = {
-        'x_datetime': dates,
-        'y_flow': hist.values.flatten().tolist(),  # Convertir a lista
-        'y_max': max(hist.values.flatten().tolist()),  # Convertir a lista si es necesario
-    }
-    plot_data.update(rperiods.to_dict(orient='index').items())
-    rperiod_scatters = _rperiod_scatters(startdate, enddate, rperiods, plot_data['y_max'], plot_data['y_max'])
-    scatter_plots = [go.Scatter(
-        name='Simulación histórica',
-        x=plot_data['x_datetime'],
-        y=plot_data['y_flow']
-    )]
-    scatter_plots += rperiod_scatters
-    layout = go.Layout(
-        title=f"Simulación histórica <br>COMID: {comid}",
-        yaxis={'title': 'Caudal (m<sup>3</sup>/s)', 'range': [0, 'auto']},
-        xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y', 'tickformat': '%Y'},
-    )
-    figure = go.Figure(scatter_plots, layout=layout)
-    figure.update_layout(template='simple_white')
-    figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
-    figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
-    # Convertir la figura a JSON y devolverla en la respuesta
-    # Convert to JSON
-    figure_json = figure.to_plotly_json()
-    return figure_json
+    return(figure.to_html())
 
     
 
@@ -408,6 +372,6 @@ def historical_simulation_plot(comid):
     con.close()
     return(plot)
 
-a = historical_simulation_plot(9027193)
+#a = historical_simulation_plot(9027193)
 
 
