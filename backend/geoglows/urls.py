@@ -31,7 +31,7 @@ urlpatterns = [
           name="geoglows-flood-warnings"),
 
     path('historical-simulation-plot', 
-          get_historical_simulation_plot_request, 
+          get_historical_simulation_plot, 
           name="historical-simulation-plot"),
 
 ]

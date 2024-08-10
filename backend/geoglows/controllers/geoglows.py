@@ -295,7 +295,7 @@ def _rperiod_scatters(startdate: str, enddate: str, rperiods: pd.DataFrame,
         template(f'100 años: {r100}', (r100, r100, rmax, rmax), colors['100 Year']),
     ]
 
-def get_historical_simulation_plot(hist, rperiods, comid):
+def hs_plot(hist, rperiods, comid):
     dates = hist.index.tolist()
     startdate = dates[0]
     enddate = dates[-1]
@@ -360,13 +360,13 @@ def get_flood_alerts(date):
 
 
 
-def get_historical_simulation_plot(comid):
+def historical_simulation_plot(comid):
     db = create_engine(token)
     con = db.connect()
     sql = f"SELECT datetime,value FROM historical_simulation where comid={comid}"
     historical_simulation = get_format_data(sql, con)
     return_periods = get_return_periods(comid, historical_simulation)
-    plot = get_historical_simulation_plot(historical_simulation, return_periods, comid)
+    plot = hs_plot(historical_simulation, return_periods, comid)
     con.close()
     return(plot)
 
