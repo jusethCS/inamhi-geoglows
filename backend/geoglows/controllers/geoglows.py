@@ -18,6 +18,8 @@ import jinja2
 import os
 import plotly.io as pio
 import scipy
+import scipy.stats
+import plotly.graph_objects as go
 
 
 
@@ -511,21 +513,23 @@ def volumen_plot(sim, comid):
 
 
 
+
 def fd_plot(hist, comid):
-    # process the hist dataframe to create the flow duration curve
+    # Procesar el DataFrame hist para crear la curva de duración de caudales
     sorted_hist = hist.values.flatten()
     sorted_hist.sort()
     #
-    # ranks data from smallest to largest
+    # Rango de datos de menor a mayor
     ranks = len(sorted_hist) - scipy.stats.rankdata(sorted_hist, method='average')
     #
-    # calculate probability of each rank
+    # Calcular la probabilidad de cada rango
     prob = [(ranks[i] / (len(sorted_hist) + 1)) for i in range(len(sorted_hist))]
     #
+    # Convertir arrays de NumPy a listas de Python
     plot_data = {
         'x_probability': prob,
-        'y_flow': sorted_hist,
-        'y_max': sorted_hist[0],
+        'y_flow': sorted_hist.tolist(),  # Convertir a lista
+        'y_max': sorted_hist[0],  # El primer elemento es un valor escalar
     }
     #
     scatter_plots = [
@@ -534,17 +538,21 @@ def fd_plot(hist, comid):
             x=plot_data['x_probability'],
             y=plot_data['y_flow'])
     ]
+    #
     layout = go.Layout(
         xaxis={'title': 'Probabilidad de excedencia'},
         yaxis={'title': 'Caudal (m<sup>3</sup>/s)', 'range': [0, 'auto']},
     )
+    #
     figure = go.Figure(scatter_plots, layout=layout)
     figure.update_layout(
         title=f"Curva de duración de caudales <br>COMID: {comid}",
         template='simple_white')
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
-    return(figure.to_dict())
+    return figure.to_dict()
+
+
 
 
 ###############################################################################
