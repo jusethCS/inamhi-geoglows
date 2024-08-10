@@ -322,7 +322,8 @@ def hs_plot(hist, rperiods, comid):
     figure.update_layout(template='simple_white')
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
-    return(figure.to_html())
+    figure_dict = figure.to_dict()
+    return figure_dict
 
     
 
