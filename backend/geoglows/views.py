@@ -37,3 +37,8 @@ def get_geoglows_flood_warnings(request):
     date = request.GET.get('date')
     data = get_flood_alerts(date)
     return JsonResponse(data)
+
+def get_historical_simulation_plot_request(request):
+    comid = request.GET.get('comid')
+    plot = get_historical_simulation_plot(comid)
+    return JsonResponse(plot.to_dict(), safe=False)
