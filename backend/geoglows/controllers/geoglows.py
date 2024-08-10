@@ -44,7 +44,8 @@ def get_flood_alerts(date):
                 WHERE 
                     ag.datetime = '{date}'
             """
-    query = pd.read_sql(sql, con=con)
+    #query = pd.read_sql(sql, con=con)
+    query = pd.read_csv("/home/ubuntu/datos.csv", sep=";")
     con.close()
     query['geometry'] = query.apply(lambda row: Point(row['longitude'], row['latitude']), axis=1)
     gdf = gpd.GeoDataFrame(query, geometry='geometry')
