@@ -299,7 +299,7 @@ def _rperiod_scatters(startdate: str, enddate: str, rperiods: pd.DataFrame,
         template(f'100 años: {r100}', (r100, r100, rmax, rmax), colors['100 Year']),
     ]
 
-def hs_plot(hist, rperiods, comid, width):
+def hs_plot(hist, rperiods, comid):
     dates = hist.index.tolist()
     startdate = dates[0]
     enddate = dates[-1]
@@ -330,7 +330,7 @@ def hs_plot(hist, rperiods, comid, width):
         xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y', 'tickformat': '%Y'},
     )
     figure = go.Figure(scatter_plots, layout=layout)
-    figure.update_layout(template='simple_white', width=width)
+    figure.update_layout(template='simple_white')
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
     # Convert the figure to a dictionary
@@ -339,7 +339,7 @@ def hs_plot(hist, rperiods, comid, width):
 
 
 
-def daily_plot(sim, comid, width):
+def daily_plot(sim, comid):
     # Generate the average values
     daily = sim.groupby(sim.index.strftime("%m/%d"))
     day25_df = daily.quantile(0.25)
@@ -402,14 +402,13 @@ def daily_plot(sim, comid, width):
         line=dict(color='blue')
     ))
     #
-    hydroviewer_figure.update_layout(template='simple_white', width=width)
     hydroviewer_figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     hydroviewer_figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
     return hydroviewer_figure.to_dict()
 
 
 
-def monthly_plot(sim, comid, width):
+def monthly_plot(sim, comid):
     # Generar los valores promedio
     daily = sim.groupby(sim.index.strftime("%m"))
     day25_df = daily.quantile(0.25)
@@ -472,7 +471,6 @@ def monthly_plot(sim, comid, width):
         line=dict(color='blue')
     ))
     #
-    hydroviewer_figure.update_layout(template='simple_white', width=width)
     hydroviewer_figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     hydroviewer_figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
     return hydroviewer_figure.to_dict()
@@ -480,7 +478,7 @@ def monthly_plot(sim, comid, width):
 
 
 
-def volumen_plot(sim, comid, width):
+def volumen_plot(sim, comid):
     # Parse dataframe to array
     sim_array = sim.iloc[:, 0].values * 0.0864  # Conversión de m3/s a Hm3
     sim_volume = sim_array.cumsum()  # Cálculo del volumen acumulado
@@ -507,7 +505,6 @@ def volumen_plot(sim, comid, width):
     #
     # Integrando la gráfica
     hydroviewer_figure = go.Figure(data=[simulated_volume], layout=layout)
-    hydroviewer_figure.update_layout(template='simple_white', width=width)
     hydroviewer_figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     hydroviewer_figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
     #
@@ -517,7 +514,7 @@ def volumen_plot(sim, comid, width):
 
 
 
-def fd_plot(hist, comid, width):
+def fd_plot(hist, comid):
     # Procesar el DataFrame hist para crear la curva de duración de caudales
     sorted_hist = hist.values.flatten()
     sorted_hist.sort()
@@ -551,7 +548,6 @@ def fd_plot(hist, comid, width):
     figure.update_layout(
         title=f"Curva de duración de caudales <br>COMID: {comid}",
         template='simple_white')
-    figure.update_layout(template='simple_white', width=width)
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
     return figure.to_dict()
@@ -568,7 +564,7 @@ def get_date_values(startdate, enddate, df):
     return combined_df
 
 
-def forecast_plot(stats, rperiods, comid, records, sim, width):
+def forecast_plot(stats, rperiods, comid, records, sim):
     # Define los registros
     records = records.loc[records.index >= pd.to_datetime(stats.index[0] - dt.timedelta(days=8))]
     records = records.loc[records.index <= pd.to_datetime(stats.index[0])]
@@ -710,12 +706,10 @@ def forecast_plot(stats, rperiods, comid, records, sim, width):
                'tickformat': '%b %d %Y'},
     )
     figure = go.Figure(scatter_plots, layout=layout)
-    figure.update_layout(template='simple_white', width=width)
+    figure.update_layout(template='simple_white')
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
     return figure.to_dict()
-
-
 
 ###############################################################################
 #                                MAIN ROUTINE                                 #
@@ -765,9 +759,7 @@ def historical_simulation_plot(comid):
 
 
 
-def all_data_plot(comid, date, width):
-    width1 = float(width)
-    width2 = float(width)*0.5 
+def all_data_plot(comid, date):
     db = create_engine(token)
     con = db.connect()
     sql = f"SELECT datetime,value FROM historical_simulation where comid={comid}"
@@ -778,12 +770,12 @@ def all_data_plot(comid, date, width):
     stats = get_ensemble_stats(ensemble_forecast)
     sql = f"SELECT datetime,value FROM forecast_records where comid={comid}"
     records = get_format_data(sql, con)
-    hs = hs_plot(historical_simulation, return_periods, comid, width1)
-    dp = daily_plot(historical_simulation, comid, width1)
-    mp = monthly_plot(historical_simulation, comid, width1)
-    vp = volumen_plot(historical_simulation, comid, width2)
-    fd = fd_plot(historical_simulation, comid, width2)
-    fp = forecast_plot(stats, return_periods, comid, records, historical_simulation, width1)
+    hs = hs_plot(historical_simulation, return_periods, comid)
+    dp = daily_plot(historical_simulation, comid)
+    mp = monthly_plot(historical_simulation, comid)
+    vp = volumen_plot(historical_simulation, comid)
+    fd = fd_plot(historical_simulation, comid)
+    fp = forecast_plot(stats, return_periods, comid, records, historical_simulation)
     con.close()
     return({"hs":hs, "dp":dp, "mp":mp, "vp":vp, "fd": fd, "fp":fp})
 
