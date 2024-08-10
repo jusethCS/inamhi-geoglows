@@ -34,5 +34,9 @@ urlpatterns = [
           get_historical_simulation_plot, 
           name="historical-simulation-plot"),
 
+    path('geoglows-data-plot', 
+          get_data_plot, 
+          name="geoglows-data-plot"),
+
 ]
 

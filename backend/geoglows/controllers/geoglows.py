@@ -300,38 +300,6 @@ def hs_plot(hist, rperiods, comid):
     dates = hist.index.tolist()
     startdate = dates[0]
     enddate = dates[-1]
-    plot_data = {
-        'x_datetime': dates,
-        'y_flow': hist.values.flatten(),
-        'y_max': max(hist.values),
-    }
-    plot_data.update(rperiods.to_dict(orient='index').items())
-    rperiod_scatters = _rperiod_scatters(startdate, enddate, rperiods, plot_data['y_max'], plot_data['y_max'])
-    scatter_plots = [go.Scatter(
-        name='Simulación histórica',
-        x=plot_data['x_datetime'],
-        y=plot_data['y_flow'])
-    ]
-    scatter_plots += rperiod_scatters
-    layout = go.Layout(
-        title=f"Simulación histórica <br>COMID: {comid}",
-        yaxis={'title': 'Caudal (m<sup>3</sup>/s)', 'range': [0, 'auto']},
-        xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y', 'tickformat': '%Y'},
-    )
-    figure = go.Figure(scatter_plots, layout=layout)
-    figure.update_layout(template='simple_white')
-    figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
-    figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
-    figure_dict = figure.to_dict()
-    return figure_dict
-
-    
-
-
-def hs_plot(hist, rperiods, comid):
-    dates = hist.index.tolist()
-    startdate = dates[0]
-    enddate = dates[-1]
     # Convert ndarray to list
     y_flow = hist.values.flatten().tolist()
     y_max = float(max(hist.values))  # Ensure that y_max is a float
@@ -365,6 +333,76 @@ def hs_plot(hist, rperiods, comid):
     # Convert the figure to a dictionary
     figure_dict = figure.to_dict()
     return figure_dict
+
+
+
+def daily_plot(sim, comid):
+    # Generate the average values
+    daily = sim.groupby(sim.index.strftime("%m/%d"))
+    day25_df = daily.quantile(0.25)
+    day75_df = daily.quantile(0.75)
+    dayavg_df = daily.quantile(0.5)
+    #
+    # Convertir ndarrays a listas
+    x_data_75_25 = np.concatenate([day75_df.index, day25_df.index[::-1]]).tolist()
+    y_data_75_25 = np.concatenate([day75_df.iloc[:, 0].values, day25_df.iloc[:, 0].values[::-1]]).tolist()
+    x_data_75 = day75_df.index.tolist()
+    y_data_75 = day75_df.iloc[:, 0].values.tolist()
+    x_data_25 = day25_df.index.tolist()
+    y_data_25 = day25_df.iloc[:, 0].values.tolist()
+    x_data_avg = dayavg_df.index.tolist()
+    y_data_avg = dayavg_df.iloc[:, 0].values.tolist()
+    #
+    # Plot
+    layout = go.Layout(
+        title=f'Caudal medio multi-diario<br>COMID: {comid}',
+        xaxis=dict(title='Día del año'), 
+        yaxis=dict(title='Caudal (m<sup>3</sup>/s)', autorange=True),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        template='simple_white',
+        showlegend=True
+    )
+    #
+    hydroviewer_figure = go.Figure(layout=layout)
+    hydroviewer_figure.add_trace(go.Scatter(
+        name='Percentil 25-75',
+        x=x_data_75_25,
+        y=y_data_75_25,
+        legendgroup='percentile_flow',
+        line=dict(color='lightgreen'),
+        fill='toself'
+    ))
+    #
+    hydroviewer_figure.add_trace(go.Scatter(
+        name='75%',
+        x=x_data_75,
+        y=y_data_75,
+        legendgroup='percentile_flow',
+        showlegend=False,
+        line=dict(color='lightgreen')
+    ))
+    #
+    hydroviewer_figure.add_trace(go.Scatter(
+        name='25%',
+        x=x_data_25,
+        y=y_data_25,
+        legendgroup='percentile_flow',
+        showlegend=False,
+        line=dict(color='lightgreen')
+    ))
+    #
+    hydroviewer_figure.add_trace(go.Scatter(
+        name='Caudal medio',
+        x=x_data_avg,
+        y=y_data_avg,
+        line=dict(color='blue')
+    ))
+    #
+    hydroviewer_figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    hydroviewer_figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
+    return hydroviewer_figure.to_dict()
+
 
 
 
@@ -412,6 +450,20 @@ def historical_simulation_plot(comid):
     plot = hs_plot(historical_simulation, return_periods, comid)
     con.close()
     return(plot)
+
+
+
+def all_data_plot(comid):
+    db = create_engine(token)
+    con = db.connect()
+    sql = f"SELECT datetime,value FROM historical_simulation where comid={comid}"
+    historical_simulation = get_format_data(sql, con)
+    return_periods = get_return_periods(comid, historical_simulation)
+    hs = hs_plot(historical_simulation, return_periods, comid)
+    dp = daily_plot(historical_simulation, comid)
+    con.close()
+    return({"hs":hs, "dp":dp})
+
 
 #a = historical_simulation_plot(9027193)
 
