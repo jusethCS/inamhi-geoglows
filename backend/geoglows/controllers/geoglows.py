@@ -323,7 +323,7 @@ def hs_plot(hist, rperiods, comid):
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
     # Convert to JSON
-    figure_json = pio.to_json(figure)
+    figure_json = figure.to_plotly_json()
     return figure_json
     
 
@@ -374,3 +374,5 @@ def historical_simulation_plot(comid):
     return(plot)
 
 #a = historical_simulation_plot(9027193)
+
+
