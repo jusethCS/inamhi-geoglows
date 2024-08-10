@@ -45,5 +45,6 @@ def get_historical_simulation_plot(request):
 
 def get_data_plot(request):
     comid = request.GET.get('comid')
-    plot = all_data_plot(comid)
+    date = request.GET.get('date')
+    plot = all_data_plot(comid, date)
     return JsonResponse(plot)
