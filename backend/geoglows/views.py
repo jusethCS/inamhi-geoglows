@@ -40,6 +40,5 @@ def get_geoglows_flood_warnings(request):
 
 def get_historical_simulation_plot(request):
     comid = request.GET.get('comid')
-    width = request.GET.get("width")
-    plot = historical_simulation_plot(comid, int(width))
+    plot = historical_simulation_plot(comid)
     return HttpResponse(plot)

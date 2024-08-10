@@ -319,7 +319,7 @@ def hs_plot(hist, rperiods, comid, width):
         xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y', 'tickformat': '%Y'},
     )
     figure = go.Figure(scatter_plots, layout=layout)
-    figure.update_layout(template='simple_white', width=width)
+    figure.update_layout(template='simple_white')
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
     return(figure.to_html())
@@ -362,13 +362,13 @@ def get_flood_alerts(date):
 
 
 
-def historical_simulation_plot(comid, width):
+def historical_simulation_plot(comid):
     db = create_engine(token)
     con = db.connect()
     sql = f"SELECT datetime,value FROM historical_simulation where comid={comid}"
     historical_simulation = get_format_data(sql, con)
     return_periods = get_return_periods(comid, historical_simulation)
-    plot = hs_plot(historical_simulation, return_periods, comid, width)
+    plot = hs_plot(historical_simulation, return_periods, comid)
     con.close()
     return(plot)
 
