@@ -17,6 +17,7 @@ import pandas as pd
 import jinja2
 import os
 import plotly.io as pio
+import scipy
 
 
 
@@ -510,25 +511,40 @@ def volumen_plot(sim, comid):
 
 
 
-def fd_plot(sim, comid):
-    # Generar la curva de duración de caudales con geoglows.plots
-    hydroviewer_figure = geoglows.plots.flow_duration_curve(
-        hist=sim,
-        outformat="plotly",
-        titles={'COMID': comid}
-    )
+def fd_plot(hist, comid):
+    # process the hist dataframe to create the flow duration curve
+    sorted_hist = hist.values.flatten()
+    sorted_hist.sort()
     #
-    # Actualizar el layout de la figura
-    hydroviewer_figure.update_layout(
-        title=f"Curva de duración de caudales <br>COMID: {comid}",
-        xaxis_title="Probabilidad de excedencia",
-        yaxis_title="Caudal (m<sup>3</sup>/s)",
-        template='simple_white'
+    # ranks data from smallest to largest
+    ranks = len(sorted_hist) - scipy.stats.rankdata(sorted_hist, method='average')
+    #
+    # calculate probability of each rank
+    prob = [(ranks[i] / (len(sorted_hist) + 1)) for i in range(len(sorted_hist))]
+    #
+    plot_data = {
+        'x_probability': prob,
+        'y_flow': sorted_hist,
+        'y_max': sorted_hist[0],
+    }
+    #
+    scatter_plots = [
+        go.Scatter(
+            name='Flow Duration Curve',
+            x=plot_data['x_probability'],
+            y=plot_data['y_flow'])
+    ]
+    layout = go.Layout(
+        xaxis={'title': 'Probabilidad de excedencia'},
+        yaxis={'title': 'Caudal (m<sup>3</sup>/s)', 'range': [0, 'auto']},
     )
-    hydroviewer_figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
-    hydroviewer_figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
-    return hydroviewer_figure.to_dict()
-
+    figure = go.Figure(scatter_plots, layout=layout)
+    figure.update_layout(
+        title=f"Curva de duración de caudales <br>COMID: {comid}",
+        template='simple_white')
+    figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
+    return(figure.to_dict())
 
 
 ###############################################################################
