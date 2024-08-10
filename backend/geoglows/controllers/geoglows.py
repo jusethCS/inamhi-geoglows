@@ -16,6 +16,7 @@ import datetime as dt
 import pandas as pd
 import jinja2
 import os
+import plotly.io as pio
 
 
 
@@ -321,7 +322,9 @@ def hs_plot(hist, rperiods, comid):
     figure.update_layout(template='simple_white')
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
-    return figure
+    # Convert to JSON
+    figure_json = pio.to_json(figure)
+    return figure_json
     
 
 
@@ -368,5 +371,6 @@ def historical_simulation_plot(comid):
     return_periods = get_return_periods(comid, historical_simulation)
     plot = hs_plot(historical_simulation, return_periods, comid)
     con.close()
-    return(plot.to_html())
+    return(plot)
 
+#a = historical_simulation_plot(9027193)
