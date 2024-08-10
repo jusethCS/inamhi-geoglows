@@ -356,7 +356,9 @@ def get_historical_simulation_plot(hist, rperiods, comid):
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
     # Convertir la figura a JSON y devolverla en la respuesta
-    return figure
+    # Convert to JSON
+    figure_json = figure.to_plotly_json()
+    return figure_json
 
     
 
