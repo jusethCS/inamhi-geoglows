@@ -296,7 +296,7 @@ def _rperiod_scatters(startdate: str, enddate: str, rperiods: pd.DataFrame,
         template(f'100 años: {r100}', (r100, r100, rmax, rmax), colors['100 Year']),
     ]
 
-def hs_plot(hist, rperiods, comid, width):
+def hs_plot(hist, rperiods, comid):
     dates = hist.index.tolist()
     startdate = dates[0]
     enddate = dates[-1]
