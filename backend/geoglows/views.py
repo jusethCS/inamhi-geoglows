@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from .controllers.download import stream_file
 from .controllers.fireforest import get_heatpoints_24h
 from .controllers.geoglows import *
@@ -41,4 +41,4 @@ def get_geoglows_flood_warnings(request):
 def get_historical_simulation_plot(request):
     comid = request.GET.get('comid')
     plot = historical_simulation_plot(comid)
-    return JsonResponse(plot.to_dict(), safe=False)
+    return HttpResponse(plot)

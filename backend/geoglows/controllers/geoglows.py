@@ -368,6 +368,5 @@ def historical_simulation_plot(comid):
     return_periods = get_return_periods(comid, historical_simulation)
     plot = hs_plot(historical_simulation, return_periods, comid)
     con.close()
-    return(plot)
-
+    return(plot.to_html())
 
