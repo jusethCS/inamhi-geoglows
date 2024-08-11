@@ -850,9 +850,9 @@ def all_data_plot(comid, date, width):
     vp = volumen_plot(historical_simulation, comid, width2)
     fd = fd_plot(historical_simulation, comid, width2)
     fp = forecast_plot(stats, return_periods, comid, records, historical_simulation, width)
-    tb = get_probabilities_table(stats, ensemble_forecast, return_periods)
+    #tb = get_probabilities_table(stats, ensemble_forecast, return_periods)
     con.close()
-    return({"hs":hs, "dp":dp, "mp":mp, "vp":vp, "fd": fd, "fp":fp, "tb":tb})
+    return({"hs":hs, "dp":dp, "mp":mp, "vp":vp, "fd": fd, "fp":fp})
 
 
 #a = all_data_plot(9027193, "2024-08-10")
