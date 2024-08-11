@@ -285,12 +285,12 @@ def get_warnings(comid, date, con):
     # Iterate over each day in the resampled ensemble forecast
     for i, dts in enumerate(max_ensemble_forecast.index):
         # Count the number of ensemble members exceeding each return period threshold
-        r2 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_2'].values[0]).sum()
-        r5 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_5'].values[0]).sum()
-        r10 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_10'].values[0]).sum()
-        r25 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_25'].values[0]).sum()
-        r50 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_50'].values[0]).sum()
-        r100 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_100'].values[0]).sum()
+        r2 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_2'].values[0]).sum() * 100/52
+        r5 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_5'].values[0]).sum() * 100/52
+        r10 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_10'].values[0]).sum() * 100/52
+        r25 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_25'].values[0]).sum() * 100/52
+        r50 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_50'].values[0]).sum() * 100/52
+        r100 = (max_ensemble_forecast.iloc[i] > return_periods['return_period_100'].values[0]).sum() * 100/52
         #
         # Determine the alert level based on the number of exceedances
         alert = "R0"
