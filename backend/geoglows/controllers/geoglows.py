@@ -724,6 +724,7 @@ def get_probabilities_table(stats, ensem, rperiods):
     enddate = dates[-1]
     span = enddate - startdate
     uniqueday = [startdate + dt.timedelta(days=i) for i in range(span.days + 2)]
+    print(uniqueday)
     # get the return periods for the stream reach
     rp2 = rperiods['return_period_2'].values
     rp5 = rperiods['return_period_5'].values
