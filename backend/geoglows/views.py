@@ -49,3 +49,9 @@ def get_data_plot(request):
     width = request.GET.get('width')
     plot = all_data_plot(comid, date, width)
     return JsonResponse(plot)
+
+def get_probability_table(request):
+    comid = request.GET.get('comid')
+    date = request.GET.get('date')
+    table = probability_table(comid, date)
+    return HttpResponse(table)

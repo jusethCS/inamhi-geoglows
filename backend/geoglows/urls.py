@@ -38,5 +38,9 @@ urlpatterns = [
           get_data_plot, 
           name="geoglows-data-plot"),
 
+    path('geoglows-table', 
+          get_probability_table, 
+          name="geoglows-table"),
+
 ]
 

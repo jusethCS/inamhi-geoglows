@@ -855,6 +855,21 @@ def all_data_plot(comid, date, width):
     return({"hs":hs, "dp":dp, "mp":mp, "vp":vp, "fd": fd, "fp":fp})
 
 
+def probability_table(comid, date):
+    db = create_engine(token)
+    con = db.connect()
+    sql = f"SELECT datetime,value FROM historical_simulation where comid={comid}"
+    historical_simulation = get_format_data(sql, con)
+    return_periods = get_return_periods(comid, historical_simulation)
+    sql = f"SELECT * FROM ensemble_forecast WHERE initialized='{date}' AND comid={comid}"
+    ensemble_forecast = get_format_data(sql, con).drop(columns=['comid', "initialized"])
+    stats = get_ensemble_stats(ensemble_forecast)
+    sql = f"SELECT datetime,value FROM forecast_records where comid={comid}"
+    tb = get_probabilities_table(stats, ensemble_forecast, return_periods)
+    con.close()
+    return(tb)
+
+
 #a = all_data_plot(9027193, "2024-08-10")
 
 
