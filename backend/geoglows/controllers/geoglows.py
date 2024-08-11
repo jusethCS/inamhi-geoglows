@@ -739,7 +739,7 @@ def get_probabilities_table(stats, ensem, rperiods):
     r25 = []
     r50 = []
     r100 = []
-    for i in range(len(uniqueday) - 1):  # (-1) omit the extra day used for reference only
+    for i in range(len(uniqueday) - 2):  # (-1) omit the extra day used for reference only
         tmp = ensem.loc[uniqueday[i]:uniqueday[i + 1]]
         days.append(uniqueday[i].strftime('%b %d'))
         num2 = 0
