@@ -299,7 +299,7 @@ def _rperiod_scatters(startdate: str, enddate: str, rperiods: pd.DataFrame,
         template(f'100 años: {r100}', (r100, r100, rmax, rmax), colors['100 Year']),
     ]
 
-def hs_plot(hist, rperiods, comid):
+def hs_plot(hist, rperiods, comid, width):
     dates = hist.index.tolist()
     startdate = dates[0]
     enddate = dates[-1]
@@ -330,7 +330,7 @@ def hs_plot(hist, rperiods, comid):
         xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y', 'tickformat': '%Y'},
     )
     figure = go.Figure(scatter_plots, layout=layout)
-    figure.update_layout(template='simple_white')
+    figure.update_layout(template='simple_white', width=width)
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
     # Convert the figure to a dictionary
