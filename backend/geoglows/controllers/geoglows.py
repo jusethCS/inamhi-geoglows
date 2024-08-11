@@ -741,8 +741,6 @@ def get_probabilities_table(stats, ensem, rperiods):
     r100 = []
     for i in range(len(uniqueday) - 1):  # (-1) omit the extra day used for reference only
         tmp = ensem.loc[uniqueday[i]:uniqueday[i + 1]]
-        print("Funciona")
-        print(uniqueday[i], uniqueday[i + 1])
         days.append(uniqueday[i].strftime('%b %d'))
         num2 = 0
         num5 = 0
@@ -751,19 +749,20 @@ def get_probabilities_table(stats, ensem, rperiods):
         num50 = 0
         num100 = 0
         for column in tmp:
-            column_max = tmp[column].to_numpy().max()
-            if column_max > rp100:
-                num100 += 1
-            if column_max > rp50:
-                num50 += 1
-            if column_max > rp25:
-                num25 += 1
-            if column_max > rp10:
-                num10 += 1
-            if column_max > rp5:
-                num5 += 1
-            if column_max > rp2:
-                num2 += 1
+            if not tmp[column].empty:
+                column_max = tmp[column].to_numpy().max()
+                if column_max > rp100:
+                    num100 += 1
+                if column_max > rp50:
+                    num50 += 1
+                if column_max > rp25:
+                    num25 += 1
+                if column_max > rp10:
+                    num10 += 1
+                if column_max > rp5:
+                    num5 += 1
+                if column_max > rp2:
+                    num2 += 1
         r2.append(round(num2 * 100 / 52))
         r5.append(round(num5 * 100 / 52))
         r10.append(round(num10 * 100 / 52))
