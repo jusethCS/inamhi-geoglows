@@ -724,7 +724,6 @@ def get_probabilities_table(stats, ensem, rperiods):
     enddate = dates[-1]
     span = enddate - startdate
     uniqueday = [startdate + dt.timedelta(days=i) for i in range(span.days + 2)]
-    print(uniqueday)
     # get the return periods for the stream reach
     rp2 = rperiods['return_period_2'].values
     rp5 = rperiods['return_period_5'].values
@@ -732,7 +731,6 @@ def get_probabilities_table(stats, ensem, rperiods):
     rp25 = rperiods['return_period_25'].values
     rp50 = rperiods['return_period_50'].values
     rp100 = rperiods['return_period_100'].values
-    print(rp2, rp5, rp10, rp25, rp50, rp100)
     # fill the lists of things used as context in rendering the template
     days = []
     r2 = []
@@ -744,7 +742,7 @@ def get_probabilities_table(stats, ensem, rperiods):
     for i in range(len(uniqueday) - 1):  # (-1) omit the extra day used for reference only
         tmp = ensem.loc[uniqueday[i]:uniqueday[i + 1]]
         print("Funciona")
-        print(tmp)
+        print(uniqueday[i], uniqueday[i + 1])
         days.append(uniqueday[i].strftime('%b %d'))
         num2 = 0
         num5 = 0
