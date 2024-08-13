@@ -66,6 +66,29 @@ def get_ffgs_file(product:str, filename:str, colname:str, user:str,
 
 
 
+def upload_to_geoserver(layer_name, path, style):
+    try:
+        geo.create_coveragestore(
+            layer_name=layer_name, 
+            path=path, 
+            workspace='ffgs')
+    except:
+        geo.delete_coveragestore(
+            coveragestore_name=layer_name, 
+            workspace='ffgs')
+        geo.create_coveragestore(
+            layer_name=layer_name, 
+            path=path, 
+            workspace='ffgs')
+    geo.publish_style(
+        layer_name=layer_name,  
+        style_name=style, 
+        workspace='ffgs')
+
+
+
+
+
 
 ###############################################################################
 #                                MAIN ROUTINE                                 #
@@ -162,7 +185,24 @@ ffgs.to_file("ffgs.shp")
 os.system("zip -r ffgs.zip .")
 geo.create_shp_datastore(path="ffgs.zip", store_name='ffgs', workspace='ffgs')
 
-#geo.publish_style(layer_name='ffgs', style_name='asm_style', workspace='ffgs')
-#geo.publish_style(layer_name='ffgs', style_name='fmap24_style', workspace='ffgs')
-#geo.publish_style(layer_name='ffgs', style_name='asm', workspace='ffgs')
-#os.system("gdal_rasterize -a asm -tr 0.001 0.001 -l nwsaffds /home/ubuntu/data/nwsaffgs/nwsaffds.shp soilmoisture.tif")
+
+# Rasterize
+os.system("gdal_rasterize -a asm -tr 0.01 0.01 -l ffgs /home/ubuntu/data/ffgs/ffgs.shp asm.tif")
+upload_to_geoserver("asm", "asm.tif", "asm_style")
+
+os.system("gdal_rasterize -a ffg -tr 0.01 0.01 -l ffgs /home/ubuntu/data/ffgs/ffgs.shp ffg.tif")
+upload_to_geoserver("ffg", "ffg.tif", "ffg_style")
+
+os.system("gdal_rasterize -a fmap06 -tr 0.01 0.01 -l ffgs /home/ubuntu/data/ffgs/ffgs.shp fmap06.tif")
+upload_to_geoserver("fmap06", "fmap06.tif", "fmap_style")
+
+os.system("gdal_rasterize -a fmap24 -tr 0.01 0.01 -l ffgs /home/ubuntu/data/ffgs/ffgs.shp fmap24.tif")
+upload_to_geoserver("fmap24", "fmap24.tif", "fmap_style")
+
+os.system("gdal_rasterize -a ffr12 -tr 0.01 0.01 -l ffgs /home/ubuntu/data/ffgs/ffgs.shp ffr12.tif")
+upload_to_geoserver("ffr12", "ffr12.tif", "asm_style")
+
+os.system("gdal_rasterize -a ffr24 -tr 0.01 0.01 -l ffgs /home/ubuntu/data/ffgs/ffgs.shp ffr24.tif")
+upload_to_geoserver("ffr24", "ffr24.tif", "asm_style")
+
+

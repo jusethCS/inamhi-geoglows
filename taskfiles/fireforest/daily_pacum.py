@@ -166,7 +166,47 @@ def get_daily_persiann():
         file_list=list_files(pattern="persiann_*.tif"),
         output_file="persiann.tif")
     mask('persiann.tif', "persiann.tif", bounds)
-    
+
+
+
+
+def get_2days_persiann():
+    """
+    Downloads hourly PERSIANN data for the past 48 hours, sums the data,
+    and saves the result to a daily GeoTIFF file.
+
+    """
+    # Establish start and end date and geographical bounds
+    now = datetime.now()
+    end = now.replace(hour=12, minute=0)
+    start = end - timedelta(days=2)
+    dates = pd.date_range(start, end, freq = "h")
+    bounds = (-94, -7.5, -70, 4)
+    #
+    # Download data
+    ch = meteosatpy.PERSIANN()
+    for date in dates:
+        filename = date.strftime("persiann2d_%Y%m%d%H00.tif")
+        for attempt in range(10):
+            try:
+                ch.download(
+                    date=date, 
+                    timestep="hourly",
+                    dataset="PDIR", 
+                    outpath=filename)
+                break
+            except Exception as e:
+                print(f"Attempt {attempt + 1} failed for {date}: {e}")
+        else:
+            print(f"Failed to download data for {date} after 10 attempts")
+    #
+    # Read persiann data
+    sum_and_save_geotiffs(
+        file_list=list_files(pattern="persiann2d_*.tif"),
+        output_file="persiann2d.tif")
+    mask('persiann2d.tif', "persiann2d.tif", bounds)
+
+
 
 
 
@@ -273,6 +313,13 @@ get_daily_persiann()
 delete_files(pattern="persiann_*.tif")
 upload_to_geoserver("daily_precipitation", "persiann.tif", "pacum-style")
 print("Upload daily precipitation!")
+
+# Download data and publish on geoserver - PERSIANN
+get_2days_persiann()
+delete_files(pattern="persiann2d_*.tif")
+upload_to_geoserver("2days_precipitation", "persiann2d.tif", "pacum-style")
+print("Upload 2 days precipitation!")
+
 
 # Download data and publish on geoserver - PERSIANN
 get_3days_persiann()
