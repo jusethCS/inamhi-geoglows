@@ -143,6 +143,52 @@ export class utils{
     return `<br>Desde ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 hasta ${year_today}-${month_today}-${day_today} 07:00`
   }
 
+  public getAcumulatedDate48():string{
+    let today = new Date();
+    if (today.getHours() < 8) {
+      today.setDate(today.getDate() - 1);
+    }
+    const year_today = today.getUTCFullYear();
+    const month_today = String(today.getUTCMonth() + 1).padStart(2, '0');
+    const day_today = String(today.getUTCDate()).padStart(2, '0');
+
+    let yesterday = new Date(today);
+    yesterday.setUTCDate(today.getUTCDate() - 2);
+    const year_yesterday = yesterday.getUTCFullYear();
+    const month_yesterday = String(yesterday.getUTCMonth() + 1).padStart(2, '0');
+    const day_yesterday = String(yesterday.getUTCDate()).padStart(2, '0');
+
+    return `<br>Desde ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 hasta ${year_today}-${month_today}-${day_today} 07:00`
+  }
+
+  public getAcumulatedDate72():string{
+    let today = new Date();
+    if (today.getHours() < 8) {
+      today.setDate(today.getDate() - 1);
+    }
+    const year_today = today.getUTCFullYear();
+    const month_today = String(today.getUTCMonth() + 1).padStart(2, '0');
+    const day_today = String(today.getUTCDate()).padStart(2, '0');
+
+    let yesterday = new Date(today);
+    yesterday.setUTCDate(today.getUTCDate() - 3);
+    const year_yesterday = yesterday.getUTCFullYear();
+    const month_yesterday = String(yesterday.getUTCMonth() + 1).padStart(2, '0');
+    const day_yesterday = String(yesterday.getUTCDate()).padStart(2, '0');
+
+    return `<br>Desde ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 hasta ${year_today}-${month_today}-${day_today} 07:00`
+  }
+
+
+  public getFFGSDate():string{
+    let today = new Date();
+    const year_today = today.getFullYear();
+    const month_today = String(today.getMonth() + 1).padStart(2, '0');
+    const day_today = String(today.getDate()).padStart(2, '0');
+    const hour_today = String(today.getHours()).padStart(2, '0');
+    return `${year_today}-${month_today}-${day_today} ${hour_today}:00`
+  }
+
   public getUpdateNoRain():string{
     let today = new Date();
     if (today.getHours() < 8) {
@@ -185,6 +231,69 @@ export class utils{
   }
 
 
+
+  public filterByDay(geojson: any, propertyKey: string) {
+    const aa = {
+      type: geojson.type,
+      features: geojson.features.map(
+        (feature: {
+          type: any;
+          id: any;
+          properties: { [x: string]: any; };
+          geometry: any;
+          bbox: any;
+        }) => ({
+          type: feature.type,
+          id: feature.id,
+          properties: {
+            "comid": feature.properties["comid"],
+            "latitude": feature.properties["latitude"],
+            "longitude": feature.properties["longitude"],
+            "river": feature.properties["river"],
+            "location1": feature.properties["location1"],
+            "location2": feature.properties["location2"],
+            "alert": feature.properties[propertyKey]
+          },
+          geometry: feature.geometry,
+          bbox: feature.bbox
+      }))
+    };
+    return aa;
+  }
+
+
+  public filterByRP(geojson:any, condition:string){
+    const aa = geojson;
+    const filtered = {
+      type: aa.type,
+      features: aa.features.filter(
+        (feature: {
+          type: any;
+          id: any;
+          properties: { [x: string]: any; };
+          geometry: any;
+          bbox: any;
+        }) => feature.properties["alert"] === condition
+      )
+    };
+    return filtered;
+  }
+
+  public getDateRangeGeoglows(selectedDate: Date): string[] {
+    const result: string[] = [];
+    const startDate = new Date(selectedDate);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 14);
+    let currentDate = startDate;
+    while (currentDate <= endDate) {
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      result.push(`${year}-${month}-${day}`);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return result;
+  }
 
 }
 

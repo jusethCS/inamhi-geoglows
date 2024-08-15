@@ -43,7 +43,7 @@ export const routes: Routes = [
     component: MetDataExplorerComponent,
   },
   {
-    path: "apps/hydroviewer-ecuador",
+    path: "apps/hydroviewer",
     component: HydroviewerComponent,
   },
 ];
