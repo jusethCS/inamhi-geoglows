@@ -4,6 +4,8 @@ import rasterio
 import meteosatpy
 import numpy as np
 import pandas as pd
+import geopandas as gpd
+from rasterio.mask import mask
 from dotenv import load_dotenv
 from geo.Geoserver import Geoserver
 from datetime import datetime, timedelta
@@ -12,44 +14,39 @@ from datetime import datetime, timedelta
 ###############################################################################
 #                             AUXILIAR FUNCTIONS                              #
 ###############################################################################
-def mask(input_raster:str, output_raster:str, bounds:tuple) -> None:
+def maskTIFF(path:str, output_raster:str, shp:gpd.GeoDataFrame) -> None:
     """
-    Crops a raster to the specified bounds and applies a mask to negative 
-    values, converting them to NaN.
-
+    Creates a masked GeoTIFF using input shapes. Pixels are masked or set 
+    to nodata outside the input shapes.
+    
     Args:
-        input_raster (str): Path to the input raster file.
-        output_raster (str): Path to the output raster file.
-        bounds (tuple): Coordinates of the bounds (xmin, ymin, xmax, ymax).
+        path: Raster path to which the mask will be applied
+        shp: A geopandas dataframe with iterable geometries
+
+    Return:
+        tuple (two elements):
+            out_image: Data contained in the raster after applying the mask.
+            out_meta: Information for mapping pixel coordinates in masked
     """
-    # Open the input raster file
-    with rasterio.open(input_raster) as src:
-        # Calculate the window corresponding to the given bounds
-        window = src.window(*bounds)
-        #
-        # Read the data from the window
-        data = src.read(window=window)
-        #
-        # Apply a mask to set negative values to NaN
-        data = np.where(data < 0, np.nan, data)
-        #
-        # Get the transform for the window
-        transform = src.window_transform(window)
-        #
-        # Update the profile for the output raster
-        profile = src.profile
-        profile.update({
-            'height': window.height,
-            'width': window.width,
-            'transform': transform
-        })
-        #
-        # Write the masked data to the output raster file
-        with rasterio.open(output_raster, 'w', **profile) as dst:
-            dst.write(data)
+    # Read the file and crop to target area
+    with rasterio.open(path) as src:
+        out_image, out_transform = mask(src, shp.geometry, crop=True)
+        profile = src.meta
+    #
+    # Update the metadata of GeoTIFF file
+    profile.update({
+        "driver": "GTiff", 
+        "height": out_image.shape[1],
+        "width": out_image.shape[2],
+        "transform": out_transform
+    })
+    #
+    # Write the masked data to the output raster file
+    with rasterio.open(output_raster, 'w', **profile) as dst:
+        dst.write(out_image)
 
 
-def list_files(pattern, directory='.'):
+def list_files(pattern:str, directory:str = '.') -> list:
     """
     Lists all files in the specified directory that match the given pattern.
 
@@ -64,7 +61,8 @@ def list_files(pattern, directory='.'):
     return glob.glob(search_pattern)
 
 
-def delete_files(pattern):
+
+def delete_files(pattern:str) -> None:
     """
     Deletes all files that match the given pattern.
 
@@ -83,7 +81,8 @@ def delete_files(pattern):
             print(f"Error deleting {file_path}: {e}")
 
 
-def sum_and_save_geotiffs(file_list, output_file):
+
+def sum_and_save_geotiffs(file_list:list, output_file:str) -> None:
     """
     Sums the values of multiple GeoTIFF files and saves the result to a new 
     GeoTIFF file.
@@ -131,123 +130,65 @@ def sum_and_save_geotiffs(file_list, output_file):
 
 
 
-def get_daily_persiann():
+def download_persiann_data(days: int, shp:gpd.GeoDataFrame) -> None:
     """
-    Downloads hourly PERSIANN data for the past 24 hours, sums the data,
-    and saves the result to a daily GeoTIFF file.
+    Downloads hourly PERSIANN data for the past specified days, sums the data,
+    and saves the result to a GeoTIFF file.
 
-    """
-    # Establish start and end date and geographical bounds
-    now = datetime.now()
-    end = now.replace(hour=12, minute=0)
-    start = end - timedelta(days=1)
-    dates = pd.date_range(start, end, freq = "h")
-    bounds = (-94, -7.5, -70, 4)
-    #
-    # Download data
-    ch = meteosatpy.PERSIANN()
-    for date in dates:
-        filename = date.strftime("persiann_%Y%m%d%H00.tif")
-        for attempt in range(10):
-            try:
-                ch.download(
-                    date=date, 
-                    timestep="hourly",
-                    dataset="PDIR", 
-                    outpath=filename)
-                break
-            except Exception as e:
-                print(f"Attempt {attempt + 1} failed for {date}: {e}")
-        else:
-            print(f"Failed to download data for {date} after 10 attempts")
-    #
-    # Read persiann data
-    sum_and_save_geotiffs(
-        file_list=list_files(pattern="persiann_*.tif"),
-        output_file="persiann.tif")
-    mask('persiann.tif', "persiann.tif", bounds)
-
-
-
-
-def get_2days_persiann():
-    """
-    Downloads hourly PERSIANN data for the past 48 hours, sums the data,
-    and saves the result to a daily GeoTIFF file.
-
+    Args:
+        days (int): Number of past days to download data (1,2,3 days).
+        shp (gpd.GeoDataFrame): A geopandas dataframe with iterable geometries
     """
     # Establish start and end date and geographical bounds
     now = datetime.now()
     end = now.replace(hour=12, minute=0)
-    start = end - timedelta(days=2)
-    dates = pd.date_range(start, end, freq = "h")
+    start = end - timedelta(days=days)
+    dates = pd.date_range(start, end, freq="h")
     bounds = (-94, -7.5, -70, 4)
-    #
+    
     # Download data
     ch = meteosatpy.PERSIANN()
     for date in dates:
-        filename = date.strftime("persiann2d_%Y%m%d%H00.tif")
-        for attempt in range(10):
-            try:
-                ch.download(
-                    date=date, 
-                    timestep="hourly",
-                    dataset="PDIR", 
-                    outpath=filename)
-                break
-            except Exception as e:
-                print(f"Attempt {attempt + 1} failed for {date}: {e}")
-        else:
-            print(f"Failed to download data for {date} after 10 attempts")
-    #
-    # Read persiann data
+        filename = date.strftime(f"hourly_persiann_{days}d_%Y%m%d%H00.tif")
+        if not os.path.exists(filename):
+            for attempt in range(5):
+                try:
+                    ch.download(
+                        date=date, 
+                        timestep="hourly",
+                        dataset="PDIR", 
+                        outpath=filename)
+                    break
+                except Exception as e:
+                    print(f"Attempt {attempt + 1} failed for {date}: {e}")
+            else:
+                print(f"Failed to download data for {date} after 10 attempts")
+    
+    # Read and process PERSIANN data
     sum_and_save_geotiffs(
-        file_list=list_files(pattern="persiann2d_*.tif"),
-        output_file="persiann2d.tif")
-    mask('persiann2d.tif', "persiann2d.tif", bounds)
+        file_list=list_files(pattern=f"hourly_persiann_{days}d_*.tif"),
+        output_file=f"persiann{days}d.tif")
+    maskTIFF(f"persiann{days}d.tif", f"persiann{days}d.tif", shp)
+    delete_files(pattern=f"hourly_persiann_{days}d_*.tif")
 
-
-
-
-
-def get_3days_persiann():
-    """
-    Downloads hourly PERSIANN data for the past 72 hours, sums the data,
-    and saves the result to a daily GeoTIFF file.
-
-    """
-    # Establish start and end date and geographical bounds
-    now = datetime.now()
-    end = now.replace(hour=12, minute=0)
-    start = end - timedelta(days=3)
-    dates = pd.date_range(start, end, freq = "h")
-    bounds = (-94, -7.5, -70, 4)
-    #
-    # Download data
-    ch = meteosatpy.PERSIANN()
-    for date in dates:
-        filename = date.strftime("persiann3d_%Y%m%d%H00.tif")
-        for attempt in range(10):
-            try:
-                ch.download(
-                    date=date, 
-                    timestep="hourly",
-                    dataset="PDIR", 
-                    outpath=filename)
-                break
-            except Exception as e:
-                print(f"Attempt {attempt + 1} failed for {date}: {e}")
-        else:
-            print(f"Failed to download data for {date} after 10 attempts")
-    #
-    # Read persiann data
-    sum_and_save_geotiffs(
-        file_list=list_files(pattern="persiann3d_*.tif"),
-        output_file="persiann3d.tif")
-    mask('persiann3d.tif', "persiann3d.tif", bounds)
 
 
 def get_no_rain_days(noprec_file, persiann_file):
+    """
+    Updates a raster file with the number of consecutive no-rain days based on
+    PERSIANN precipitation data.
+
+    Args:
+        noprec_file (str): Path to the raster file tracking days without rain.
+        persiann_file (str): Path to the PERSIANN raster file containing 
+            precipitation data.
+
+    Notes:
+        - The function assumes that areas with less than 2 mm of precipitation 
+            are considered no-rain areas.
+        - The input and output rasters are expected to have the same dimensions 
+            and geospatial properties.
+    """
     with rasterio.open(noprec_file) as src:
         noprec_data = src.read(1)
         profile = src.profile
@@ -264,7 +205,31 @@ def get_no_rain_days(noprec_file, persiann_file):
         dst.write(out, 1) 
 
 
-def upload_to_geoserver(layer_name, path, style):
+
+def upload_to_geoserver(layer_name:str, path:str, style:str):
+    """
+    Uploads a layer to GeoServer, handles errors if the store already exists, 
+    and applies the specified style.
+
+    Parameters:
+        layer_name (str): The name of the layer to be created or updated in 
+            GeoServer.
+        path (str): The file path to the data (e.g., GeoTIFF, Shapefile) that 
+            will be used to create the layer.
+        style (str): The name of the style to be applied to the layer in 
+            GeoServer.
+
+    Exceptions:
+        In case the store creation fails initially, the function will attempt 
+        to delete the existing store before trying again.
+
+    Notes:
+        - This function assumes the use of a `geo` object with methods for 
+            interacting with GeoServer (e.g., `create_coveragestore`, 
+            `delete_coveragestore`, `publish_style`).
+        - The workspace is fixed to 'fireforest' and should be modified if a 
+            different workspace is required.
+    """
     try:
         geo.create_coveragestore(
             layer_name=layer_name, 
@@ -283,13 +248,17 @@ def upload_to_geoserver(layer_name, path, style):
         style_name=style, 
         workspace='fireforest')
 
+
+
+
+
 ###############################################################################
 #                                MAIN ROUTINE                                 #
 ###############################################################################
 
 # Change the work directory
 user = os.getlogin()
-user_dir = os.path.expanduser('~{}'.format(user))
+user_dir = os.path.expanduser(f'~{user}')
 os.chdir(user_dir)
 os.chdir("inamhi-geoglows")
 
@@ -308,28 +277,19 @@ geo = Geoserver(
 os.chdir(user_dir)
 os.chdir("data/fireforest")
 
-# Download data and publish on geoserver - PERSIANN
-get_daily_persiann()
-delete_files(pattern="persiann_*.tif")
-upload_to_geoserver("daily_precipitation", "persiann.tif", "pacum-style")
-print("Upload daily precipitation!")
+# Path for shp extention
+path = "/home/ubuntu/inamhi-geoglows/taskfiles/shp/ffgs.shp"
+ec = gpd.read_file(path)
 
 # Download data and publish on geoserver - PERSIANN
-get_2days_persiann()
-delete_files(pattern="persiann2d_*.tif")
+download_persiann_data(1, ec)
+upload_to_geoserver("daily_precipitation", "persiann1d.tif", "pacum-style")
+download_persiann_data(2, ec)
 upload_to_geoserver("2days_precipitation", "persiann2d.tif", "pacum-style")
-print("Upload 2 days precipitation!")
-
-
-# Download data and publish on geoserver - PERSIANN
-get_3days_persiann()
-delete_files(pattern="persiann3d_*.tif")
+download_persiann_data(3, ec)
 upload_to_geoserver("3days_precipitation", "persiann3d.tif", "pacum-style")
-print("Upload 3 days precipitation!")
 
 # Compute the no rain days
-get_no_rain_days("noprec.tif", "persiann.tif")
-os.remove("noprec-cut.tif")
-os.system("gdalwarp -cutline /home/ubuntu/inamhi-geoglows/taskfiles/shp/ffgs.shp -crop_to_cutline -dstalpha noprec.tif noprec-cut.tif")
-upload_to_geoserver("no_precipitation_days", "noprec-cut.tif", "noprec-style")
-print("Upload no precipitation days")
+maskTIFF("noprec.tif", "noprec.tif", ec)
+get_no_rain_days("noprec.tif", "persiann1d.tif")
+upload_to_geoserver("no_precipitation_days", "noprec.tif", "noprec-style")
