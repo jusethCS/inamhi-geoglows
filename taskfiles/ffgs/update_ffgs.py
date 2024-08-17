@@ -66,7 +66,30 @@ def get_ffgs_file(product:str, filename:str, colname:str, user:str,
 
 
 
-def upload_to_geoserver(layer_name, path, style):
+def upload_to_geoserver(layer_name:str, path:str, style:str):
+    """
+    Uploads a layer to GeoServer, handles errors if the store already exists, 
+    and applies the specified style.
+
+    Parameters:
+        layer_name (str): The name of the layer to be created or updated in 
+            GeoServer.
+        path (str): The file path to the data (e.g., GeoTIFF, Shapefile) that 
+            will be used to create the layer.
+        style (str): The name of the style to be applied to the layer in 
+            GeoServer.
+
+    Exceptions:
+        In case the store creation fails initially, the function will attempt 
+        to delete the existing store before trying again.
+
+    Notes:
+        - This function assumes the use of a `geo` object with methods for 
+            interacting with GeoServer (e.g., `create_coveragestore`, 
+            `delete_coveragestore`, `publish_style`).
+        - The workspace is fixed to 'ffgs' and should be modified if a 
+            different workspace is required.
+    """
     try:
         geo.create_coveragestore(
             layer_name=layer_name, 
@@ -121,7 +144,6 @@ gdf_shapefile = gpd.read_file(shp)
 os.chdir(user_dir)
 os.chdir("data/ffgs")
 
-
 # Humedad Promedio del Suelo (ASM)
 asm = get_ffgs_file(
         product="ASM",
@@ -138,7 +160,7 @@ ffg = get_ffgs_file(
         user=FFGS_USER,
         password=FFGS_PASS)
 
-# Pronostico de precipitacion WRF proximas 6 horas
+# Pronostico de precipitacion WRF (prox. 6h)
 fmap06 = get_ffgs_file(
         product = "FMAP2", 
         filename = "fcst_map_forecast2_06hr",  
@@ -146,7 +168,7 @@ fmap06 = get_ffgs_file(
         user=FFGS_USER,
         password=FFGS_PASS)
 
-# Pronostico de precipitacion WRF proximas 24 horas
+# Pronostico de precipitacion WRF (prox. 24h)
 fmap24 = get_ffgs_file(
         product = "FMAP2", 
         filename = "fcst_map_forecast2_24hr", 
@@ -154,7 +176,7 @@ fmap24 = get_ffgs_file(
         user=FFGS_USER,
         password=FFGS_PASS)
 
-# Pronostico de riesgo de crecidas repentinas proximas 12 horas
+# Pronostico de riesgo de crecidas repentinas (prox. 12h)
 ffr12 = get_ffgs_file(
         product = "FFR2", 
         filename = "fcst_ffr_outlook2_12hr", 
@@ -162,7 +184,7 @@ ffr12 = get_ffgs_file(
         user=FFGS_USER,
         password=FFGS_PASS)
 
-# Pronostico de riesgo de crecidas repentinas proximas 24 horas
+# Pronostico de riesgo de crecidas repentinas (prox. 24h)
 ffr24 = get_ffgs_file(
         product = "FFR2", 
         filename = "fcst_ffr_outlook2_24hr", 
@@ -178,15 +200,14 @@ for df in dfs[1:]:
     ffgs = pd.merge(ffgs, df, on="BASIN", how="outer")
 
 # Combine data with shapefile
-ffgs = gdf_shapefile.merge(ffgs, left_on='BASIN', right_on='BASIN', how='left')
+ffgs = gdf_shapefile.merge(
+    ffgs, left_on='BASIN', right_on='BASIN', how='left')
 
 # Save the new shapefile
 ffgs.to_file("ffgs.shp")
-os.system("zip -r ffgs.zip .")
-geo.create_shp_datastore(path="ffgs.zip", store_name='ffgs', workspace='ffgs')
 
 
-# Rasterize
+# Rasterize each information
 os.system("gdal_rasterize -a asm -tr 0.01 0.01 -l ffgs /home/ubuntu/data/ffgs/ffgs.shp asm.tif")
 upload_to_geoserver("asm", "asm.tif", "asm_style")
 
