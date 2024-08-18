@@ -362,7 +362,7 @@ def send(subject:str, body:str, attachment_files:list, sender:str,
     password (str): The password for the sender's email account.
     """
     # Users to send email
-    recipients = ["jusethchancay@ecociencia.org"]
+    recipients = ["prediccion@inamhi.gob.ec","jusethchancay@ecociencia.org"]
     #
     # SMTP server
     smtp_server = "smtp.office365.com"
