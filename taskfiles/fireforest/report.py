@@ -205,8 +205,8 @@ def color_noprec(pixelValue:float) -> str:
 ###############################################################################
 #                                PLOT FUNCTIONS                               #
 ###############################################################################
-def plot_raster(raster_url:str, gdf: gpd.GeoDataFrame, fig_name:str, color:any, 
-                scale:float=1, res:tuple=(0.01, 0.01)) -> None:
+def plot_raster_res(raster_url:str, gdf: gpd.GeoDataFrame, fig_name:str, 
+                    color:any, scale:float=1, res:tuple=(0.01, 0.01)) -> None:
     """
     Plots a raster with optional resampling and masking based on a 
     GeoDataFrame.
@@ -287,6 +287,62 @@ def plot_raster(raster_url:str, gdf: gpd.GeoDataFrame, fig_name:str, color:any,
     plt.ylim(-5.2, 1.6)
     plt.axis("off")
     # Save the figure
+    fig_path = f'{user_dir}/data/report/{fig_name}'
+    plt.savefig(fig_path, bbox_inches='tight', pad_inches=0)
+
+
+
+
+def plot_raster(raster_url: str, gdf: gpd.GeoDataFrame, fig_name: str, color: any, 
+                scale: float = 1) -> None:
+    """
+    Plots a raster, masking it based on a GeoDataFrame.
+
+    Parameters:
+    raster_url (str): Path to the input raster file.
+    gdf (GeoDataFrame): GeoDataFrame containing the geometries for masking.
+    fig_name (str): Output figure file name.
+    color (function): Function that returns a color based on a pixel value.
+    scale (float): Scaling factor for the raster values.
+    """
+    # Abre el raster utilizando rasterio
+    with rasterio.open(raster_url) as src:
+        # Enmascarar el raster original con las geometrías del shp
+        out_image_masked, out_transform = rasterio.mask.mask(
+            src, gdf.geometry, crop=True
+        )
+        out_image_masked = out_image_masked.astype(np.float64) * scale
+        out_image_masked = np.clip(
+            out_image_masked, a_min=-100, a_max=100
+        )
+    #
+    # Crear una lista de valores entre 0 y 1
+    mmin = out_image_masked.min()
+    mmax = out_image_masked.max()
+    rang = 100 * (mmax - mmin)
+    values = np.linspace(mmin, mmax, int(rang))
+    #
+    # Crear una lista de colores utilizando la función color
+    colors = [color(value) for value in values]
+    cmap_custom = ListedColormap(colors)
+    #
+    # Crea una figura de Matplotlib y muestra el raster enmascarado
+    plt.figure(figsize=(8, 8))
+    plt.margins(0)
+    show(
+        out_image_masked, 
+        transform=out_transform, 
+        ax=plt.gca(), 
+        cmap=cmap_custom
+    )
+    gdf.plot(ax=plt.gca(), color='none', edgecolor='black', linewidth=1)
+    #
+    # Establecer límites en los ejes x e y
+    plt.xlim(-81.3, -74.9)
+    plt.ylim(-5.2, 1.6)
+    plt.axis("off")
+    #
+    # Guardar la figura
     fig_path = f'{user_dir}/data/report/{fig_name}'
     plt.savefig(fig_path, bbox_inches='tight', pad_inches=0)
 
