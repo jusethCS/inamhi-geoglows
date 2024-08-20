@@ -1134,8 +1134,8 @@ try:
     #Email
     nowstr = now.strftime("%Y-%m-%d")
     report(filename=f"reporte-{nowstr}.pdf", pacum=pacum_satellite, forecast=pacum_wrf, asm=asm_value, tables=tables)
-    subject = f"PRUEBA: Boletín Hidrometeorológico Especial Baños: {nowstr}"
-    body = "ESTO ES UNA PRUEBA DE FUNCIONAMIENTO NO RESPONDA A ESTE CORREO: \nLa DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas."
+    subject = f"Boletín Hidrometeorológico Especial Baños: {nowstr}"
+    body = "Estimados y estimadas, \n\nLa DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas. \n\n Saludos cordiales."
     send_report(subject=subject, body=body, attachment_file=f"reporte-{nowstr}.pdf",sender=MAIL_USER, password=MAIL_PASS)
 except Exception as e:
     send_error(e,sender=MAIL_USER, password=MAIL_PASS)
