@@ -1,93 +1,105 @@
+# File handling, date management, and environment variables
 import os
-import numpy as np
-import geopandas as gpd
 from dotenv import load_dotenv
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-import matplotlib.image as mpimg
+import datetime as dt
+from datetime import datetime, timedelta
+import xml.etree.ElementTree as ET
 
+# Data processing and statistical analysis
+import numpy as np
+import pandas as pd
+import math
+import sqlalchemy as sql
+from sqlalchemy import create_engine
+
+# Geospatial data manipulation
+import geopandas as gpd
+from shapely.geometry import Point
 import rasterio
 from rasterio.mask import mask
 from rasterio.plot import show
 
-import datetime as dt
-import requests
-from datetime import datetime
-import xml.etree.ElementTree as ET
-import pandas as pd
-
-import pandas as pd
-import rasterio
-import numpy as np
-from rasterio.mask import mask
-
-import math
-import os
-import math
-import numpy as np
-import pandas as pd
-import sqlalchemy as sql
-import datetime as dt
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
-import geopandas as gpd
-from shapely.geometry import Point
-import geoglows
-import numpy as np
-import math
+# Visualization and plotting
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+import matplotlib.image as mpimg
 import plotly.graph_objs as go
-import datetime as dt
-import pandas as pd
-import jinja2
-import os
-import plotly.io as pio
-import scipy
-import scipy.stats
 import plotly.graph_objects as go
+import plotly.io as pio
 
+# Report generation
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
-from reportlab.platypus import SimpleDocTemplate, Image, Spacer, Table, TableStyle, PageBreak
-from reportlab.platypus.paragraph import Paragraph
-from functools import partial
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
-from datetime import datetime, timedelta
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Image, Spacer, Table
+from reportlab.platypus import TableStyle, PageBreak
+from reportlab.platypus.paragraph import Paragraph
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
+from functools import partial
+
+# Email management
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 
 
 ###############################################################################
 #                                    UTILS                                    #
 ###############################################################################
-def get_value(raster_file, shp_file, field):
-    # Cargar el shapefile de cuencas hidrográficas
+def get_value(raster_file:str, shp_file:gpd.GeoDataFrame, 
+              field:str) -> pd.DataFrame:
+    """
+    Extracts average values from a raster file based on the geometries in a 
+    shapefile.
+
+    Parameters:
+    - raster_file (str): Path to the raster file
+    - shp_file (geopandas.GeoDataFrame): GeoDataFrame containing the shapefile 
+        data, typically representing sub-basins.
+    - field (str): The field in the shapefile to use for labeling the sub-basins
+
+    Returns:
+    - pandas.DataFrame: A DataFrame containing geometries names and their 
+        corresponding average  values.
+    """
+    # Load the shapefile containing watershed (sub-basin) geometries
     cuencas = shp_file
+
+    # Initialize an empty DataFrame to store the results
     resultados = pd.DataFrame(columns=['subbasin', 'pacum'])
-    #
-    # Abrir el archivo raster
+
+    # Open the raster file
     with rasterio.open(raster_file) as src:
-        # Reproyectar el shapefile para que coincida con la proyección del raster
+        # Reproject the shp to match the raster's coordinate reference system
         cuencas = cuencas.to_crs(src.crs)
-        #
-        # Leer los valores del raster que intersectan con las geometrías de las cuencas
+
+        # Read the raster values that intersect with the sub-basin geometries
         resultados_list = []
         for index, row in cuencas.iterrows():
             geom = row.geometry
-            #
-            # Máscara del raster basado en la geometría de la cuenca
+
+            # Mask the raster based on the sub-basin geometry
             out_image, out_transform = mask(src, [geom], crop=True)
             out_image[out_image < 0] = 0
-            #
-            # Calcular el valor promedio de precipitación dentro de la cuenca
+            
+            # Calculate the average precipitation value within the sub-basin
             avg_precipitation = round(np.nanmean(out_image), 2)
-            #
-            # Agregar los resultados a la lista
-            resultados_list.append({'subbasin': f"Rio {row[field]}", 'pacum': avg_precipitation})
+            
+            # Append the results to the list
+            resultados_list.append(
+                {'subbasin': f"Rio {row[field]}", 'pacum': avg_precipitation}
+            )
         
-        # Convertir la lista en un DataFrame
-        resultados = pd.concat([resultados, pd.DataFrame(resultados_list)], ignore_index=True)
-    #
+        # Convert the list to a DataFrame and append it to the results
+        resultados = pd.concat(
+            [resultados, pd.DataFrame(resultados_list)], 
+            ignore_index=True
+        )
+    
     return resultados
 
 
@@ -108,13 +120,13 @@ def get_format_data(sql_statement, conn):
     """
     # Retrieve data from the database using the SQL query
     data = pd.read_sql(sql_statement, conn)
-    #
+    
     # Set the 'datetime' column as the DataFrame index
     data.index = pd.to_datetime(data['datetime'])
-    #
+    
     # Drop the 'datetime' column as it is now the index
     data = data.drop(columns=['datetime'])
-    #
+    
     # Format the index values to the desired datetime string format
     data.index = pd.to_datetime(data.index)
     data.index = data.index.to_series().dt.strftime("%Y-%m-%d %H:%M:%S")
@@ -466,7 +478,7 @@ def forecast_geoglows_plot(stats, rperiods, comid, records, sim):
         )]
         #scatter_plots += records_plot
     #
-    scatter_plots += rperiod_scatters
+    #scatter_plots += rperiod_scatters
     layout = go.Layout(
         yaxis={'title': 'Caudal (m<sup>3</sup>/s)', 'range': [0, 'auto']},
         xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y %H:%M',
@@ -938,8 +950,79 @@ def report(filename, pacum, forecast, asm, tables):
 
 
 
+###############################################################################
+#                                EMAIL ROUTNES                                #
+###############################################################################
+def send_report(subject, body, attachment_file, sender, password):
+    # Users to send email
+    recipients = [
+        "sala.chimborazo@gestionderiesgos.gob.ec",
+        "sala.tungurahua@gestionderiesgos.gob.ec",
+        "sala.pastaza@gestionderiesgos.gob.ec",
+        "sala.nacional@gestionderiesgos.gob.ec",
+        "subsecretario.informacionyanalisis@gestionderiesgos.gob.ec",
+        "prediccion@inamhi.gob.ec",
+        "jusethchancay@ecociencia.org"]
+    #
+    # SMTP server
+    smtp_server = "smtp.office365.com"
+    smtp_port = 587
+    #
+    # Configure the message
+    message = MIMEMultipart()
+    message['From'] = sender
+    message['To'] = ", ".join(recipients)
+    message['Subject'] = subject
+    #
+    # Attach the email body
+    message.attach(MIMEText(body, 'plain'))
+    #
+    # Attach the PDF file
+    attachment = open(attachment_file, 'rb')
+    attachment_part = MIMEBase('application', 'octet-stream')
+    attachment_part.set_payload((attachment).read())
+    encoders.encode_base64(attachment_part)
+    attachment_part.add_header('Content-Disposition', "attachment; filename= %s" % attachment_file)
+    message.attach(attachment_part)
+    #
+    # Connect to the SMTP server and send the email
+    server = smtplib.SMTP(smtp_server, smtp_port)
+    server.starttls()
+    server.login(sender, password)
+    server.sendmail(sender, recipients, message.as_string())
+    server.quit()
 
 
+def send_error(error, sender, password):
+    # Users to send email
+    recipients = [ "prediccion@inamhi.gob.ec", "jusethchancay@ecociencia.org"]
+    #
+    # SMTP server
+    smtp_server = "smtp.office365.com"
+    smtp_port = 587
+    #
+    # Configure the message
+    message = MIMEMultipart()
+    message['From'] = sender
+    message['To'] = ", ".join(recipients)
+    message['Subject'] = "Error en el envío de reporte automático a SGR"
+    #
+    # Attach the email body
+    body = f"Existió un error en el envío del reporte automático a SGR\n {error} \n\nPonerse en contacto con Juseth, lo antes posible...\nSaludos coordiales,\nINAMHI GEOGLOWS"
+    message.attach(MIMEText(body, 'plain'))
+    #
+    # Connect to the SMTP server and send the email
+    server = smtplib.SMTP(smtp_server, smtp_port)
+    server.starttls()
+    server.login(sender, password)
+    server.sendmail(sender, recipients, message.as_string())
+    server.quit()
+
+
+
+###############################################################################
+#                                MAIN ROUTINE                                 #
+###############################################################################
 
 # Change the work directory
 user = os.getlogin()
@@ -977,75 +1060,82 @@ puntos_afectados = gpd.read_file(f"{assets_path}/puntos_afectados.shp")
 os.chdir(user_dir)
 os.chdir("data/sgr")
 
+try:
+    # Datos satelitales
+    url = "/home/ubuntu/data/fireforest/persiann1d.tif"
+    os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} pacum.tif")
+    plot_ec("pacum.tif", 1, ec, prov, area, color_pacum, "pacum_ecuador.png")
+    plot_area("pacum.tif", 1, ec, rios_principales, rios_secundarios, puntos_afectados, color_pacum, "pacum_area.png")
+    join_images("pacum_ecuador.png", "pacum_area.png", "pacum.png")
+    pacum_satellite = get_value("pacum.tif", area, "id").pacum[0]
+    os.remove("pacum.tif")
+    os.remove("pacum_ecuador.png")
+    os.remove("pacum_area.png")
 
-# Datos satelitales
-url = "/home/ubuntu/data/fireforest/persiann1d.tif"
-os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} pacum.tif")
-plot_ec("pacum.tif", 1, ec, prov, area, color_pacum, "pacum_ecuador.png")
-plot_area("pacum.tif", 1, ec, rios_principales, rios_secundarios, puntos_afectados, color_pacum, "pacum_area.png")
-join_images("pacum_ecuador.png", "pacum_area.png", "pacum.png")
-pacum_satellite = get_value("pacum.tif", area, "id").pacum[0]
-os.remove("pacum.tif")
-os.remove("pacum_ecuador.png")
-os.remove("pacum_area.png")
+    # Pronóstico
+    now = dt.datetime.now()
+    datestr = now.strftime("%Y-%m-%d00Z-24H-%Y%m%d07h00")
+    url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
+    os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast.tif")
+    plot_ec("forecast.tif", 1, ec, prov, area, color_pacum, "forecast_ecuador.png")
+    plot_area("forecast.tif", 1, ec, rios_principales, rios_secundarios, puntos_afectados, color_pacum, "forecast_area.png")
+    join_images("forecast_ecuador.png", "forecast_area.png", "forecast.png")
+    pacum_wrf = get_value("forecast.tif", area, "id").pacum[0]
+    os.remove("forecast.tif")
+    os.remove("forecast_ecuador.png")
+    os.remove("forecast_area.png")
 
-# Pronóstico
-now = dt.datetime.now()
-datestr = now.strftime("%Y-%m-%d00Z-24H-%Y%m%d07h00")
-url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
-os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast.tif")
-plot_ec("forecast.tif", 1, ec, prov, area, color_pacum, "forecast_ecuador.png")
-plot_area("forecast.tif", 1, ec, rios_principales, rios_secundarios, puntos_afectados, color_pacum, "forecast_area.png")
-join_images("forecast_ecuador.png", "forecast_area.png", "forecast.png")
-pacum_wrf = get_value("forecast.tif", area, "id").pacum[0]
-os.remove("forecast.tif")
-os.remove("forecast_ecuador.png")
-os.remove("forecast_area.png")
+    # Humedad del suelo
+    url = "/home/ubuntu/data/fireforest/soilmoisture.tif"
+    os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} asm.tif")
+    plot_ec("asm.tif", 100, ec, prov, area, color_percent, "asm_ecuador.png")
+    plot_area("asm.tif", 100, ec, rios_principales, rios_secundarios, puntos_afectados, color_percent, "asm_area.png")
+    join_images("asm_ecuador.png", "asm_area.png", "asm.png")
+    asm_value = get_value("asm.tif", area, "id").pacum[0]
+    os.remove("asm.tif")
+    os.remove("asm_ecuador.png")
+    os.remove("asm_area.png")
 
-# Humedad del suelo
-url = "/home/ubuntu/data/fireforest/soilmoisture.tif"
-os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} asm.tif")
-plot_ec("asm.tif", 100, ec, prov, area, color_percent, "asm_ecuador.png")
-plot_area("asm.tif", 100, ec, rios_principales, rios_secundarios, puntos_afectados, color_percent, "asm_area.png")
-join_images("asm_ecuador.png", "asm_area.png", "asm.png")
-asm_value = get_value("asm.tif", area, "id").pacum[0]
-os.remove("asm.tif")
-os.remove("asm_ecuador.png")
-os.remove("asm_area.png")
+    # Hydrological forecasting
+    t9028087 = geoglows_plot(9028087, conn, "9028087.png")
+    join_images("loc/9028087.png", "9028087.png", "forecast_9028087.png")
+    os.remove("9028087.png")
 
+    t9028483 = geoglows_plot(9028483, conn, "9028483.png")
+    join_images("loc/9028483.png", "9028483.png", "forecast_9028483.png")
+    os.remove("9028483.png")
 
-# Hydrological forecasting
-t9028087 = geoglows_plot(9028087, conn, "9028087.png")
-join_images("loc/9028087.png", "9028087.png", "forecast_9028087.png")
-os.remove("9028087.png")
+    t9028041 = geoglows_plot(9028041, conn, "9028041.png")
+    join_images("loc/9028041.png", "9028041.png", "forecast_9028041.png")
+    os.remove("9028041.png")
 
-t9028483 = geoglows_plot(9028483, conn, "9028483.png")
-join_images("loc/9028483.png", "9028483.png", "forecast_9028483.png")
-os.remove("9028483.png")
+    t9028088 = geoglows_plot(9028088, conn, "9028088.png")
+    join_images("loc/9028088.png", "9028088.png", "forecast_9028088.png")
+    os.remove("9028088.png")
 
-t9028041 = geoglows_plot(9028041, conn, "9028041.png")
-join_images("loc/9028041.png", "9028041.png", "forecast_9028041.png")
-os.remove("9028041.png")
+    t9028099 = geoglows_plot(9028099, conn, "9028099.png")
+    join_images("loc/9028099.png", "9028099.png", "forecast_9028099.png")
+    os.remove("9028099.png")
 
-t9028088 = geoglows_plot(9028088, conn, "9028088.png")
-join_images("loc/9028088.png", "9028088.png", "forecast_9028088.png")
-os.remove("9028088.png")
+    t9028091 = geoglows_plot(9028091, conn, "9028091.png")
+    join_images("loc/9028091.png", "9028091.png", "forecast_9028091.png")
+    os.remove("9028091.png")
 
-t9028099 = geoglows_plot(9028099, conn, "9028099.png")
-join_images("loc/9028099.png", "9028099.png", "forecast_9028099.png")
-os.remove("9028099.png")
+    t9028095 = geoglows_plot(9028095, conn, "9028095.png")
+    join_images("loc/9028095.png", "9028095.png", "forecast_9028095.png")
+    os.remove("9028095.png")
 
-t9028091 = geoglows_plot(9028091, conn, "9028091.png")
-join_images("loc/9028091.png", "9028091.png", "forecast_9028091.png")
-os.remove("9028091.png")
+    t9028125 = geoglows_plot(9028125, conn, "9028125.png")
+    join_images("loc/9028125.png", "9028125.png", "forecast_9028125.png")
+    os.remove("9028125.png")
 
-t9028095 = geoglows_plot(9028095, conn, "9028095.png")
-join_images("loc/9028095.png", "9028095.png", "forecast_9028095.png")
-os.remove("9028095.png")
+    tables = [t9028087, t9028483, t9028041, t9028088, t9028099, t9028091, t9028095, t9028125]
 
-t9028125 = geoglows_plot(9028125, conn, "9028125.png")
-join_images("loc/9028125.png", "9028125.png", "forecast_9028125.png")
-os.remove("9028125.png")
-
-tables = [t9028087, t9028483, t9028041, t9028088, t9028099, t9028091, t9028095, t9028125]
-report(filename="prueba.pdf", pacum=pacum_satellite, forecast=pacum_wrf, asm=asm_value, tables=tables)
+    #Email
+    nowstr = now.strftime("%Y-%m-%d")
+    report(filename=f"reporte-{nowstr}.pdf", pacum=pacum_satellite, forecast=pacum_wrf, asm=asm_value, tables=tables)
+    subject = f"PRUEBA: Boletín Hidrometeorológico Especial Baños: {nowstr}"
+    body = "ESTO ES UNA PRUEBA DE FUNCIONAMIENTO NO RESPONDA A ESTE CORREO: \nLa DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas."
+    send_report(subject=subject, body=body, attachment_file=f"reporte-{nowstr}.pdf",sender=MAIL_USER, password=MAIL_PASS)
+except Exception as e:
+    send_error(e,sender=MAIL_USER, password=MAIL_PASS)
