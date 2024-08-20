@@ -1048,4 +1048,4 @@ join_images("loc/9028125.png", "9028125.png", "forecast_9028125.png")
 os.remove("9028125.png")
 
 tables = [t9028087, t9028483, t9028041, t9028088, t9028099, t9028091, t9028095, t9028125]
-report.report(filename="prueba.pdf", pacum=pacum_satellite, forecast=pacum_wrf, asm=asm_value, tables=tables)
+report(filename="prueba.pdf", pacum=pacum_satellite, forecast=pacum_wrf, asm=asm_value, tables=tables)
