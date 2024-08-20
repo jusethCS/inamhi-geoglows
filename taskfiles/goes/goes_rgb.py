@@ -329,7 +329,7 @@ for filename in files:
 
 delete_coverage("GOES-RGB-FIRE-TEMPERATURE")
 delete_coverage("GOES-RGB-DAY-CLOUD-PHASE")
-delete_coverage("GOES-TRUE-COLOR")
+delete_coverage("GOES-RGB-TRUE-COLOR")
 
 
 
