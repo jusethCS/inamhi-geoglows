@@ -1073,7 +1073,7 @@ try:
     os.remove("pacum_area.png")
 
     # Pronóstico
-    now = dt.datetime.now()
+    now = dt.datetime.now() - dt.timedelta(days=1)
     datestr = now.strftime("%Y-%m-%d00Z-24H-%Y%m%d07h00")
     url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
     os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast.tif")
