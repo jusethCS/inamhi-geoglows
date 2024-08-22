@@ -956,12 +956,12 @@ def report(filename, pacum, forecast, asm, tables):
 def send_report(subject, body, attachment_file, sender, password):
     # Users to send email
     recipients = [
-        #"sala.chimborazo@gestionderiesgos.gob.ec",
-        #"sala.tungurahua@gestionderiesgos.gob.ec",
-        #"sala.pastaza@gestionderiesgos.gob.ec",
-        #"sala.nacional@gestionderiesgos.gob.ec",
-        #"subsecretario.informacionyanalisis@gestionderiesgos.gob.ec",
-        #"prediccion@inamhi.gob.ec",
+        "sala.chimborazo@gestionderiesgos.gob.ec",
+        "sala.tungurahua@gestionderiesgos.gob.ec",
+        "sala.pastaza@gestionderiesgos.gob.ec",
+        "sala.nacional@gestionderiesgos.gob.ec",
+        "subsecretario.informacionyanalisis@gestionderiesgos.gob.ec",
+        "prediccion@inamhi.gob.ec",
         "jusethchancay@ecociencia.org"]
     #
     # SMTP server
@@ -1073,7 +1073,7 @@ try:
     os.remove("pacum_area.png")
 
     # Pronóstico
-    now = dt.datetime.now() - dt.timedelta(days=1)
+    now = dt.datetime.now()
     datestr = now.strftime("%Y-%m-%d00Z-24H-%Y%m%d07h00")
     url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
     os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast.tif")
