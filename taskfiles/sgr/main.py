@@ -956,12 +956,12 @@ def report(filename, pacum, forecast, asm, tables):
 def send_report(subject, body, attachment_file, sender, password):
     # Users to send email
     recipients = [
-        "sala.chimborazo@gestionderiesgos.gob.ec",
-        "sala.tungurahua@gestionderiesgos.gob.ec",
-        "sala.pastaza@gestionderiesgos.gob.ec",
-        "sala.nacional@gestionderiesgos.gob.ec",
-        "subsecretario.informacionyanalisis@gestionderiesgos.gob.ec",
-        "prediccion@inamhi.gob.ec",
+        #"sala.chimborazo@gestionderiesgos.gob.ec",
+        #"sala.tungurahua@gestionderiesgos.gob.ec",
+        #"sala.pastaza@gestionderiesgos.gob.ec",
+        #"sala.nacional@gestionderiesgos.gob.ec",
+        #"subsecretario.informacionyanalisis@gestionderiesgos.gob.ec",
+        #"prediccion@inamhi.gob.ec",
         "jusethchancay@ecociencia.org"]
     #
     # SMTP server
