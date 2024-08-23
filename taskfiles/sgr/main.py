@@ -962,6 +962,10 @@ def send_report(subject, body, attachment_file, sender, password):
         "sala.nacional@gestionderiesgos.gob.ec",
         "subsecretario.informacionyanalisis@gestionderiesgos.gob.ec",
         "prediccion@inamhi.gob.ec",
+        "angelica.gutierrez@noaa.gov",
+        "secretariat@geoglows.org",
+        "vanesa.martin@nasa.gov",
+        "rodrigotorres@ecociencia.org",
         "jusethchancay@ecociencia.org"]
     #
     # SMTP server
