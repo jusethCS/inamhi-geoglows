@@ -45,6 +45,8 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
+# Kaleido path
+pio.kaleido.scope.executable_path = "/home/ubuntu/miniconda3/envs/geoglows/bin/kaleido"
 
 
 ###############################################################################
@@ -68,38 +70,38 @@ def get_value(raster_file:str, shp_file:gpd.GeoDataFrame,
     """
     # Load the shapefile containing watershed (sub-basin) geometries
     cuencas = shp_file
-
+    #
     # Initialize an empty DataFrame to store the results
     resultados = pd.DataFrame(columns=['subbasin', 'pacum'])
-
+    #
     # Open the raster file
     with rasterio.open(raster_file) as src:
         # Reproject the shp to match the raster's coordinate reference system
         cuencas = cuencas.to_crs(src.crs)
-
+        #
         # Read the raster values that intersect with the sub-basin geometries
         resultados_list = []
         for index, row in cuencas.iterrows():
             geom = row.geometry
-
+            #
             # Mask the raster based on the sub-basin geometry
             out_image, out_transform = mask(src, [geom], crop=True)
             out_image[out_image < 0] = 0
-            
+            #
             # Calculate the average precipitation value within the sub-basin
             avg_precipitation = round(np.nanmean(out_image), 2)
-            
+            #
             # Append the results to the list
             resultados_list.append(
                 {'subbasin': f"Rio {row[field]}", 'pacum': avg_precipitation}
             )
-        
+        #
         # Convert the list to a DataFrame and append it to the results
         resultados = pd.concat(
             [resultados, pd.DataFrame(resultados_list)], 
             ignore_index=True
         )
-    
+    #
     return resultados
 
 
@@ -120,13 +122,13 @@ def get_format_data(sql_statement, conn):
     """
     # Retrieve data from the database using the SQL query
     data = pd.read_sql(sql_statement, conn)
-    
+    #
     # Set the 'datetime' column as the DataFrame index
     data.index = pd.to_datetime(data['datetime'])
-    
+    #
     # Drop the 'datetime' column as it is now the index
     data = data.drop(columns=['datetime'])
-    
+    #
     # Format the index values to the desired datetime string format
     data.index = pd.to_datetime(data.index)
     data.index = data.index.to_series().dt.strftime("%Y-%m-%d %H:%M:%S")
@@ -1071,7 +1073,7 @@ try:
     os.remove("pacum.tif")
     os.remove("pacum_ecuador.png")
     os.remove("pacum_area.png")
-
+    #
     # Pronóstico
     now = dt.datetime.now() - dt.timedelta(days=1)
     datestr = now.strftime("%Y-%m-%d00Z-24H-%Y%m%d07h00")
@@ -1084,7 +1086,7 @@ try:
     os.remove("forecast.tif")
     os.remove("forecast_ecuador.png")
     os.remove("forecast_area.png")
-
+    #
     # Humedad del suelo
     url = "/home/ubuntu/data/fireforest/soilmoisture.tif"
     os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} asm.tif")
@@ -1095,42 +1097,42 @@ try:
     os.remove("asm.tif")
     os.remove("asm_ecuador.png")
     os.remove("asm_area.png")
-
+    #
     # Hydrological forecasting
     t9028087 = geoglows_plot(9028087, conn, "9028087.png")
     join_images("loc/9028087.png", "9028087.png", "forecast_9028087.png")
     os.remove("9028087.png")
-
+    #
     t9028483 = geoglows_plot(9028483, conn, "9028483.png")
     join_images("loc/9028483.png", "9028483.png", "forecast_9028483.png")
     os.remove("9028483.png")
-
+    #
     t9028041 = geoglows_plot(9028041, conn, "9028041.png")
     join_images("loc/9028041.png", "9028041.png", "forecast_9028041.png")
     os.remove("9028041.png")
-
+    #
     t9028088 = geoglows_plot(9028088, conn, "9028088.png")
     join_images("loc/9028088.png", "9028088.png", "forecast_9028088.png")
     os.remove("9028088.png")
-
+    #
     t9028099 = geoglows_plot(9028099, conn, "9028099.png")
     join_images("loc/9028099.png", "9028099.png", "forecast_9028099.png")
     os.remove("9028099.png")
-
+    #
     t9028091 = geoglows_plot(9028091, conn, "9028091.png")
     join_images("loc/9028091.png", "9028091.png", "forecast_9028091.png")
     os.remove("9028091.png")
-
+    #
     t9028095 = geoglows_plot(9028095, conn, "9028095.png")
     join_images("loc/9028095.png", "9028095.png", "forecast_9028095.png")
     os.remove("9028095.png")
-
+    #
     t9028125 = geoglows_plot(9028125, conn, "9028125.png")
     join_images("loc/9028125.png", "9028125.png", "forecast_9028125.png")
     os.remove("9028125.png")
-
+    #
     tables = [t9028087, t9028483, t9028041, t9028088, t9028099, t9028091, t9028095, t9028125]
-
+    #
     #Email
     nowstr = now.strftime("%Y-%m-%d")
     report(filename=f"reporte-{nowstr}.pdf", pacum=pacum_satellite, forecast=pacum_wrf, asm=asm_value, tables=tables)
