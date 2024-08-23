@@ -20,6 +20,7 @@ from rasterio.mask import mask
 from rasterio.plot import show
 
 # Visualization and plotting
+import kaleido
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import matplotlib.image as mpimg
@@ -46,7 +47,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 # Kaleido path
-pio.kaleido.scope.default_executable_path = "/home/ubuntu/miniconda3/envs/geoglows/bin/kaleido"
+#pio.kaleido.scope.default_executable_path = "/home/ubuntu/miniconda3/envs/geoglows/bin/kaleido"
 
 
 ###############################################################################
