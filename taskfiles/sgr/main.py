@@ -46,7 +46,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 # Kaleido path
-pio.kaleido.scope.executable_path = "/home/ubuntu/miniconda3/envs/geoglows/bin/kaleido"
+pio.kaleido.scope.default_executable_path = "/home/ubuntu/miniconda3/envs/geoglows/bin/kaleido"
 
 
 ###############################################################################
