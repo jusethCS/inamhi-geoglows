@@ -46,7 +46,8 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 # Kaleido path
-pio.kaleido.scope.default_executable_path = "/home/ubuntu/miniconda3/envs/geoglows/bin/kaleido"
+kaleido_path = "/home/ubuntu/miniconda3/envs/geoglows/bin/kaleido"
+pio.kaleido.scope.default_executable_path = kaleido_path
 
 
 ###############################################################################
@@ -1062,82 +1063,82 @@ puntos_afectados = gpd.read_file(f"{assets_path}/puntos_afectados.shp")
 os.chdir(user_dir)
 os.chdir("data/sgr")
 
-#try:
-# Datos satelitales
-url = "/home/ubuntu/data/fireforest/persiann1d.tif"
-os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} pacum.tif")
-plot_ec("pacum.tif", 1, ec, prov, area, color_pacum, "pacum_ecuador.png")
-plot_area("pacum.tif", 1, ec, rios_principales, rios_secundarios, puntos_afectados, color_pacum, "pacum_area.png")
-join_images("pacum_ecuador.png", "pacum_area.png", "pacum.png")
-pacum_satellite = get_value("pacum.tif", area, "id").pacum[0]
-os.remove("pacum.tif")
-os.remove("pacum_ecuador.png")
-os.remove("pacum_area.png")
-#
-# Pronóstico
-now = dt.datetime.now() - dt.timedelta(days=1)
-datestr = now.strftime("%Y-%m-%d00Z-24H-%Y%m%d07h00")
-url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
-os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast.tif")
-plot_ec("forecast.tif", 1, ec, prov, area, color_pacum, "forecast_ecuador.png")
-plot_area("forecast.tif", 1, ec, rios_principales, rios_secundarios, puntos_afectados, color_pacum, "forecast_area.png")
-join_images("forecast_ecuador.png", "forecast_area.png", "forecast.png")
-pacum_wrf = get_value("forecast.tif", area, "id").pacum[0]
-os.remove("forecast.tif")
-os.remove("forecast_ecuador.png")
-os.remove("forecast_area.png")
-#
-# Humedad del suelo
-url = "/home/ubuntu/data/fireforest/soilmoisture.tif"
-os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} asm.tif")
-plot_ec("asm.tif", 100, ec, prov, area, color_percent, "asm_ecuador.png")
-plot_area("asm.tif", 100, ec, rios_principales, rios_secundarios, puntos_afectados, color_percent, "asm_area.png")
-join_images("asm_ecuador.png", "asm_area.png", "asm.png")
-asm_value = get_value("asm.tif", area, "id").pacum[0]
-os.remove("asm.tif")
-os.remove("asm_ecuador.png")
-os.remove("asm_area.png")
-#
-# Hydrological forecasting
-t9028087 = geoglows_plot(9028087, conn, "9028087.png")
-join_images("loc/9028087.png", "9028087.png", "forecast_9028087.png")
-os.remove("9028087.png")
-#
-t9028483 = geoglows_plot(9028483, conn, "9028483.png")
-join_images("loc/9028483.png", "9028483.png", "forecast_9028483.png")
-os.remove("9028483.png")
-#
-t9028041 = geoglows_plot(9028041, conn, "9028041.png")
-join_images("loc/9028041.png", "9028041.png", "forecast_9028041.png")
-os.remove("9028041.png")
-#
-t9028088 = geoglows_plot(9028088, conn, "9028088.png")
-join_images("loc/9028088.png", "9028088.png", "forecast_9028088.png")
-os.remove("9028088.png")
-#
-t9028099 = geoglows_plot(9028099, conn, "9028099.png")
-join_images("loc/9028099.png", "9028099.png", "forecast_9028099.png")
-os.remove("9028099.png")
-#
-t9028091 = geoglows_plot(9028091, conn, "9028091.png")
-join_images("loc/9028091.png", "9028091.png", "forecast_9028091.png")
-os.remove("9028091.png")
-#
-t9028095 = geoglows_plot(9028095, conn, "9028095.png")
-join_images("loc/9028095.png", "9028095.png", "forecast_9028095.png")
-os.remove("9028095.png")
-#
-t9028125 = geoglows_plot(9028125, conn, "9028125.png")
-join_images("loc/9028125.png", "9028125.png", "forecast_9028125.png")
-os.remove("9028125.png")
-#
-tables = [t9028087, t9028483, t9028041, t9028088, t9028099, t9028091, t9028095, t9028125]
-#
-#Email
-nowstr = now.strftime("%Y-%m-%d")
-report(filename=f"reporte-{nowstr}.pdf", pacum=pacum_satellite, forecast=pacum_wrf, asm=asm_value, tables=tables)
-subject = f"Boletín Hidrometeorológico Especial Baños: {nowstr}"
-body = "Estimados y estimadas, \n\nLa DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas. \n\n Saludos cordiales."
-send_report(subject=subject, body=body, attachment_file=f"reporte-{nowstr}.pdf",sender=MAIL_USER, password=MAIL_PASS)
-#except Exception as e:
-#    send_error(e,sender=MAIL_USER, password=MAIL_PASS)
+try:
+    # Datos satelitales
+    url = "/home/ubuntu/data/fireforest/persiann1d.tif"
+    os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} pacum.tif")
+    plot_ec("pacum.tif", 1, ec, prov, area, color_pacum, "pacum_ecuador.png")
+    plot_area("pacum.tif", 1, ec, rios_principales, rios_secundarios, puntos_afectados, color_pacum, "pacum_area.png")
+    join_images("pacum_ecuador.png", "pacum_area.png", "pacum.png")
+    pacum_satellite = get_value("pacum.tif", area, "id").pacum[0]
+    os.remove("pacum.tif")
+    os.remove("pacum_ecuador.png")
+    os.remove("pacum_area.png")
+    #
+    # Pronóstico
+    now = dt.datetime.now() - dt.timedelta(days=1)
+    datestr = now.strftime("%Y-%m-%d00Z-24H-%Y%m%d07h00")
+    url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
+    os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast.tif")
+    plot_ec("forecast.tif", 1, ec, prov, area, color_pacum, "forecast_ecuador.png")
+    plot_area("forecast.tif", 1, ec, rios_principales, rios_secundarios, puntos_afectados, color_pacum, "forecast_area.png")
+    join_images("forecast_ecuador.png", "forecast_area.png", "forecast.png")
+    pacum_wrf = get_value("forecast.tif", area, "id").pacum[0]
+    os.remove("forecast.tif")
+    os.remove("forecast_ecuador.png")
+    os.remove("forecast_area.png")
+    #
+    # Humedad del suelo
+    url = "/home/ubuntu/data/fireforest/soilmoisture.tif"
+    os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} asm.tif")
+    plot_ec("asm.tif", 100, ec, prov, area, color_percent, "asm_ecuador.png")
+    plot_area("asm.tif", 100, ec, rios_principales, rios_secundarios, puntos_afectados, color_percent, "asm_area.png")
+    join_images("asm_ecuador.png", "asm_area.png", "asm.png")
+    asm_value = get_value("asm.tif", area, "id").pacum[0]
+    os.remove("asm.tif")
+    os.remove("asm_ecuador.png")
+    os.remove("asm_area.png")
+    #
+    # Hydrological forecasting
+    t9028087 = geoglows_plot(9028087, conn, "9028087.png")
+    join_images("loc/9028087.png", "9028087.png", "forecast_9028087.png")
+    os.remove("9028087.png")
+    #
+    t9028483 = geoglows_plot(9028483, conn, "9028483.png")
+    join_images("loc/9028483.png", "9028483.png", "forecast_9028483.png")
+    os.remove("9028483.png")
+    #
+    t9028041 = geoglows_plot(9028041, conn, "9028041.png")
+    join_images("loc/9028041.png", "9028041.png", "forecast_9028041.png")
+    os.remove("9028041.png")
+    #
+    t9028088 = geoglows_plot(9028088, conn, "9028088.png")
+    join_images("loc/9028088.png", "9028088.png", "forecast_9028088.png")
+    os.remove("9028088.png")
+    #
+    t9028099 = geoglows_plot(9028099, conn, "9028099.png")
+    join_images("loc/9028099.png", "9028099.png", "forecast_9028099.png")
+    os.remove("9028099.png")
+    #
+    t9028091 = geoglows_plot(9028091, conn, "9028091.png")
+    join_images("loc/9028091.png", "9028091.png", "forecast_9028091.png")
+    os.remove("9028091.png")
+    #
+    t9028095 = geoglows_plot(9028095, conn, "9028095.png")
+    join_images("loc/9028095.png", "9028095.png", "forecast_9028095.png")
+    os.remove("9028095.png")
+    #
+    t9028125 = geoglows_plot(9028125, conn, "9028125.png")
+    join_images("loc/9028125.png", "9028125.png", "forecast_9028125.png")
+    os.remove("9028125.png")
+    #
+    tables = [t9028087, t9028483, t9028041, t9028088, t9028099, t9028091, t9028095, t9028125]
+    #
+    #Email
+    nowstr = now.strftime("%Y-%m-%d")
+    report(filename=f"reporte-{nowstr}.pdf", pacum=pacum_satellite, forecast=pacum_wrf, asm=asm_value, tables=tables)
+    subject = f"Boletín Hidrometeorológico Especial Baños: {nowstr}"
+    body = "Estimados y estimadas, \n\nLa DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas. \n\n Saludos cordiales."
+    send_report(subject=subject, body=body, attachment_file=f"reporte-{nowstr}.pdf",sender=MAIL_USER, password=MAIL_PASS)
+except Exception as e:
+    send_error(e,sender=MAIL_USER, password=MAIL_PASS)
