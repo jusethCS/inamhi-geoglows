@@ -493,7 +493,7 @@ def forecast_geoglows_plot(stats, rperiods, comid, records, sim):
 
 
 def geoglows_plot(comid, conn, outpath):
-    now = dt.datetime.now()
+    now = dt.datetime.now() - dt.timedelta(days=1)
     date = now.strftime("%Y-%m-%d")
     simulated_data = get_format_data(f"SELECT datetime,value FROM historical_simulation where comid={comid}", conn)
     ensemble_forecast = get_format_data(f"SELECT * FROM ensemble_forecast WHERE initialized='{date}' AND comid={comid}", conn).drop(columns=['comid', "initialized"])
@@ -740,7 +740,7 @@ def header_and_footer(canvas, doc, header_content, footer_content):
 
 def get_datetime():
     # Obtener la fecha y hora actual
-    now = datetime.now() + timedelta(hours=-5)
+    now = dt.datetime.now() - dt.timedelta(days=1) + dt.timedelta(hours=-5)  #datetime.now() + timedelta(hours=-5) 
     # Mapeo de nombres de meses en inglés a español
     meses_ingles_a_espanol = {
         "January": "enero",
@@ -956,12 +956,12 @@ def report(filename, pacum, forecast, asm, tables):
 def send_report(subject, body, attachment_file, sender, password):
     # Users to send email
     recipients = [
-        "sala.chimborazo@gestionderiesgos.gob.ec",
-        "sala.tungurahua@gestionderiesgos.gob.ec",
-        "sala.pastaza@gestionderiesgos.gob.ec",
-        "sala.nacional@gestionderiesgos.gob.ec",
-        "subsecretario.informacionyanalisis@gestionderiesgos.gob.ec",
-        "prediccion@inamhi.gob.ec",
+        #"sala.chimborazo@gestionderiesgos.gob.ec",
+        #"sala.tungurahua@gestionderiesgos.gob.ec",
+        #"sala.pastaza@gestionderiesgos.gob.ec",
+        #"sala.nacional@gestionderiesgos.gob.ec",
+        #"subsecretario.informacionyanalisis@gestionderiesgos.gob.ec",
+        #"prediccion@inamhi.gob.ec",
         "jusethchancay@ecociencia.org"]
     #
     # SMTP server
@@ -1073,7 +1073,7 @@ try:
     os.remove("pacum_area.png")
 
     # Pronóstico
-    now = dt.datetime.now()
+    now = dt.datetime.now() - dt.timedelta(days=1)
     datestr = now.strftime("%Y-%m-%d00Z-24H-%Y%m%d07h00")
     url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
     os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast.tif")
