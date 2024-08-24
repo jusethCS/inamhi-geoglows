@@ -208,6 +208,62 @@
           [(ngModel)]="isActiveCantonLayer" (ngModelChange)="updateOverlayers(isActiveCantonLayer, cantonLayer)">
         <label class="form-check-label" for="cantones">Delimitación cantonal</label>
       </div>
+
+      <div class="panel-subtitle pt-3">Áreas protegidas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="provincias"
+          [(ngModel)]="isActiveConectivityCo" (ngModelChange)="updateOverlayers(isActiveConectivityCo, conectivityCoLayer)">
+        <label class="form-check-label" for="provincias">Corredor de conectividad</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="poblados"
+          [(ngModel)]="isActiveWaterRecharge" (ngModelChange)="updateOverlayers(isActiveWaterRecharge, waterRechargeLayer)">
+        <label class="form-check-label" for="poblados">Zona de recarga hídrica</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveProtectedArea" (ngModelChange)="updateOverlayers(isActiveProtectedArea, protectedAreaLayer)">
+        <label class="form-check-label" for="cantones">Áreas de protección hídrica</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveHumedalRamsar" (ngModelChange)="updateOverlayers(isActiveHumedalRamsar, humedalRamsarLayer)">
+        <label class="form-check-label" for="cantones">Humedal Ramsar</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveReservaBiosfera" (ngModelChange)="updateOverlayers(isActiveReservaBiosfera, reservaBiosferaLayer)">
+        <label class="form-check-label" for="cantones">Reserva de biósfera</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveConservacionSocioBosque" (ngModelChange)="updateOverlayers(isActiveConservacionSocioBosque, conservacionSocioBosqueLayer)">
+        <label class="form-check-label" for="cantones">Áreas de conservación PSB</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveBosqueProtector" (ngModelChange)="updateOverlayers(isActiveBosqueProtector, bosqueProtectorLayer)">
+        <label class="form-check-label" for="cantones">Bosque y vegetación protectora</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveSNAP" (ngModelChange)="updateOverlayers(isActiveSNAP, SNAPLayer)">
+        <label class="form-check-label" for="cantones">Sistema Nacional de Áreas Protegidas</label>
+      </div>
+
+      <div class="panel-subtitle pt-3">Centrales hidroeléctricas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="hidroelectricas-mayores"
+          [(ngModel)]="isActiveHydropowers50" (ngModelChange)="updateOverlayers(isActiveHydropowers50, hydropowers50Layer)">
+        <label class="form-check-label" for="hidroelectricas-mayores">Hidroeléctricas mayores 50 MW</label>
+      </div>
+      <!--
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="hidroelectricas-menores"
+          [(ngModel)]="isActiveHydropowers" (ngModelChange)="updateOverlayers(isActiveHydropowers, hydropowerLayer)">
+        <label class="form-check-label" for="hidroelectricas-menores">Hidroeléctricas menores 50 MW</label>
+      </div>
+      -->
     </app-dropdown>
 
     <!--------------------------------------------------------------------------------------->
