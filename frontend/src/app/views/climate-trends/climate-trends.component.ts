@@ -99,9 +99,31 @@ export class ClimateTrendsComponent {  // Components variables
   public citiesLayer: any;
   public provinceLayer: any;
   public cantonLayer:any;
+  public protectedAreaLayer:any;
+  public waterRechargeLayer:any;
+  public conectivityCoLayer:any;
+  public hydropowers50Layer:any;
+  public hydropowerLayer:any;
+  public humedalRamsarLayer:any;
+  public reservaBiosferaLayer:any;
+  public conservacionSocioBosqueLayer:any;
+  public bosqueProtectorLayer:any;
+  public SNAPLayer:any;
+
   public isActiveCitiesLayer:boolean = true;
   public isActiveProvinceLayer: boolean = true;
   public isActiveCantonLayer:boolean = false;
+  public isActiveProtectedArea:boolean = false;
+  public isActiveWaterRecharge:boolean = false;
+  public isActiveConectivityCo:boolean = false;
+  public isActiveHydropowers50:boolean = false;
+  public isActiveHydropowers:boolean = false;
+  public isActiveHumedalRamsar:boolean = false;
+  public isActiveReservaBiosfera:boolean = false;
+  public isActiveConservacionSocioBosque:boolean = false;
+  public isActiveBosqueProtector:boolean = false;
+  public isActiveSNAP:boolean = false;
+
 
   // Point plot
   public latC: any;
@@ -198,6 +220,7 @@ export class ClimateTrendsComponent {  // Components variables
   }
 
   public initializeOverlays(){
+
     this.citiesLayer = L.tileLayer(
       'https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png', {
         zIndex: 1100
@@ -205,7 +228,7 @@ export class ClimateTrendsComponent {  // Components variables
     this.citiesLayer.addTo(this.map);
     this.provinceLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
       layers: 'ecuador-limits:provincias',
-      format: 'image/png',
+      format: 'image/svg',
       transparent: true,
       version: '1.1.0',
       zIndex: 1000
@@ -213,12 +236,83 @@ export class ClimateTrendsComponent {  // Components variables
     this.provinceLayer.addTo(this.map);
     this.cantonLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
       layers: 'ecuador-limits:cantones',
-      format: 'image/png',
+      format: 'image/svg',
       transparent: true,
       version: '1.1.0',
       zIndex: 900
     });
-    const overlayers = [this.cantonLayer, this.provinceLayer, this.citiesLayer];
+    this.protectedAreaLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:areas_protegidas',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 900
+    });
+    this.waterRechargeLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:zonas_recarga_hidrica',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 900
+    });
+    this.conectivityCoLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:corredor_conectividad2',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 900,
+    });
+    this.hydropowers50Layer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:hidroelectricas_mayores_50MW',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+    this.humedalRamsarLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:humedal_ramsar',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+    this.reservaBiosferaLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:reserva_biosfera',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+    this.conservacionSocioBosqueLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:conservacion_socio_bosque',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+    this.bosqueProtectorLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:bosque_vegetacion_protectora',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+    this.SNAPLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:sistema_nacional_areas_protegidas',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
+    const overlayers = [
+      this.cantonLayer, this.provinceLayer,
+      this.protectedAreaLayer, this.waterRechargeLayer, this.conectivityCoLayer,
+      this.humedalRamsarLayer, this.reservaBiosferaLayer, this.conservacionSocioBosqueLayer,
+      this.bosqueProtectorLayer, this.SNAPLayer,
+      this.citiesLayer, this.hydropowers50Layer
+    ];
+
     this.map.on('layeradd', function(){
       overlayers.map(layer => layer.bringToFront());
     });

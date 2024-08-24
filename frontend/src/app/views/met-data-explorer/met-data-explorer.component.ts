@@ -131,7 +131,6 @@ export class MetDataExplorerComponent {
   public bosqueProtectorLayer:any;
   public SNAPLayer:any;
 
-
   public isActiveCitiesLayer:boolean = true;
   public isActiveProvinceLayer: boolean = true;
   public isActiveCantonLayer:boolean = false;
@@ -338,7 +337,6 @@ export class MetDataExplorerComponent {
       zIndex: 1100,
     });
 
-
     const overlayers = [
       this.cantonLayer, this.provinceLayer,
       this.protectedAreaLayer, this.waterRechargeLayer, this.conectivityCoLayer,
@@ -346,6 +344,7 @@ export class MetDataExplorerComponent {
       this.bosqueProtectorLayer, this.SNAPLayer,
       this.citiesLayer, this.hydropowers50Layer
     ];
+
     this.map.on('layeradd', function(){
       overlayers.map(layer => layer.bringToFront());
     });
