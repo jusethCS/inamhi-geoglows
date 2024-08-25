@@ -1004,7 +1004,7 @@ def report(filename, pacum, pacum_table, paute_table, cuenca_table, gualaceo_tab
         Image("paute.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
         agregar_tabla(paute_table),
-        Spacer(1, 16),
+        Spacer(1, 24),
         Paragraph("<b>Rio Cuenca (Pte. Europa)</b>", estilo_parrafo),
         Image("cuenca.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
@@ -1015,7 +1015,7 @@ def report(filename, pacum, pacum_table, paute_table, cuenca_table, gualaceo_tab
         Image("gualaceo.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
         agregar_tabla(gualaceo_table),
-        Spacer(1, 16),
+        Spacer(1, 24),
         Paragraph("<b>Pronóstico de caudales</b>", estilo_subtitulo),
         Spacer(1, 16),
         Paragraph("<b>Rio Mazar</b>", estilo_parrafo),
@@ -1028,7 +1028,7 @@ def report(filename, pacum, pacum_table, paute_table, cuenca_table, gualaceo_tab
         Image("juval.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
         agregar_tabla(juval_table),
-        Spacer(1, 16),
+        Spacer(1, 24),
         Paragraph("<b>Rio Palmira</b>", estilo_parrafo),
         Image("palmira.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
@@ -1042,6 +1042,78 @@ def report(filename, pacum, pacum_table, paute_table, cuenca_table, gualaceo_tab
         elementos, 
         onFirstPage=partial(header_and_footer, header_content=header_content, footer_content=footer_content), 
         onLaterPages=partial(header_and_footer, header_content=header_content, footer_content=footer_content))
+
+
+
+###############################################################################
+#                                EMAIL ROUTNES                                #
+###############################################################################
+def send_report(subject, body, attachment_file, sender, password):
+    # Users to send email
+    recipients = [
+        #"ccardenas@inamhi.gob.ec",
+        #"adriana.sumba@celec.gob.ec",
+        #"angelica.gutierrez@noaa.gov",
+        #"secretariat@geoglows.org",
+        #"vanesa.martin@nasa.gov",
+        #"rodrigotorres@ecociencia.org",
+        "jusethchancay@ecociencia.org"]
+    #
+    # SMTP server
+    smtp_server = "smtp.office365.com"
+    smtp_port = 587
+    #
+    # Configure the message
+    message = MIMEMultipart()
+    message['From'] = sender
+    message['To'] = ", ".join(recipients)
+    message['Subject'] = subject
+    #
+    # Attach the email body
+    message.attach(MIMEText(body, 'plain'))
+    #
+    # Attach the PDF file
+    attachment = open(attachment_file, 'rb')
+    attachment_part = MIMEBase('application', 'octet-stream')
+    attachment_part.set_payload((attachment).read())
+    encoders.encode_base64(attachment_part)
+    attachment_part.add_header('Content-Disposition', "attachment; filename= %s" % attachment_file)
+    message.attach(attachment_part)
+    #
+    # Connect to the SMTP server and send the email
+    server = smtplib.SMTP(smtp_server, smtp_port)
+    server.starttls()
+    server.login(sender, password)
+    server.sendmail(sender, recipients, message.as_string())
+    server.quit()
+
+
+
+
+def send_error(error, sender, password):
+    # Users to send email
+    recipients = ["jusethchancay@ecociencia.org"]
+    #
+    # SMTP server
+    smtp_server = "smtp.office365.com"
+    smtp_port = 587
+    #
+    # Configure the message
+    message = MIMEMultipart()
+    message['From'] = sender
+    message['To'] = ", ".join(recipients)
+    message['Subject'] = "Error en el envío de reporte automático a SGR"
+    #
+    # Attach the email body
+    body = f"Existió un error en el envío del reporte automático a CELEC\n {error} \n\nPonerse en contacto con Juseth, lo antes posible...\nSaludos coordiales,\nINAMHI GEOGLOWS"
+    message.attach(MIMEText(body, 'plain'))
+    #
+    # Connect to the SMTP server and send the email
+    server = smtplib.SMTP(smtp_server, smtp_port)
+    server.starttls()
+    server.login(sender, password)
+    server.sendmail(sender, recipients, message.as_string())
+    server.quit()
 
 
 
@@ -1086,44 +1158,57 @@ subcuencas = gpd.read_file(f"{assets_path}/paute_subcuencas_2.shp")
 os.chdir(user_dir)
 os.chdir("data/celec")
 
-# Datos satelitales
-url = "/home/ubuntu/data/fireforest/persiann1d.tif"
-os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} pacum.tif")
-plot_ec("pacum.tif", 1, ec, prov, paute, color_pacum, "pacum_ecuador.png")
-plot_area("pacum.tif", paute, paute, rp, rs, embalses, 1, color_pacum, "pacum_paute.png")
-join_images("pacum_ecuador.png", "pacum_paute.png", "pacum.png")
-os.remove("pacum_ecuador.png")
-os.remove("pacum_paute.png")
+try:
+    # Datos satelitales
+    url = "/home/ubuntu/data/fireforest/persiann1d.tif"
+    os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} pacum.tif")
+    plot_ec("pacum.tif", 1, ec, prov, paute, color_pacum, "pacum_ecuador.png")
+    plot_area("pacum.tif", paute, paute, rp, rs, embalses, 1, color_pacum, "pacum_paute.png")
+    join_images("pacum_ecuador.png", "pacum_paute.png", "pacum.png")
+    os.remove("pacum_ecuador.png")
+    os.remove("pacum_paute.png")
+    #
+    #Compute precipitation values
+    pacum_subbasins = get_value("pacum.tif", subcuencas, "SC")
+    pacum_subbasins = pacum_subbasins.reindex([0,2,1,3,4])
+    pacum_subbasins = pacum_subbasins.rename(
+        columns={
+            'subbasin': 'Subcuenca', 
+            'pacum': 'Precipitación media diaria (mm)'
+        })
+    pacum_basin = get_value("pacum.tif", paute, "Subcuenca")
+    os.remove("pacum.tif")
+    #
+    # Create geoglows forecast plot
+    paute_table = geoglows_plot(9033441, conn, "paute.png", "Pronóstico corregido de caudales del Rio Paute")
+    cuenca_table = corrected_geoglows_plot(9033449, f"{assets_path}/data-pte-europa.dat", conn, "cuenca.png",  "Pronóstico corregido de caudales del Rio Cuenca (Pte. Europa)")
+    gualaceo_table = corrected_geoglows_plot(9033577, f"{assets_path}/data-sta-barbara.dat", conn, "gualaceo.png", "Pronóstico corregido de caudales del Rio Gualaceo (Sta. Barbara)")
+    mazar_table = geoglows_plot(9032447, conn, "mazar.png", "Pronóstico de caudales del Rio Mazar")
+    juval_table = geoglows_plot(9032294, conn, "juval.png", "Pronóstico de caudales del Rio Juval")
+    palmira_table = geoglows_plot(9032324, conn, "palmira.png", "Pronóstico de caudales del Rio Palmira")
+    #
+    # Generate report
+    filename = dt.datetime.now().strftime('boletin-paute_%Y-%m-%d.pdf')
+    report(
+        filename, 
+        pacum=pacum_basin.pacum[0], 
+        pacum_table=pacum_subbasins,
+        paute_table=paute_table,
+        cuenca_table = cuenca_table,
+        gualaceo_table = gualaceo_table,
+        mazar_table = mazar_table,
+        juval_table = juval_table,
+        palmira_table = palmira_table)
+    #
+    # Send report
+    send_report(
+        subject=dt.datetime.now().strftime('Boletin Hidrometeorológico Paute %Y-%m-%d'),
+        body="La DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas en la Cuenca del río Paute.",
+        attachment_file=filename,
+        sender=MAIL_USER,
+        password=MAIL_PASS
+    )
+except Exception as e:
+    send_error(e, sender=MAIL_USER, password=MAIL_PASS)
 
-#Compute precipitation values
-pacum_subbasins = get_value("pacum.tif", subcuencas, "SC")
-pacum_subbasins = pacum_subbasins.reindex([0,2,1,3,4])
-pacum_subbasins = pacum_subbasins.rename(
-    columns={
-        'subbasin': 'Subcuenca', 
-        'pacum': 'Precipitación media diaria (mm)'
-    })
-pacum_basin = get_value("pacum.tif", paute, "Subcuenca")
-os.remove("pacum.tif")
-
-# Create geoglows forecast plot
-paute_table = geoglows_plot(9033441, conn, "paute.png", "Pronóstico corregido de caudales del Rio Paute")
-cuenca_table = corrected_geoglows_plot(9033449, f"{assets_path}/data-pte-europa.dat", conn, "cuenca.png",  "Pronóstico corregido de caudales del Rio Cuenca (Pte. Europa)")
-gualaceo_table = corrected_geoglows_plot(9033577, f"{assets_path}/data-sta-barbara.dat", conn, "gualaceo.png", "Pronóstico corregido de caudales del Rio Gualaceo (Sta. Barbara)")
-mazar_table = geoglows_plot(9032447, conn, "mazar.png", "Pronóstico de caudales del Rio Mazar")
-juval_table = geoglows_plot(9032294, conn, "juval.png", "Pronóstico de caudales del Rio Juval")
-palmira_table = geoglows_plot(9032324, conn, "palmira.png", "Pronóstico de caudales del Rio Palmira")
-
-
-# Generate report
-filename = dt.datetime.now().strftime('boletin-paute_%Y-%m-%d.pdf')
-report(
-    filename, 
-    pacum=pacum_basin.pacum[0], 
-    pacum_table=pacum_subbasins,
-    paute_table=paute_table,
-    cuenca_table = cuenca_table,
-    gualaceo_table = gualaceo_table,
-    mazar_table = mazar_table,
-    juval_table = juval_table,
-    palmira_table = palmira_table)
+conn.close()
