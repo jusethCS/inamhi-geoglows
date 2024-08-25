@@ -778,7 +778,7 @@ def forecast_geoglows_plot(stats, rperiods, comid, records, sim, titulo):
 
 
 def geoglows_plot(comid, conn, outpath, titulo):
-    now = dt.datetime.now() - dt.timedelta(days=1)
+    now = dt.datetime.now() #- dt.timedelta(days=1)
     date = now.strftime("%Y-%m-%d")
     simulated_data = get_format_data(f"SELECT datetime,value FROM historical_simulation where comid={comid}", conn)
     ensemble_forecast = get_format_data(f"SELECT * FROM ensemble_forecast WHERE initialized='{date}' AND comid={comid}", conn).drop(columns=['comid', "initialized"])
@@ -806,7 +806,7 @@ def geoglows_plot(comid, conn, outpath, titulo):
 
 
 def corrected_geoglows_plot(comid, obs_path, conn, outpath, titulo):
-    now = dt.datetime.now() - dt.timedelta(days=1)
+    now = dt.datetime.now() #- dt.timedelta(days=1)
     date = now.strftime("%Y-%m-%d")
     #
     # Observed data
@@ -1052,12 +1052,12 @@ def report(filename, pacum, pacum_table, paute_table, cuenca_table, gualaceo_tab
 def send_report(subject, body, attachment_file, sender, password):
     # Users to send email
     recipients = [
-        #"ccardenas@inamhi.gob.ec",
-        #"adriana.sumba@celec.gob.ec",
-        #"angelica.gutierrez@noaa.gov",
-        #"secretariat@geoglows.org",
-        #"vanesa.martin@nasa.gov",
-        #"rodrigotorres@ecociencia.org",
+        "ccardenas@inamhi.gob.ec",
+        "adriana.sumba@celec.gob.ec",
+        "angelica.gutierrez@noaa.gov",
+        "secretariat@geoglows.org",
+        "vanesa.martin@nasa.gov",
+        "rodrigotorres@ecociencia.org",
         "jusethchancay@ecociencia.org"]
     #
     # SMTP server
