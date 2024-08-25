@@ -1187,9 +1187,9 @@ try:
     mazar_table = geoglows_plot(9032447, conn, "mazar.png", "Pronóstico de caudales del Rio Mazar")
     juval_table = geoglows_plot(9032294, conn, "juval.png", "Pronóstico de caudales del Rio Juval")
     palmira_table = geoglows_plot(9032324, conn, "palmira.png", "Pronóstico de caudales del Rio Palmira")
-    shutil.copy("paute.png", "/var/www/html/assets/paute.png")
-    shutil.copy("cuenca.png", "/var/www/html/assets/cuenca.png")
-    shutil.copy("gualaceo.png", "/var/www/html/assets/gualaceo.png")
+    shutil.copy("paute.png", "/var/www/html/forecast/paute.png")
+    shutil.copy("cuenca.png", "/var/www/html/forecast/cuenca.png")
+    shutil.copy("gualaceo.png", "/var/www/html/forecast/gualaceo.png")
     #
     # Generate report
     filename = dt.datetime.now().strftime('boletin-paute_%Y-%m-%d.pdf')
