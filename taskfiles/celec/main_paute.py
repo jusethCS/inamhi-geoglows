@@ -1203,7 +1203,7 @@ try:
     # Send report
     send_report(
         subject=dt.datetime.now().strftime('Boletin Hidrometeorológico Paute %Y-%m-%d'),
-        body="La DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas en la Cuenca del río Paute.",
+        body="Estimadas y estimados, \nLa DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas en la Cuenca del río Paute.\n\nSaludos Cordiales,\n\nDirección de Pronósticos y Alertas Hidrometeorológicas\n(593-2) 2497100 ext. 88003\n'Nuestro compromiso el país y nuestra misión servirle'",
         attachment_file=filename,
         sender=MAIL_USER,
         password=MAIL_PASS
