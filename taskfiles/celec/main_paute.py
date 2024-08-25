@@ -772,7 +772,7 @@ def forecast_geoglows_plot(stats, rperiods, comid, records, sim, titulo):
     figure.update_layout(template='simple_white', width=1000, height=400, showlegend=True)
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
-    figure.update_layout(margin=dict(l=10, r=10, t=10, b=10))
+    figure.update_layout(margin=dict(l=10, r=10, t=30, b=10))
     return figure.to_dict()
 
 
@@ -1004,8 +1004,7 @@ def report(filename, pacum, pacum_table, paute_table, cuenca_table, gualaceo_tab
         Image("paute.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
         agregar_tabla(paute_table),
-        ##
-        PageBreak(),
+        Spacer(1, 16),
         Paragraph("<b>Rio Cuenca (Pte. Europa)</b>", estilo_parrafo),
         Image("cuenca.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
@@ -1016,8 +1015,7 @@ def report(filename, pacum, pacum_table, paute_table, cuenca_table, gualaceo_tab
         Image("gualaceo.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
         agregar_tabla(gualaceo_table),
-        ##
-        PageBreak(),
+        Spacer(1, 16),
         Paragraph("<b>Pronóstico de caudales</b>", estilo_subtitulo),
         Spacer(1, 16),
         Paragraph("<b>Rio Mazar</b>", estilo_parrafo),
@@ -1030,13 +1028,12 @@ def report(filename, pacum, pacum_table, paute_table, cuenca_table, gualaceo_tab
         Image("juval.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
         agregar_tabla(juval_table),
-        ##
-        PageBreak(),
+        Spacer(1, 16),
         Paragraph("<b>Rio Palmira</b>", estilo_parrafo),
         Image("palmira.png", width=doc.width, height=6*cm),
         Spacer(1, 16),
         agregar_tabla(palmira_table),
-        Spacer(1, 90),
+        Spacer(1, 20),
         Paragraph("<b>Elaborado por:</b> DPA INAMHI en colaboración con SERVIR AMAZONIA", estilo_parrafo2),
     ]
     #
