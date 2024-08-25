@@ -1,5 +1,6 @@
 # File handling, date management, and environment variables
 import os
+import shutil
 from dotenv import load_dotenv
 import datetime as dt
 from datetime import datetime, timedelta
@@ -1186,6 +1187,9 @@ try:
     mazar_table = geoglows_plot(9032447, conn, "mazar.png", "Pronóstico de caudales del Rio Mazar")
     juval_table = geoglows_plot(9032294, conn, "juval.png", "Pronóstico de caudales del Rio Juval")
     palmira_table = geoglows_plot(9032324, conn, "palmira.png", "Pronóstico de caudales del Rio Palmira")
+    shutil.copy("paute.png", "/var/www/html/assets/paute.png")
+    shutil.copy("cuenca.png", "/var/www/html/assets/cuenca.png")
+    shutil.copy("gualaceo.png", "/var/www/html/assets/gualaceo.png")
     #
     # Generate report
     filename = dt.datetime.now().strftime('boletin-paute_%Y-%m-%d.pdf')
@@ -1203,7 +1207,7 @@ try:
     # Send report
     send_report(
         subject=dt.datetime.now().strftime('Boletin Hidrometeorológico Paute %Y-%m-%d'),
-        body="Estimadas y estimados, \nLa DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas en la Cuenca del río Paute.\n\nSaludos Cordiales,\n\nDirección de Pronósticos y Alertas Hidrometeorológicas\n(593-2) 2497100 ext. 88003\n'Nuestro compromiso el país y nuestra misión servirle'",
+        body="Estimadas y estimados, \n\nLa DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI, basándose en la información obtenida de la plataforma INAMHI GEOGLOWS emite el siguiente boletín de vigilancia y predicción de condiciones hidrometeorológicas en la Cuenca del río Paute.\n\nSaludos Cordiales,\nDirección de Pronósticos y Alertas Hidrometeorológicas\n(593-2) 2497100 ext. 88003\n'Nuestro compromiso el país y nuestra misión servirle'",
         attachment_file=filename,
         sender=MAIL_USER,
         password=MAIL_PASS
