@@ -13,6 +13,7 @@ import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 // JS LIBRARIES
 import * as L from 'leaflet';
 import * as PlotlyJS from 'plotly.js-dist-min';
+import html2canvas from 'html2canvas';
 import { PlotlyModule } from 'angular-plotly.js';
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -26,6 +27,7 @@ import { providers } from '../../modules/providers';
 import { utils } from '../../modules/utils';
 import { plotTemplates } from "../../modules/plotTemplates";
 import { dataApp } from './met-data-explorer.component.config';
+import { LoadingVideoComponent } from "../../shared/loading-video/loading-video.component";
 
 
 
@@ -50,7 +52,8 @@ import { dataApp } from './met-data-explorer.component.config';
     MatSlideToggleModule,
     LoadingComponent,
     PlotlyModule,
-  ],
+    LoadingVideoComponent
+],
 })
 export class MetDataExplorerComponent {
   // Components variables
@@ -153,6 +156,7 @@ export class MetDataExplorerComponent {
 
   // Time control Layers
   public isPlay:boolean = false;
+  public videoLoaderText:string = "";
 
   // Fire options
   public isActivePacum24:boolean = false;
@@ -1054,6 +1058,127 @@ export class MetDataExplorerComponent {
           this.isReadyData = true;
         })
     }
+  }
+
+  public downloadRaster(){
+    const index = this.timeControl?.getCurrentIndexS();
+    console.log(index);
+    if(index !== undefined){
+      const wl = this.activeLayersCode[index].split(":");
+      const url = `${environment.urlAPI}/geoglows/download-layer?workspace=${wl[0]}&layer=${wl[1]}`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.click();
+    }
+  }
+
+  public captureMap(): void {
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+      setTimeout(() => {
+        html2canvas(mapElement, {
+          useCORS: true,
+          scale: window.devicePixelRatio
+        }).then((canvas) => {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png');
+          link.download = 'map.png';
+          link.click();
+        });
+      }, 1000);
+    }
+  }
+
+  public async captureVideo(): Promise<void> {
+    this.template.showVideoProgressModal();
+    const steps = this.timeControl?.layers.length;
+    if (!steps) return;
+    this.timeControl?.setStart();
+    const mapElement = document.getElementById('map');
+    if (!mapElement) return;
+    const frames: Blob[] = [];
+    const captureFrame = (): Promise<void> => {
+      return new Promise((resolve) => {
+        html2canvas(mapElement, {
+          useCORS: true,
+          scale: 4//window.devicePixelRatio
+        }).then((canvas) => {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              frames.push(blob);
+            }
+            resolve();
+          }, 'image/png');
+        });
+      });
+    };
+
+    const captureAllFrames = async () => {
+      for (let i = 0; i < steps; i++) {
+        this.videoLoaderText = `Capturing frame ${i + 1} of ${steps}`;
+        await captureFrame();
+        await new Promise(resolve => setTimeout(resolve, 500));
+        this.nextTimeControl();
+      }
+    };
+    await captureAllFrames();
+
+    // Configuración del canvas y MediaRecorder
+    const videoCanvas = document.createElement('canvas');
+    const videoCtx = videoCanvas.getContext('2d')!;
+    videoCanvas.width = 3840; // 4K (Ultra HD) ancho
+    videoCanvas.height = 2160; // 4K (Ultra HD) alto
+    const stream = videoCanvas.captureStream(10); // 30 fps
+    const recorder = new MediaRecorder(stream, {
+      mimeType: 'video/webm; codecs=vp8,opus',
+      videoBitsPerSecond: 50 * 1024 * 1024
+    });
+    const chunks: Blob[] = [];
+
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunks.push(event.data);
+      }
+    };
+    recorder.start();
+    await this.renderFramesToCanvas(frames, videoCanvas, videoCtx);
+    recorder.stop();
+
+    recorder.onstop = () => {
+      const videoBlob = new Blob(chunks, { type: 'video/webm' });
+      console.log('Video Blob Size:', videoBlob.size); // Depuración del tamaño del video
+      const videoUrl = URL.createObjectURL(videoBlob);
+      const link = document.createElement('a');
+      link.href = videoUrl;
+      link.download = 'animation.webm';
+      this.template.hideVideoProgressModal();
+      link.click();
+    };
+  }
+
+  private async renderFramesToCanvas(
+    frames: Blob[], videoCanvas: HTMLCanvasElement, videoCtx: CanvasRenderingContext2D) {
+    for (const frame of frames) {
+      const img = await this.blobToImage(frame);
+      videoCanvas.width = img.width;
+      videoCanvas.height = img.height;
+      videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
+      videoCtx.drawImage(img, 0, 0);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+
+  private blobToImage(blob: Blob): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
 
 }

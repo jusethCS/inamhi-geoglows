@@ -353,13 +353,13 @@
         </div>
       </div>
       <div class="reprod-panel-save d-flex justify-content-between">
-        <button mat-stroked-button class="dark-mode reprod-button">
+        <button mat-stroked-button class="dark-mode reprod-button" (click)="downloadRaster()">
           <i class="fa-regular fa-download"></i>
         </button>
-        <button mat-stroked-button class="dark-mode reprod-button">
+        <button mat-stroked-button class="dark-mode reprod-button" (click)="captureMap()">
           <i class="fa-regular fa-camera-viewfinder"></i>
         </button>
-        <button mat-stroked-button class="dark-mode reprod-button">
+        <button mat-stroked-button class="dark-mode reprod-button" (click)="captureVideo()">
           <i class="fa-regular fa-video"></i>
         </button>
       </div>
@@ -509,6 +509,16 @@
       @else {
         <app-loading></app-loading>
       }
+    </div>
+  </div>
+
+
+  <div videoProgress>
+    <div class="videoLoader">
+      <app-loading-video></app-loading-video>
+      <div class="d-flex justify-content-center pb-3">
+        {{videoLoaderText}}
+      </div>
     </div>
   </div>
 
