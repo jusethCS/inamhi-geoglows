@@ -680,6 +680,18 @@ export class ClimateTrendsComponent {  // Components variables
     });
   }
 
+  public downloadRaster(){
+    const index = this.timeControl?.getCurrentIndexS();
+    console.log(index);
+    if(index !== undefined){
+      const wl = this.activeLayers[index].split(":");
+      const url = `${environment.urlAPI}/geoglows/download-layer?workspace=${wl[0]}&layer=${wl[1]}`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.click();
+    }
+  }
+
 
 }
 

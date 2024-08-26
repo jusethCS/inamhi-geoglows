@@ -3,7 +3,7 @@ import * as L from 'leaflet';
 export class WMSLayerTimeControl {
   private map: L.Map;
   public layers: L.TileLayer.WMS[];
-  private currentDateIndex: number;
+  public currentDateIndex: number;
   private timeInterval: number;
   private timeSerie: string[];
   private intervalId: any;
@@ -127,6 +127,10 @@ export class WMSLayerTimeControl {
     this.layers.map((layer) => { layer.setOpacity(0)});
     this.layers[this.currentDateIndex]?.setOpacity(0.9);
     this.updateLegend();
+  }
+
+  getCurrentIndexS(){
+    return this.currentDateIndex;
   }
 
   private updateLayerNext() {
