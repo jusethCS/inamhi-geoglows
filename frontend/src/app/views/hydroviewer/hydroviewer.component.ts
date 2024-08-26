@@ -143,6 +143,7 @@ export class HydroviewerComponent {
   public isActivePACUM24:boolean = false;
   public isActivePACUM48:boolean = false;
   public isActivePACUM72:boolean = false;
+  public isActiveWarningPacum:boolean = false;
   public ffgsLayer:any;
   public ffgsLegend!:L.Control;
   public imgLegend!:L.Control;
@@ -679,7 +680,7 @@ export class HydroviewerComponent {
   }
 
 
-  public plotFFGS(workspace:string, param:string, title:string, type:string="ffgs"){
+  public plotFFGS(workspace:string, param:string, title:string, type:string="ffgs", imgCond:boolean=true){
     param !== "asm" && (this.isActiveASM = false);
     param !== "ffg" && (this.isActiveFFG = false);
     param !== "fmap06" && (this.isActiveFMAP06 = false);
@@ -689,23 +690,26 @@ export class HydroviewerComponent {
     param !== "daily_precipitation" && (this.isActivePACUM24 = false);
     param !== "2days_precipitation" && (this.isActivePACUM48 = false);
     param !== "3days_precipitation" && (this.isActivePACUM72 = false);
+    param !== "advertencia_pacum" && (this.isActiveWarningPacum = false);
 
     this.ffgsLayer && this.map.removeLayer(this.ffgsLayer);
     this.ffgsLegend && this.ffgsLegend.remove();
     this.imgLegend && this.imgLegend.remove();
 
-    const url = `${environment.urlGeoserver}/${workspace}/wms?`
+    const url = `${environment.urlGeoserver}/${workspace}/wms?`;
 
     if(this.isActiveASM || this.isActiveFFG || this.isActiveFMAP06 ||
-       this.isActiveFMAP24 || this.isActiveFFR12 || this.isActiveFFR24||
-       this.isActivePACUM24 || this.isActivePACUM48 || this.isActivePACUM72){
+       this.isActiveFMAP24 || this.isActiveFFR12 || this.isActiveFFR24 ||
+       this.isActivePACUM24 || this.isActivePACUM48 || this.isActivePACUM72 ||
+       this.isActiveWarningPacum){
           this.ffgsLayer = L.tileLayer.wms(url, {
-            layers: `ffgs:${param}`,
+            layers: `${workspace}:${param}`,
             format: 'image/png',
             transparent: true,
             version: '1.1.1',
             crs: L.CRS.EPSG4326
           }).addTo(this.map);
+          console.log("Funciona")
 
           let legendElement = document.createElement('div');
           let imgElement = document.createElement('div');
@@ -732,7 +736,10 @@ export class HydroviewerComponent {
           imageElement.src = `assets/img/${param}.png`;
           imageElement.height = 250;
           imgElement.innerHTML = "";
-          imgElement.appendChild(imageElement);
+          if(imgCond){
+            imgElement.appendChild(imageElement);
+          }
+
 
           if(type==="ffgs"){
             legendElement.innerHTML = `<b>${title}</b> <br> <b>Última actualización:</b> ${this.utilsApp.getFFGSDate()}`;
@@ -748,6 +755,45 @@ export class HydroviewerComponent {
 
           if(type==="pacum72"){
             legendElement.innerHTML = `<b>${title}</b>${this.utilsApp.getAcumulatedDate72()}`;
+          }
+
+          if(type==="sat"){
+            legendElement.innerHTML = `
+            <b>${title}</b>
+            <a href="https://inamhi.geoglows.org/hydrometeorological-charts/wp.jpg" target="_blank">Ver reporte</a>
+            <div style="background-color:rgba(255,255,255,0.8); width:350px !important">
+              <div style="padding-bottom:3px !important; padding-top: 3px !important;">
+                <style>
+                  .table-warning {
+                    border-collapse: collapse;
+                    width: 330px !important;
+                    padding-bottom: 0px !important;
+                    padding-top: 2px !important;
+                  }
+
+                  .th-warning, .td-warning {
+                    padding: 2px;
+                    text-align: center;
+                    width: 25%;
+                    font-weight: normal;
+                    border: 1px solid black;
+                  }
+                  .bajo { background-color: #FFFFFF;}
+                  .medio { background-color: #FFFF4D;}
+                  .alto { background-color: #FFC44E;}
+                  .muy-alto { background-color: #EF4C4D;}
+                </style>
+                <table class="table-warning" id="table-warning-selector">
+                  <tr class="tr-warning">
+                    <th class="th-warning bajo">Bajo</th>
+                    <th class="th-warning medio">Medio</th>
+                    <th class="th-warning alto">Alto</th>
+                    <th class="th-warning muy-alto">Muy Alto</th>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            `;
           }
 
 

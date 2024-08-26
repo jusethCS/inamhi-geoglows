@@ -146,6 +146,7 @@ export class MetDataExplorerComponent {
   public isActiveSNAP:boolean = false;
 
 
+
   // Point plot
   public latC: any;
   public lonC: any;
@@ -162,6 +163,11 @@ export class MetDataExplorerComponent {
   public isActiveFireGOES: boolean = false;
   public FireVIIRSLayer: any;
   public fireVIIRSLegend: any;
+
+  // Warning options
+  public isActiveWarningPacum:boolean = false;
+  public isActiveWarningTemp:boolean = false;
+
 
   // Plot - geographical area
   public ecuadorData = this.dataAppConfig.ecuador;
@@ -657,6 +663,8 @@ export class MetDataExplorerComponent {
       this.isActiveSoilMoisture = false;
       this.isActiveHaines = false;
       this.isActiveFireGOES = false;
+      this.isActiveWarningPacum = false;
+      this.isActiveWarningTemp = false;
       const url = `${environment.urlGeoserver}/fireforest/wms`;
       const layer = 'fireforest:daily_precipitation';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
@@ -685,6 +693,8 @@ export class MetDataExplorerComponent {
       this.isActiveSoilMoisture = false;
       this.isActiveHaines = false;
       this.isActiveFireGOES = false;
+      this.isActiveWarningPacum = false;
+      this.isActiveWarningTemp = false;
       const url = `${environment.urlGeoserver}/fireforest/wms`;
       const layer = 'fireforest:no_precipitation_days';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
@@ -712,6 +722,8 @@ export class MetDataExplorerComponent {
       //this.isActiveSoilMoisture = false;
       this.isActiveHaines = false;
       this.isActiveFireGOES = false;
+      this.isActiveWarningPacum = false;
+      this.isActiveWarningTemp = false;
       const url = `${environment.urlGeoserver}/fireforest/wms`;
       const layer = 'fireforest:soil_moisture';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
@@ -780,6 +792,8 @@ export class MetDataExplorerComponent {
       this.isActiveSoilMoisture = false;
       //this.isActiveHaines = false;
       this.isActiveFireGOES = false;
+      this.isActiveWarningPacum = false;
+      this.isActiveWarningTemp = false;
 
       const url = `${environment.urlGeoserver}/wrf-haines/wms`;
       const initForecastDate = this.utilsApp.getInitForecastDate();
@@ -835,11 +849,149 @@ export class MetDataExplorerComponent {
       this.isActiveSoilMoisture = false;
       this.isActiveHaines = false;
       //this.isActiveFireGOES = false;
+      this.isActiveWarningPacum = false;
+      this.isActiveWarningTemp = false;
       this.updateFireGOES();
     } else {
       this.timeControl !== undefined && this.timeControl.destroy();
     }
   }
+
+  public async updateWarningPacum(){
+    this.quitAutoUpdateGoes();
+    this.isPlay = false;
+    if(this.isActiveWarningPacum){
+      this.isActivePacum24 = false;
+      this.isActiveNoRain = false;
+      this.isActiveSoilMoisture = false;
+      this.isActiveHaines = false;
+      this.isActiveFireGOES = false;
+      //this.isActiveWarningPacum = false;
+      this.isActiveWarningTemp = false;
+
+      const url = `${environment.urlGeoserver}/inamhi/wms`;
+      const layer = 'inamhi:advertencia_pacum';
+      const wmsLayer = [this.getLeafletLayer(url, layer)];
+      const layerTag = [
+        `<a href="https://inamhi.geoglows.org/hydrometeorological-charts/wp.jpg" target="_blank">Ver reporte</a>
+          <div style="background-color:rgba(255,255,255,0.8); width:350px !important">
+            <div style="padding-bottom:3px !important; padding-top: 3px !important;">
+              <style>
+                .table-warning {
+                  border-collapse: collapse;
+                  width: 330px !important;
+                  padding-bottom: 0px !important;
+                  padding-top: 2px !important;
+                }
+
+                .th-warning, .td-warning {
+                  padding: 2px;
+                  text-align: center;
+                  width: 25%;
+                  font-weight: normal;
+                  border: 1px solid black;
+                }
+                .bajo { background-color: #FFFFFF;}
+                .medio { background-color: #FFFF4D;}
+                .alto { background-color: #FFC44E;}
+                .muy-alto { background-color: #EF4C4D;}
+              </style>
+              <table class="table-warning" id="table-warning-selector">
+                <tr class="tr-warning">
+                  <th class="th-warning bajo">Bajo</th>
+                  <th class="th-warning medio">Medio</th>
+                  <th class="th-warning alto">Alto</th>
+                  <th class="th-warning muy-alto">Muy Alto</th>
+                </tr>
+              </table>
+            </div>
+          </div>
+          `
+      ];
+      const title = "Advertencia por lluvias y tormentas"
+      const img = `noimage`;
+      this.timeControl !== undefined && this.timeControl.destroy();
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img, false);
+      this.activeURLLayer = url;
+      this.activeLayers = wmsLayer.map(layer => layer.options.layers);
+      this.activeLayersCode = [layer];
+      this.activeDates = layerTag;
+      this.plotClass = "satellite";
+    } else {
+      this.timeControl !== undefined && this.timeControl.destroy();
+    }
+  }
+
+  public async updateWarningTemp(){
+    this.quitAutoUpdateGoes();
+    this.isPlay = false;
+    if(this.isActiveWarningTemp){
+      this.isActivePacum24 = false;
+      this.isActiveNoRain = false;
+      this.isActiveSoilMoisture = false;
+      this.isActiveHaines = false;
+      this.isActiveFireGOES = false;
+      this.isActiveWarningPacum = false;
+      //this.isActiveWarningTemp = false;
+
+      const url = `${environment.urlGeoserver}/inamhi/wms`;
+      const layer = 'inamhi:advertencia_temp';
+      const wmsLayer = [this.getLeafletLayer(url, layer)];
+      const layerTag = [
+        `<a href="https://inamhi.geoglows.org/hydrometeorological-charts/wt.jpg" target="_blank">Ver reporte</a>
+          <div style="background-color:rgba(255,255,255,0.8); width:350px !important">
+            <div style="padding-bottom:3px !important; padding-top: 3px !important;">
+              <style>
+                .table-warning {
+                  border-collapse: collapse;
+                  width: 330px !important;
+                  padding-bottom: 0px !important;
+                  padding-top: 2px !important;
+                }
+
+                .th-warning, .td-warning {
+                  padding: 2px;
+                  text-align: center;
+                  width: 25%;
+                  font-weight: normal;
+                  border: 1px solid black;
+                }
+                .bajo { background-color: #FFFFFF;}
+                .medio { background-color: #FFFF4D;}
+                .alto { background-color: #FFC44E;}
+                .muy-alto { background-color: #EF4C4D;}
+              </style>
+              <table class="table-warning" id="table-warning-selector">
+                <tr class="tr-warning">
+                  <th class="th-warning bajo">Bajo</th>
+                  <th class="th-warning medio">Medio</th>
+                  <th class="th-warning alto">Alto</th>
+                  <th class="th-warning muy-alto">Muy Alto</th>
+                </tr>
+              </table>
+            </div>
+          </div>
+          `
+      ];
+      const title = "Advertencia por altas temperaturas"
+      const img = `noimge`;
+      this.timeControl !== undefined && this.timeControl.destroy();
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img, false);
+      this.activeURLLayer = url;
+      this.activeLayers = wmsLayer.map(layer => layer.options.layers);
+      this.activeLayersCode = [layer];
+      this.activeDates = layerTag;
+      this.plotClass = "satellite";
+
+    } else {
+      this.timeControl !== undefined && this.timeControl.destroy();
+    }
+  }
+
+
+
+
+
 
   public updateOverlayers(isActiveLayer:boolean, layer:any){
     isActiveLayer ? layer.addTo(this.map) : this.map.removeLayer(layer);

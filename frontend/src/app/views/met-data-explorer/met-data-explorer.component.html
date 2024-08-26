@@ -184,11 +184,13 @@
     <app-dropdown iconClass="fa-regular fa-layer-group" title="Capas e información">
       <div class="panel-subtitle">Advertencias meteorológicas</div>
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="pacum-wanring">
+        <input class="form-check-input" type="checkbox" id="pacum-wanring"
+          [(ngModel)]="isActiveWarningPacum" (ngModelChange)="updateWarningPacum()">
         <label class="form-check-label" for="pacum-wanring">Alertas por lluvias y tormentas</label>
       </div>
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="temp-warning">
+        <input class="form-check-input" type="checkbox" id="temp-warning"
+          [(ngModel)]="isActiveWarningTemp" (ngModelChange)="updateWarningTemp()">
         <label class="form-check-label" for="pacum-wanring">Alertas por altas temperaturas</label>
       </div>
 

@@ -144,7 +144,7 @@ export class WMSLayerTimeControl {
           this.legendElement.appendChild(imageElement);
         }
         // Add text legend
-        this.dateElement.innerHTML = `${this.product.toUpperCase()}: ${currentDate} <br>`;
+        this.dateElement.innerHTML = `${this.product.toUpperCase()}: ${currentDate}`;
 
     }
   }

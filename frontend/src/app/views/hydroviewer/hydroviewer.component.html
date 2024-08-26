@@ -87,8 +87,9 @@
 
       <div class="panel-subtitle pt-3">Advertencias meteorológicas</div>
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="precipitation-alert">
-          <label class="form-check-label" for="precipitation-alert">Alertas por lluvias y tormentas</label>
+          <input class="form-check-input" type="checkbox" id="warningPacum"
+            [(ngModel)]="isActiveWarningPacum" (ngModelChange)="plotFFGS('inamhi','advertencia_pacum', 'Advertencia por lluvias y tormentas', 'sat', false)">
+          <label class="form-check-label" for="warningPacum">Alertas por lluvias y tormentas</label>
         </div>
       <div class="panel-subtitle pt-3">Hidroestimadores</div>
         <div class="form-check form-switch">
