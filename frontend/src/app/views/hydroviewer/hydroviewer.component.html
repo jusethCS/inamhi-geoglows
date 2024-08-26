@@ -392,6 +392,10 @@
               [data]="historicalSimulationPlot.data" [layout]="historicalSimulationPlot.layout"
               [useResizeHandler]="true" [style]="{position: 'relative', height: '400px', width:'100%'}">
             </plotly-plot>
+            <button type="button" class="btn btn-primary btn-sm" (click)="downloadHistoricalSimulation()">
+              <i class="fa-regular fa-download"></i>
+              &nbsp; Descargar Simulación Histórica
+            </button>
         }@else {
           <app-loading></app-loading>
         }
@@ -452,6 +456,11 @@
           <app-loading></app-loading>
         }
         <div #table></div>
+        <br>
+        <button type="button" class="btn btn-primary btn-sm" (click)="downloadForecast()">
+          <i class="fa-regular fa-download"></i>
+          &nbsp; Descargar Pronóstico
+        </button>
       </div>
     </div>
   </div>

@@ -795,12 +795,24 @@ export class HydroviewerComponent {
             </div>
             `;
           }
+    }
+  }
 
 
+  public downloadHistoricalSimulation(){
+    const url = `${environment.urlAPI}/geoglows/get-historical-simulation-csv?comid=${this.comid}`
+    const link = document.createElement('a');
+    link.href = url;
+    link.click();
+  }
 
-          //
-
-
+  public downloadForecast(){
+    if(this.dateControlPanel.value){
+      const currentDate = this.utilsApp.getDateRangeGeoglows(this.dateControlPanel.value);
+      const url = `${environment.urlAPI}/geoglows/get-forecast-csv?comid=${this.comid}&date=${currentDate[0]}`
+      const link = document.createElement('a');
+      link.href = url;
+      link.click();
     }
   }
 
