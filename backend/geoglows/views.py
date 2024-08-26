@@ -55,3 +55,20 @@ def get_probability_table(request):
     date = request.GET.get('date')
     table = probability_table(comid, date)
     return HttpResponse(table)
+
+def get_historical_simulation_csv(request):
+    comid = request.GET.get('comid')
+    historical_simulation = historical_data_csv(comid)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="historical_simulation_{comid}.csv"'
+    historical_simulation.to_csv(path_or_buf=response, index=False)
+    return response
+
+def get_forecast_csv(request):
+    comid = request.GET.get('comid')
+    date = request.GET.get('date')
+    forecast = forecast_csv(comid, date)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="ensemble_forecast_{comid}.csv"'
+    forecast.to_csv(path_or_buf=response, index=False)
+    return response

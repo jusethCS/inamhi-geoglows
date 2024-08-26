@@ -873,6 +873,23 @@ def probability_table(comid, date):
     except:
         return("Error")
 
+def historical_data_csv(comid):
+    db = create_engine(token)
+    con = db.connect()
+    sql = f"SELECT datetime,value FROM historical_simulation where comid={comid}"
+    historical_simulation = get_format_data(sql, con)
+    con.close()
+    return historical_simulation
+
+
+def forecast_csv(comid, date):
+    db = create_engine(token)
+    con = db.connect()
+    sql = f"SELECT * FROM ensemble_forecast WHERE initialized='{date}' AND comid={comid}"
+    ensemble_forecast = get_format_data(sql, con).drop(columns=['comid', "initialized"])
+    stats = get_ensemble_stats(ensemble_forecast)
+    con.close()
+    return stats
 
 #a = all_data_plot(9027193, "2024-08-10")
 

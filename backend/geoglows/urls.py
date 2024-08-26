@@ -42,5 +42,13 @@ urlpatterns = [
           get_probability_table, 
           name="geoglows-table"),
 
+    path('get-historical-simulation-csv', 
+          get_historical_simulation_csv, 
+          name="get-historical-simulation-csv"),
+
+    path('get-forecast-csv', 
+          get_forecast_csv, 
+          name="get-forecast-csv"),
+
 ]
 
