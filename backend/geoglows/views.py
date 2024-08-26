@@ -61,7 +61,7 @@ def get_historical_simulation_csv(request):
     historical_simulation = historical_data_csv(comid)
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="historical_simulation_{comid}.csv"'
-    historical_simulation.to_csv(path_or_buf=response, index=False)
+    historical_simulation.to_csv(path_or_buf=response, index=True)
     return response
 
 def get_forecast_csv(request):
@@ -70,5 +70,5 @@ def get_forecast_csv(request):
     forecast = forecast_csv(comid, date)
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="ensemble_forecast_{comid}.csv"'
-    forecast.to_csv(path_or_buf=response, index=False)
+    forecast.to_csv(path_or_buf=response, index=True)
     return response
