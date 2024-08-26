@@ -118,6 +118,7 @@ export class MetDataExplorerComponent {
   public windPlot: any = {};
   public goesGrayPlot: any = {};
   public goesBTPlot: any = {};
+  public generalPlot:any = {};
 
   // Base layers
   public citiesLayer: any;
@@ -642,16 +643,19 @@ export class MetDataExplorerComponent {
 
       if(this.plotClass==="satellite"){
         this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
+        this.generalPlot = this.precPlot;
       }
       if(this.plotClass==="goes"){
         this.goesBTPlot = this.plotTemplate.goesTempPlotTemplate(this.activeDates, values);
         this.goesGrayPlot = this.plotTemplate.goesGrayPlotTemplate(this.activeDates, values);
+        this.generalPlot = this.goesBTPlot;
       }
       if(this.plotClass==="forecast"){
         this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
         this.tempPlot = this.plotTemplate.tempPlotTemplate(this.activeDates, values);
         this.humPlot = this.plotTemplate.hrPlotTemplate(this.activeDates, values);
         this.windPlot = this.plotTemplate.windPlotTemplate(this.activeDates, values);
+        this.generalPlot = this.precPlot;
       }
       this.isReadyData = true;
     }
@@ -1042,11 +1046,13 @@ export class MetDataExplorerComponent {
 
           if(this.plotClass==="satellite"){
             this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
+            this.generalPlot = this.precPlot;
           }
 
           if(this.plotClass==="goes"){
             this.goesBTPlot = this.plotTemplate.goesTempPlotTemplate(this.activeDates, values);
             this.goesGrayPlot = this.plotTemplate.goesGrayPlotTemplate(this.activeDates, values);
+            this.generalPlot = this.goesBTPlot;
           }
 
           if(this.plotClass==="forecast"){
@@ -1054,6 +1060,7 @@ export class MetDataExplorerComponent {
             this.tempPlot = this.plotTemplate.tempPlotTemplate(this.activeDates, values);
             this.humPlot = this.plotTemplate.hrPlotTemplate(this.activeDates, values);
             this.windPlot = this.plotTemplate.windPlotTemplate(this.activeDates, values);
+            this.generalPlot = this.precPlot;
           }
           this.isReadyData = true;
         })
@@ -1096,7 +1103,7 @@ export class MetDataExplorerComponent {
     this.timeControl?.setStart();
     const mapElement = document.getElementById('map');
     if (!mapElement) return;
-    const frames: Blob[] = [];
+    let frames: Blob[] = [];
     const captureFrame = (): Promise<void> => {
       return new Promise((resolve) => {
         html2canvas(mapElement, {
@@ -1120,6 +1127,7 @@ export class MetDataExplorerComponent {
         await new Promise(resolve => setTimeout(resolve, 500));
         this.nextTimeControl();
       }
+      frames = [...frames, ...frames];
     };
     await captureAllFrames();
 
@@ -1151,7 +1159,6 @@ export class MetDataExplorerComponent {
       const link = document.createElement('a');
       link.href = videoUrl;
       link.download = 'animation.webm';
-      this.template.hideVideoProgressModal();
       link.click();
     };
   }
@@ -1164,7 +1171,7 @@ export class MetDataExplorerComponent {
       videoCanvas.height = img.height;
       videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
       videoCtx.drawImage(img, 0, 0);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 
@@ -1179,6 +1186,26 @@ export class MetDataExplorerComponent {
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
+  }
+
+  public downloadData(){
+    const X = this.generalPlot.data[0].x;
+    const Y = this.generalPlot.data[0].y;
+    const yVariableName = "value";
+
+    let csvContent = "datetime," + yVariableName + "\n";
+    for (let i = 0; i < X.length; i++) {
+      csvContent += `${X[i]},${Y[i]}\n`;
+    }
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `data.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
 }

@@ -595,7 +595,7 @@ export class ClimateTrendsComponent {  // Components variables
     this.timeControl?.setStart();
     const mapElement = document.getElementById('map');
     if (!mapElement) return;
-    const frames: Blob[] = [];
+    let frames: Blob[] = [];
     const captureFrame = (): Promise<void> => {
       return new Promise((resolve) => {
         html2canvas(mapElement, {
@@ -619,6 +619,7 @@ export class ClimateTrendsComponent {  // Components variables
         await new Promise(resolve => setTimeout(resolve, 500));
         this.nextTimeControl();
       }
+      frames = [...frames, ...frames];
     };
     await captureAllFrames();
 
@@ -650,7 +651,6 @@ export class ClimateTrendsComponent {  // Components variables
       const link = document.createElement('a');
       link.href = videoUrl;
       link.download = 'animation.webm';
-      this.template.hideVideoProgressModal();
       link.click();
     };
   }
@@ -663,7 +663,7 @@ export class ClimateTrendsComponent {  // Components variables
       videoCanvas.height = img.height;
       videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
       videoCtx.drawImage(img, 0, 0);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 
