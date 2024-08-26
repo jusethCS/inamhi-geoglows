@@ -2,7 +2,7 @@ import * as L from 'leaflet';
 
 export class WMSLayerTimeControl {
   private map: L.Map;
-  private layers: L.TileLayer.WMS[];
+  public layers: L.TileLayer.WMS[];
   private currentDateIndex: number;
   private timeInterval: number;
   private timeSerie: string[];
@@ -120,6 +120,13 @@ export class WMSLayerTimeControl {
     this.layers.forEach(layer => {layer.remove();});
     this.legendControl.remove();
     this.dateControl.remove();
+  }
+
+  setStart(){
+    this.currentDateIndex = 0;
+    this.layers.map((layer) => { layer.setOpacity(0)});
+    this.layers[this.currentDateIndex]?.setOpacity(0.9);
+    this.updateLegend();
   }
 
   private updateLayerNext() {

@@ -9,10 +9,12 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormGroup, FormControl, FormsModule } from '@angular/forms';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
 
 // JS LIBRARIES
 import * as L from 'leaflet';
 import * as PlotlyJS from 'plotly.js-dist-min';
+import html2canvas from 'html2canvas';
 import { PlotlyModule } from 'angular-plotly.js';
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -26,6 +28,8 @@ import { providers } from '../../modules/providers';
 import { utils } from '../../modules/utils';
 import { plotTemplates } from "../../modules/plotTemplates";
 import { dataApp } from './climate-trends.component.config';
+import { ErrorComponent } from "../../shared/error/error.component";
+import { LoadingVideoComponent } from "../../shared/loading-video/loading-video.component";
 
 
 @Component({
@@ -49,7 +53,9 @@ import { dataApp } from './climate-trends.component.config';
     MatSlideToggleModule,
     LoadingComponent,
     PlotlyModule,
-  ],
+    ErrorComponent,
+    LoadingVideoComponent
+],
 })
 
 export class ClimateTrendsComponent {  // Components variables
@@ -131,7 +137,8 @@ export class ClimateTrendsComponent {  // Components variables
 
   // Time control Layers
   public isPlay:boolean = false;
-
+  public isErrorPlot:boolean = false;
+  public videoLoaderText:string = "HOLA";
 
   // Plot - geographical area
   public ecuadorData = this.dataAppConfig.ecuador;
@@ -217,10 +224,10 @@ export class ClimateTrendsComponent {  // Components variables
     this.map.on('click', async (evt: L.LeafletMouseEvent) => {
       this.getPointInfo(evt);
     });
+
   }
 
   public initializeOverlays(){
-
     this.citiesLayer = L.tileLayer(
       'https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png', {
         zIndex: 1100
@@ -461,21 +468,28 @@ export class ClimateTrendsComponent {  // Components variables
   }
 
 
-  public async getPointInfo(evt: L.LeafletMouseEvent){
+  public async getPointInfo(evt: L.LeafletMouseEvent) {
     if (this.isActiveInfoLayers) {
-      this.latC = evt.latlng.lat;
-      this.lonC = evt.latlng.lng;
-      this.isReadyData = false;
-      this.template.showDataModal();
-      const values = await Promise.all(
-        this.activeLayers.map((layer) => this.getFeatureInfo(evt, this.activeURLLayer, layer)));
-
-      if(this.plotClass==="satellite"){
-        this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
+      try {
+        this.latC = evt.latlng.lat;
+        this.lonC = evt.latlng.lng;
+        this.isReadyData = false;
+        this.isErrorPlot = false;
+        this.template.showDataModal();
+        const values = await Promise.all(
+          this.activeLayers.map((layer) => this.getFeatureInfo(evt, this.activeURLLayer, layer))
+        );
+        if (this.plotClass === "satellite") {
+          this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
+        }
+        this.isReadyData = true;
+      } catch (error) {
+        console.error('Ocurrió un error:', error);
+        this.isErrorPlot = true;
       }
-      this.isReadyData = true;
     }
   }
+
 
 
   public updateOverlayers(isActiveLayer:boolean, layer:any){
@@ -510,23 +524,162 @@ export class ClimateTrendsComponent {  // Components variables
 
   public getAreaInfo(){
     this.isReadyData = false;
+    this.isErrorPlot = false;
     this.template.showDataModal();
 
     if(this.selectedCode && this.activeLayersCode){
-      let encodedLayers = encodeURIComponent(JSON.stringify(this.activeLayersCode));
-      let encodedDates = encodeURIComponent(JSON.stringify(this.activeDates));
-      let url = `${environment.urlAPI}/metdata/get-metdata?code=${this.selectedCode}&layers=${encodedLayers}&dates=${encodedDates}`;
-      fetch(url)
-        .then(response => response.json())
-        .then(response => {
-          const values = response.map((item: any) => item.value);
-          if(this.plotClass==="satellite"){
-            this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
-          }
-          this.isReadyData = true;
-        })
+        let encodedLayers = encodeURIComponent(JSON.stringify(this.activeLayersCode));
+        let encodedDates = encodeURIComponent(JSON.stringify(this.activeDates));
+        let url = `${environment.urlAPI}/metdata/get-metdata?code=${this.selectedCode}&layers=${encodedLayers}&dates=${encodedDates}`;
+        fetch(url)
+          .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return response.json();
+          })
+          .then(response => {
+            const values = response.map((item: any) => item.value);
+            if(this.plotClass==="satellite"){
+              this.precPlot = this.plotTemplate.pacumPlotTemplate(this.activeDates, values);
+            }
+            this.isReadyData = true;
+          })
+          .catch(error => {
+            console.error('Ocurrió un error:', error);
+            this.isErrorPlot = true;
+          });
+      }
+  }
+
+  public downloadData(){
+    const X = this.precPlot.data[0].x;
+    const Y = this.precPlot.data[0].y;
+    const yVariableName = "pacum";
+
+    let csvContent = "datetime," + yVariableName + "\n";
+    for (let i = 0; i < X.length; i++) {
+      csvContent += `${X[i]},${Y[i]}\n`;
+    }
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${yVariableName}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+
+  public captureMap(): void {
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+      setTimeout(() => {
+        html2canvas(mapElement, {
+          useCORS: true,
+          scale: window.devicePixelRatio
+        }).then((canvas) => {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png');
+          link.download = 'map.png';
+          link.click();
+        });
+      }, 1000);
     }
   }
+
+  public async captureVideo(): Promise<void> {
+    this.template.showVideoProgressModal();
+    const steps = this.timeControl?.layers.length;
+    if (!steps) return;
+    this.timeControl?.setStart();
+    const mapElement = document.getElementById('map');
+    if (!mapElement) return;
+    const frames: Blob[] = [];
+    const captureFrame = (): Promise<void> => {
+      return new Promise((resolve) => {
+        html2canvas(mapElement, {
+          useCORS: true,
+          scale: 4//window.devicePixelRatio
+        }).then((canvas) => {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              frames.push(blob);
+            }
+            resolve();
+          }, 'image/png');
+        });
+      });
+    };
+
+    const captureAllFrames = async () => {
+      for (let i = 0; i < steps; i++) {
+        this.videoLoaderText = `Capturing frame ${i + 1} of ${steps}`;
+        await captureFrame();
+        await new Promise(resolve => setTimeout(resolve, 500));
+        this.nextTimeControl();
+      }
+    };
+    await captureAllFrames();
+
+    // Configuración del canvas y MediaRecorder
+    const videoCanvas = document.createElement('canvas');
+    const videoCtx = videoCanvas.getContext('2d')!;
+    videoCanvas.width = 3840; // 4K (Ultra HD) ancho
+    videoCanvas.height = 2160; // 4K (Ultra HD) alto
+    const stream = videoCanvas.captureStream(10); // 30 fps
+    const recorder = new MediaRecorder(stream, {
+      mimeType: 'video/webm; codecs=vp8,opus',
+      videoBitsPerSecond: 50 * 1024 * 1024
+    });
+    const chunks: Blob[] = [];
+
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunks.push(event.data);
+      }
+    };
+    recorder.start();
+    await this.renderFramesToCanvas(frames, videoCanvas, videoCtx);
+    recorder.stop();
+
+    recorder.onstop = () => {
+      const videoBlob = new Blob(chunks, { type: 'video/webm' });
+      console.log('Video Blob Size:', videoBlob.size); // Depuración del tamaño del video
+      const videoUrl = URL.createObjectURL(videoBlob);
+      const link = document.createElement('a');
+      link.href = videoUrl;
+      link.download = 'animation.webm';
+      this.template.hideVideoProgressModal();
+      link.click();
+    };
+  }
+
+  private async renderFramesToCanvas(
+    frames: Blob[], videoCanvas: HTMLCanvasElement, videoCtx: CanvasRenderingContext2D) {
+    for (const frame of frames) {
+      const img = await this.blobToImage(frame);
+      videoCanvas.width = img.width;
+      videoCanvas.height = img.height;
+      videoCtx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
+      videoCtx.drawImage(img, 0, 0);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+
+  private blobToImage(blob: Blob): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
 
 }
 

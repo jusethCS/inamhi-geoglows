@@ -49,6 +49,8 @@ export class AppTemplateComponent {
   // Modals panels
   @ViewChild('dataModal') dataModal?: ElementRef;
   @ViewChild('infoModal') infoModal?: ElementRef;
+  @ViewChild('videoProgressModal') videoProgressModal?: ElementRef;
+
 
   // Icons
   faChartColumn = faChartColumn;
@@ -117,6 +119,20 @@ export class AppTemplateComponent {
     if (this.infoModal) {
       const modal = new Modal(this.infoModal.nativeElement);
       modal.show();
+    }
+  }
+
+  showVideoProgressModal(): void {
+    if (this.videoProgressModal) {
+      const modal = new Modal(this.videoProgressModal.nativeElement);
+      modal.show();
+    }
+  }
+
+  hideVideoProgressModal(): void {
+    if (this.videoProgressModal) {
+      const modal = new Modal(this.videoProgressModal.nativeElement);
+      modal.hide();
     }
   }
 

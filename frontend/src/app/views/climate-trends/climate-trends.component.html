@@ -230,10 +230,10 @@
         <button mat-stroked-button class="dark-mode reprod-button">
           <i class="fa-regular fa-download"></i>
         </button>
-        <button mat-stroked-button class="dark-mode reprod-button">
+        <button mat-stroked-button class="dark-mode reprod-button" (click)="captureMap()">
           <i class="fa-regular fa-camera-viewfinder"></i>
         </button>
-        <button mat-stroked-button class="dark-mode reprod-button">
+        <button mat-stroked-button class="dark-mode reprod-button" (click)="captureVideo()">
           <i class="fa-regular fa-video"></i>
         </button>
       </div>
@@ -283,15 +283,30 @@
               [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
               [theme]="'simple_white'">
             </plotly-plot>
+            <button type="button" class="btn btn-primary btn-sm" (click)="downloadData()">
+              <i class="fa-regular fa-download"></i>
+              &nbsp; Descargar
+            </button>
           }
         }
-
       }
       @else {
-        <app-loading></app-loading>
+        @if(isErrorPlot){
+          <app-error></app-error>
+        }
+        @else{
+          <app-loading></app-loading>
+        }
       }
     </div>
   </div>
 
-
+  <div videoProgress>
+    <div class="videoLoader">
+      <app-loading-video></app-loading-video>
+      <div class="d-flex justify-content-center pb-3">
+        {{videoLoaderText}}
+      </div>
+    </div>
+  </div>
 </app-app-template>
