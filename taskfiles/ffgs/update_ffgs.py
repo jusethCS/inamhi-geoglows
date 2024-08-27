@@ -162,7 +162,7 @@ ffg = get_ffgs_file(
 
 # Pronostico de precipitacion WRF (prox. 6h)
 fmap06 = get_ffgs_file(
-        product = "FMAP2", 
+        product = "FMAP1", 
         filename = "fcst_map_forecast2_06hr",  
         colname="fmap06",
         user=FFGS_USER,
@@ -170,7 +170,7 @@ fmap06 = get_ffgs_file(
 
 # Pronostico de precipitacion WRF (prox. 24h)
 fmap24 = get_ffgs_file(
-        product = "FMAP2", 
+        product = "FMAP1", 
         filename = "fcst_map_forecast2_24hr", 
         colname="fmap24",
         user=FFGS_USER,
@@ -178,7 +178,7 @@ fmap24 = get_ffgs_file(
 
 # Pronostico de riesgo de crecidas repentinas (prox. 12h)
 ffr12 = get_ffgs_file(
-        product = "FFR2", 
+        product = "FFR1", 
         filename = "fcst_ffr_outlook2_12hr", 
         colname="ffr12",
         user=FFGS_USER,
@@ -186,7 +186,7 @@ ffr12 = get_ffgs_file(
 
 # Pronostico de riesgo de crecidas repentinas (prox. 24h)
 ffr24 = get_ffgs_file(
-        product = "FFR2", 
+        product = "FFR1", 
         filename = "fcst_ffr_outlook2_24hr", 
         colname="ffr24",
         user=FFGS_USER,
