@@ -34,6 +34,7 @@
                         Conoce más
                     </button>
                     <button
+                      (click)="githubRedirect()"
                       mat-flat-button
                       class="home-btn home-btn-secondary">
                         <fa-icon [icon]="infoGitHub"></fa-icon>
@@ -209,6 +210,52 @@
         </slidein>
       </div>
     </div>
+  </div>
+
+
+  <slidein> <div class="container"><hr></div></slidein>
+  <div class="container position-relative py-5">
+    <div class="row pb-3">
+      <slidein>
+        <div class="home-subtitle text-center">
+          Equipo de desarrollo
+        </div>
+      </slidein>
+    </div>
+    <slidein>
+      <div class="d-flex justify-content-around">
+        <div>
+          <div class="d-flex justify-content-center">
+            <img src="/assets/photo/juseth.jpeg" width="200px" style="padding-bottom: 8px;">
+          </div>
+          <div class="text-center" style="width: 250px;">
+            Juseth Chancay <br>
+            <b style="color: #00315D;">Especialista en Hidrología</b> <br>
+            <b style="font-size: 14px;">Fundacion Ecuatoriana de Estudios Ecologicos ECOCIENCIA<br> Servir Amazonia</b>
+          </div>
+        </div>
+        <div>
+          <div class="d-flex justify-content-center">
+            <img src="/assets/photo/carlos.jpeg" width="200px" style="padding-bottom: 8px;">
+          </div>
+          <div class="text-center" style="width: 250px;">
+            Cárlos Cárdenas <br>
+            <b style="color: #00315D;">Especialista en Pronóstico y Alertas Hidrometeorológicas</b> <br>
+            <b style="font-size: 14px;">Instituto Nacional de Meteorología e Hidrología (INAMHI)</b>
+          </div>
+        </div>
+        <div>
+          <div class="d-flex justify-content-center">
+            <img src="/assets/photo/maylee.jpeg" width="200px" style="padding-bottom: 8px;">
+          </div>
+          <div class="text-center" style="width: 250px;">
+            Maylee Iza <br>
+            <b style="color: #00315D;">Asistente de Pronóstico y Alertas Hidrometeorológicas</b> <br>
+            <b style="font-size: 14px;">Instituto Nacional de Meteorología e Hidrología (INAMHI)</b>
+          </div>
+        </div>
+      </div>
+    </slidein>
   </div>
 
 

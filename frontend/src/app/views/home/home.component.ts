@@ -40,9 +40,7 @@ export class HomeComponent {
   //                            CONSTRUCTOR                               //
   // -------------------------------------------------------------------- //
 
-  constructor(){
-
-  }
+  constructor(){}
 
   @ViewChild('about') myScrollContainer!: ElementRef;
   scrollToElement(): void {
@@ -55,15 +53,21 @@ export class HomeComponent {
   // -------------------------------------------------------------------- //
   //                               METHODS                                //
   // -------------------------------------------------------------------- //
-  retrieveIsAuth(isAuthD:boolean){
+  public retrieveIsAuth(isAuthD:boolean){
     this.isAuth = isAuthD;
   }
 
-  showLoginPanel(click:string){
+  public showLoginPanel(click:string){
     if(this.isAuth === false && this.loginPanelActive === false){
         this.loginPanelActive = true
     }
   }
+
+  public githubRedirect(){
+    window.location.href = "https://github.com/jusethCS/inamhi-geoglows"
+  }
+
+
 
 
 
