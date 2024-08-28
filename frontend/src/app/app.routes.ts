@@ -7,6 +7,7 @@ import { ClimateTrendsComponent } from './views/climate-trends/climate-trends.co
 import { MetDataExplorerComponent } from './views/met-data-explorer/met-data-explorer.component';
 import { LoginRedirectComponent } from './views/login-redirect/login-redirect.component';
 import { HydroviewerComponent } from './views/hydroviewer/hydroviewer.component';
+import { HistoricalValidationToolComponent } from './views/historical-validation-tool/historical-validation-tool.component';
 
 export const routes: Routes = [
   // ----------------------------------------------------------------------- //
@@ -45,5 +46,9 @@ export const routes: Routes = [
   {
     path: "apps/hydroviewer",
     component: HydroviewerComponent,
+  },
+  {
+    path: "apps/historical-validation-tool",
+    component: HistoricalValidationToolComponent,
   },
 ];
