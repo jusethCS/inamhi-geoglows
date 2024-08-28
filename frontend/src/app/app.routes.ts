@@ -8,6 +8,7 @@ import { MetDataExplorerComponent } from './views/met-data-explorer/met-data-exp
 import { LoginRedirectComponent } from './views/login-redirect/login-redirect.component';
 import { HydroviewerComponent } from './views/hydroviewer/hydroviewer.component';
 import { HistoricalValidationToolComponent } from './views/historical-validation-tool/historical-validation-tool.component';
+import { NationalWaterLevelForecastComponent } from './views/national-water-level-forecast/national-water-level-forecast.component';
 
 export const routes: Routes = [
   // ----------------------------------------------------------------------- //
@@ -50,5 +51,9 @@ export const routes: Routes = [
   {
     path: "apps/historical-validation-tool",
     component: HistoricalValidationToolComponent,
+  },
+  {
+    path: "apps/national-water-level-forecast",
+    component: NationalWaterLevelForecastComponent,
   },
 ];
