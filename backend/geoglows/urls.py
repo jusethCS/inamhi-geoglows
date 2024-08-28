@@ -34,6 +34,10 @@ urlpatterns = [
           get_geoglows_streamflow_warnings, 
           name="geoglows-streamflow-warnings"),
 
+    path('geoglows-waterlevel-warnings', 
+          get_geoglows_waterlevel_warnings, 
+          name="geoglows-waterlevel-warnings"),
+
     path('historical-simulation-plot', 
           get_historical_simulation_plot, 
           name="historical-simulation-plot"),

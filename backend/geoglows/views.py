@@ -46,6 +46,13 @@ def get_geoglows_streamflow_warnings(request):
     data = get_streamflow_alerts(date)
     return JsonResponse(data)
 
+def get_geoglows_waterlevel_warnings(request):
+    date = request.GET.get('date')
+    data = get_waterlevel_alerts(date)
+    return JsonResponse(data)
+
+
+
 def get_historical_simulation_plot(request):
     comid = request.GET.get('comid')
     plot = historical_simulation_plot(comid)

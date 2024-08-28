@@ -843,6 +843,33 @@ def get_streamflow_alerts(date):
     geojson_dict = gdf.__geo_interface__
     return(geojson_dict)
 
+def get_waterlevel_alerts(date):
+    db = create_engine(token)
+    con = db.connect()
+    sql = f"""SELECT 
+                    dn.code, dn.comid, dn.latitude, dn.longitude, dn.river,
+                    dn.location1, dn.location2, ag.datetime,
+                    ag.d01, ag.d02, ag.d03, ag.d04, 
+                    ag.d05, ag.d06, ag.d07, ag.d08, 
+                    ag.d09, ag.d10, ag.d11, ag.d12, 
+                    ag.d13, ag.d14, ag.d15
+                FROM 
+                    waterlevel_stations dn
+                JOIN 
+                    alert_waterlevel_streamflow ag
+                ON 
+                    dn.code = ag.code
+                WHERE 
+                    ag.datetime = '{date}'
+            """
+    query = pd.read_sql(sql, con=con)
+    con.close()
+    query['geometry'] = query.apply(lambda row: Point(row['longitude'], row['latitude']), axis=1)
+    gdf = gpd.GeoDataFrame(query, geometry='geometry')
+    geojson_dict = gdf.__geo_interface__
+    return(geojson_dict)
+
+
 
 def historical_simulation_plot(comid):
     db = create_engine(token)
