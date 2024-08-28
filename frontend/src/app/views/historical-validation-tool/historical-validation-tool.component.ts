@@ -88,6 +88,7 @@ export class HistoricalValidationToolComponent {
   public rangeDate:string[] = [];
 
   // Flood warnings
+  public isActiveFlood000:boolean = true;
   public isActiveFlood002:boolean = true;
   public isActiveFlood005:boolean = true;
   public isActiveFlood010:boolean = true;
@@ -96,6 +97,7 @@ export class HistoricalValidationToolComponent {
   public isActiveFlood100:boolean = true;
   public activeDateIndex:number = 0;
   public geoglowsFloodWarnings:any;
+  public geoglowsFlood000:any;
   public geoglowsFlood002:any;
   public geoglowsFlood005:any;
   public geoglowsFlood010:any;
@@ -539,7 +541,7 @@ export class HistoricalValidationToolComponent {
   }
 
   public getFloodWarnings(){
-    const url = `${environment.urlAPI}/geoglows/geoglows-flood-warnings?date=${this.rangeDate[0]}`;
+    const url = `${environment.urlAPI}/geoglows/geoglows-streamflow-warnings?date=${this.rangeDate[0]}`;
     console.log(url);
       fetch(url)
         .then((response) => response.json())
@@ -571,8 +573,8 @@ export class HistoricalValidationToolComponent {
       pointToLayer: (feature, latlng) => {
         return L.marker(latlng, {
           icon: L.icon({
-            iconUrl: `assets/icons/geoglows/${rp}.svg`,
-            iconSize: [16, 16],
+            iconUrl: `assets/icons/station/${rp}.png`,
+            iconSize: [12, 16],
             iconAnchor: [8, 8]})
         });
       }
@@ -583,6 +585,9 @@ export class HistoricalValidationToolComponent {
 
   public updateFloodWarnings(){
     const currentData = this.geoglowsFloodWarnings[this.activeDateIndex];
+    this.geoglowsFlood000 && this.map.removeLayer(this.geoglowsFlood000);
+    this.isActiveFlood000 && (this.geoglowsFlood000 = this.floodIcon(currentData, "R0").addTo(this.map));
+    this.geoglowsFlood000.bringToFront();
     this.geoglowsFlood002 && this.map.removeLayer(this.geoglowsFlood002);
     this.isActiveFlood002 && (this.geoglowsFlood002 = this.floodIcon(currentData, "R2").addTo(this.map));
     this.geoglowsFlood002.bringToFront();
@@ -615,6 +620,7 @@ export class HistoricalValidationToolComponent {
     }
     this.legendControl.addTo(this.map);
 
+    this.geoglowsFlood000.on("click", (e: L.LeafletMouseEvent) => this.getParamAlert(e))
     this.geoglowsFlood002.on("click", (e: L.LeafletMouseEvent) => this.getParamAlert(e))
     this.geoglowsFlood005.on("click", (e: L.LeafletMouseEvent) => this.getParamAlert(e))
     this.geoglowsFlood010.on("click", (e: L.LeafletMouseEvent) => this.getParamAlert(e))
