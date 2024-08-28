@@ -33,9 +33,17 @@ def heatpoints_24h(request):
     data = get_heatpoints_24h()
     return JsonResponse(data)
 
+
+###
+
 def get_geoglows_flood_warnings(request):
     date = request.GET.get('date')
     data = get_flood_alerts(date)
+    return JsonResponse(data)
+
+def get_geoglows_streamflow_warnings(request):
+    date = request.GET.get('date')
+    data = get_streamflow_alerts(date)
     return JsonResponse(data)
 
 def get_historical_simulation_plot(request):
