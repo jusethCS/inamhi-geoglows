@@ -856,7 +856,7 @@ def get_waterlevel_alerts(date):
                 FROM 
                     waterlevel_stations dn
                 JOIN 
-                    alert_waterlevel_streamflow ag
+                    alert_geoglows_waterlevel ag
                 ON 
                     dn.code = ag.code
                 WHERE 
