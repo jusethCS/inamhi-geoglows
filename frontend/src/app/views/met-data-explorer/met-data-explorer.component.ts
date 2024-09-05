@@ -203,7 +203,7 @@ export class MetDataExplorerComponent {
   public initializeMap() {
     // Base maps
     const osm = L.tileLayer(
-      'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+      'https://abcd.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
          zIndex: -1
       });
     const carto = L.tileLayer(
@@ -265,7 +265,7 @@ export class MetDataExplorerComponent {
 
   public initializeOverlays(){
     this.citiesLayer = L.tileLayer(
-      'https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png', {
+      'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
         zIndex: 1100
       });
     this.citiesLayer.addTo(this.map);
