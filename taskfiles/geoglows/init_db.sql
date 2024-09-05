@@ -79,8 +79,8 @@ CREATE TABLE IF NOT EXISTS streamflow_data_2020_2030
 CREATE INDEX idx_streamflow_data_code_datetime 
     ON streamflow_data (code, datetime);
 
-CREATE TABLE IF NOT EXISTS alert_streamflow (
-    comid INT NOT NULL REFERENCES drainage_network(comid),
+CREATE TABLE IF NOT EXISTS alert_geoglows_streamflow (
+    code TEXT NOT NULL REFERENCES streamflow_stations(code),
     datetime TIMESTAMP NOT NULL,
     d01 TEXT, d02 TEXT, d03 TEXT, d04 TEXT,
     d05 TEXT, d06 TEXT, d07 TEXT, d08 TEXT,
@@ -88,8 +88,8 @@ CREATE TABLE IF NOT EXISTS alert_streamflow (
     d13 TEXT, d14 TEXT, d15 TEXT, alert TEXT
 );
 
-CREATE INDEX idx_alert_streamflow_datetime
-    ON alert_streamflow (datetime);
+CREATE INDEX idx_alert_geoglows_steamflow_datetime
+    ON alert_geoglows_streamflow (datetime);
 
 
 ---------------------------------------------------------------------
@@ -137,8 +137,8 @@ CREATE TABLE IF NOT EXISTS waterlevel_data_2020_2030
 CREATE INDEX idx_waterlevel_data_code_datetime 
     ON waterlevel_data (code, datetime);
 
-CREATE TABLE IF NOT EXISTS alert_waterlevel (
-    comid INT NOT NULL REFERENCES drainage_network(comid),
+CREATE TABLE IF NOT EXISTS alert_geoglows_waterlevel (
+    code TEXT NOT NULL REFERENCES streamflow_stations(code),
     datetime TIMESTAMP NOT NULL,
     d01 TEXT, d02 TEXT, d03 TEXT, d04 TEXT,
     d05 TEXT, d06 TEXT, d07 TEXT, d08 TEXT,
@@ -146,8 +146,9 @@ CREATE TABLE IF NOT EXISTS alert_waterlevel (
     d13 TEXT, d14 TEXT, d15 TEXT, alert TEXT
 );
 
-CREATE INDEX idx_alert_waterlevel_datetime
-    ON alert_waterlevel (datetime);
+CREATE INDEX idx_alert_geoglows_waterlevel_datetime
+    ON alert_geoglows_waterlevel (datetime);
+
 
 ---------------------------------------------------------------------
 --                   historical simulation data                    --
