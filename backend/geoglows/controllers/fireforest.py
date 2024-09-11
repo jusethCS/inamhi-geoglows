@@ -77,6 +77,32 @@ def get_goes_hotspots():
     return(geojson_dict)
 
 
+
+
+def get_goes_hotspots():
+    now = dt.datetime.now()
+    start = (now - dt.timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:00")
+    con = db.connect()
+    sql = f"select distinct * from goes_hotspots where datetime > '{start}' order by datetime"
+    query = pd.read_sql(sql, con)
+    con.close()
+    query['datetime'] = pd.to_datetime(query['datetime']) + dt.timedelta(minutes=10)
+    query['datetime'] = query['datetime'].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:00"))
+    query['geometry'] = query.apply(lambda row: Point(row['longitude'], row['latitude']), axis=1)
+    #
+    # Asignar códigos d01, d02, d03, etc., basado en el día
+    query['datetime_full'] = pd.to_datetime(query['datetime'])
+    unique_datetimes = query['datetime_full'].drop_duplicates().reset_index(drop=True)
+    datetime_map = {dt: i for i, dt in enumerate(unique_datetimes)}
+    query['step'] = query['datetime_full'].map(datetime_map)
+    query = query.drop('datetime_full', axis=1)
+    #
+    # Crear GeoDataFrame
+    gdf = gpd.GeoDataFrame(query, geometry='geometry')
+    geojson_dict = gdf.__geo_interface__
+    return geojson_dict
+
+
 #a = get_goes_hotspots()
 
 
