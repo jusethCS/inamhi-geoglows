@@ -22,6 +22,10 @@ urlpatterns = [
           heatpoints_24h, 
           name="firms-data-24"),
 
+    path('goes-hotspots', 
+          goes_hotspots, 
+          name="goes-hotspots"),
+
     path('download-layer', 
           download_layer, 
           name="download-layer"),

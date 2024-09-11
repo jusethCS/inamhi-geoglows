@@ -50,7 +50,7 @@ def assign_icon(frp):
 
 def get_heatpoints_24h():
     now = dt.datetime.now() - dt.timedelta(hours=5)
-    start = (now - dt.timedelta(days=2)).strftime("%Y-%m-%d %H:%M:00")
+    start = (now - dt.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:00")
     con = db.connect()
     sql = f"select * from heatpoint where acq_datetime>'{start}' order by frp ASC"
     query = pd.read_sql(sql, con)
@@ -61,4 +61,22 @@ def get_heatpoints_24h():
     gdf = gpd.GeoDataFrame(query, geometry='geometry')
     geojson_dict = gdf.__geo_interface__
     return(geojson_dict)
+
+
+def get_goes_hotspots():
+    now = dt.datetime.now()
+    start = (now - dt.timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:00")
+    con = db.connect()
+    sql = f"select * from goes_hotspots where datetime>'{start}'"
+    query = pd.read_sql(sql, con)
+    con.close()
+    query['datetime'] = query['datetime'].apply(lambda x:x.strftime("%Y-%m-%d %H:%M:00"))
+    query['geometry'] = query.apply(lambda row: Point(row['longitude'], row['latitude']), axis=1)
+    gdf = gpd.GeoDataFrame(query, geometry='geometry')
+    geojson_dict = gdf.__geo_interface__
+    return(geojson_dict)
+
+
+#a = get_goes_hotspots()
+
 

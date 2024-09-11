@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpResponse
 from .controllers.download import stream_file
-from .controllers.fireforest import get_heatpoints_24h
+from .controllers.fireforest import get_heatpoints_24h, get_goes_hotspots
 from .controllers.geoglows import *
 
 def download_daily_precipitation(request):
@@ -31,6 +31,10 @@ def download_layer(request):
 
 def heatpoints_24h(request):
     data = get_heatpoints_24h()
+    return JsonResponse(data)
+
+def goes_hotspots(request):
+    data = get_goes_hotspots()
     return JsonResponse(data)
 
 
@@ -87,3 +91,5 @@ def get_forecast_csv(request):
     response['Content-Disposition'] = f'attachment; filename="ensemble_forecast_{comid}.csv"'
     forecast.to_csv(path_or_buf=response, index=True)
     return response
+
+
