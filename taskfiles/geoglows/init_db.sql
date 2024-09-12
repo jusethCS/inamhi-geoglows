@@ -329,4 +329,14 @@ CREATE TABLE heatpoint(
     confidence TEXT,
     brightness_2 NUMERIC,
     frp NUMERIC
-)
+);
+
+CREATE TABLE goes_hotspots(
+    latitude NUMERIC,
+    longitude NUMERIC,
+    datetime TIMESTAMP NOT NULL
+);
+
+CREATE INDEX idx_goes_hotspots_datetime
+    ON goes_hotspots (datetime);
+
