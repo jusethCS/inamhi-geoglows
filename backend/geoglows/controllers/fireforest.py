@@ -70,7 +70,7 @@ def get_goes_hotspots():
     sql = f"select * from goes_hotspots where datetime > '{start}' order by datetime"
     query = pd.read_sql(sql, con)
     con.close()
-    query['datetime'] = pd.to_datetime(query['datetime']) + dt.timedelta(minutes=10)
+    query['datetime'] = pd.to_datetime(query['datetime']) + dt.timedelta(minutes=10) - dt.timedelta(hours=5)
     query['datetime'] = query['datetime'].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:00"))
     query['geometry'] = query.apply(lambda row: Point(row['longitude'], row['latitude']), axis=1)
     #
