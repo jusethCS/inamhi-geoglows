@@ -2,9 +2,12 @@ import os
 import rasterio
 import numpy as np
 import pandas as pd
+import geopandas as gpd
 import sqlalchemy as sql
 from dotenv import load_dotenv
+from shapely.geometry import Point
 from sqlalchemy import create_engine
+
 
 def read_bands_and_convert_to_grayscale(tif_file: str) -> tuple:
     """
@@ -76,9 +79,19 @@ def process_hotspots(tif_file: str, grayscale_threshold: float,
         grayscale_band, red_band, transform, crs = read_bands_and_convert_to_grayscale(tif_file)
         combined_mask = apply_thresholds(grayscale_band, red_band, grayscale_threshold, red_threshold)
         centroids = extract_centroids_from_mask(combined_mask, transform)
-        df = pd.DataFrame(centroids, columns=['longitude', 'latitude'])
-        df["datetime"] = date_file
-        return(df)
+        data = pd.DataFrame(centroids, columns=['longitude', 'latitude'])
+        data["datetime"] = date_file
+        #
+        # Generate a geopandas dataframe
+        geometry = [Point(xy) for xy in zip(data['longitude'], data['latitude'])]
+        gdf = gpd.GeoDataFrame(data, geometry=geometry)
+        gdf = gdf.set_crs(epsg=4326, inplace=True)
+        #
+        # Filter the points within ecuador
+        ecu = gpd.read_file("/home/ubuntu/inamhi-geoglows/taskfiles/shp/ecuador.shp")
+        gdf = gdf[gdf.geometry.within(ecu.geometry.union_all())]
+        data = gdf.drop(columns='geometry')
+        return(data)
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
