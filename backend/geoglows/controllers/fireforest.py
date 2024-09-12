@@ -87,7 +87,7 @@ def get_goes_hotspots():
     query['step'] = query['datetime_full'].map(datetime_map)
     #
     # Calcular diff
-    query['diff_minutes'] = (now - query['datetime_full']).dt.total_seconds() / 60  # Diferencia en minutos
+    query['diff_minutes'] = (now - query['datetime_full']).dt.total_seconds() / 60 - 300  # Diferencia en minutos
     def categorize_diff(diff):
         return int((diff // 10) * 10) if diff > 0 else 0
     query['diff'] = query['diff_minutes'].apply(categorize_diff)
