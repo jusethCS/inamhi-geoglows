@@ -82,7 +82,7 @@ def get_goes_hotspots():
     # Asignar códigos d01, d02, d03, etc., basado en el día
     query['datetime_full'] = pd.to_datetime(query['datetime'])
     unique_datetimes = query['datetime_full'].drop_duplicates().reset_index(drop=True)
-    datetime_map = {dt: i for i, dt in enumerate(unique_datetimes)}
+    datetime_map = {dt: 9-i for i, dt in enumerate(unique_datetimes)}
     query['step'] = query['datetime_full'].map(datetime_map)
     query = query.drop('datetime_full', axis=1)
     #
