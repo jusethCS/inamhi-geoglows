@@ -85,7 +85,15 @@ def get_goes_hotspots():
     n = len(unique_datetimes)
     datetime_map = {dt: n-i for i, dt in enumerate(unique_datetimes)}
     query['step'] = query['datetime_full'].map(datetime_map)
-    query = query.drop('datetime_full', axis=1)
+    #
+    # Calcular diff
+    query['diff_minutes'] = (now - query['datetime_full']).dt.total_seconds() / 60  # Diferencia en minutos
+    def categorize_diff(diff):
+        return int((diff // 10) * 10) if diff > 0 else 0
+    query['diff'] = query['diff_minutes'].apply(categorize_diff)
+    #
+    # Limpiar columnas temporales
+    query = query.drop(['datetime_full', 'diff_minutes'], axis=1)
     #
     # Crear GeoDataFrame
     gdf = gpd.GeoDataFrame(query, geometry='geometry')
