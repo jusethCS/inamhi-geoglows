@@ -67,7 +67,12 @@ def get_goes_hotspots():
     now = dt.datetime.now()
     start = (now - dt.timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:00")
     con = db.connect()
-    sql = f"select * from goes_hotspots where datetime > '{start}' order by datetime"
+    sql = """
+        SELECT DISTINCT ON (latitude, longitude) *
+        FROM goes_hotspots
+        WHERE datetime > '{start}'
+        ORDER BY latitude, longitude, datetime ASC;
+        """
     query = pd.read_sql(sql, con)
     con.close()
     query['datetime'] = pd.to_datetime(query['datetime']) + dt.timedelta(minutes=10) - dt.timedelta(hours=5)
