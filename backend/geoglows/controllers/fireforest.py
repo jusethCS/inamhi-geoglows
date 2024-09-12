@@ -65,7 +65,7 @@ def get_heatpoints_24h():
 
 def get_goes_hotspots():
     now = dt.datetime.now()
-    start = (now - dt.timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:00")
+    start = (now - dt.timedelta(hours=4)).strftime("%Y-%m-%d %H:%M:00")
     con = db.connect()
     sql = f"""
         SELECT DISTINCT ON (latitude, longitude) *
