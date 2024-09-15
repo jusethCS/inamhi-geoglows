@@ -1,3 +1,25 @@
+interface GeoJSONFeature {
+  id: string;
+  type: string;
+  properties: {
+    latitude: number;
+    longitude: number;
+    datetime: string;
+    step: number;
+  };
+  geometry: {
+    type: string;
+    coordinates: [number, number];
+  };
+  bbox: [number, number, number, number];
+}
+
+interface GeoJSON {
+  type: string;
+  features: GeoJSONFeature[];
+  bbox: [number, number, number, number];
+}
+
 export class utils{
 
   public generateSatelliteDates(startDate: Date, endDate: Date, frequency: string, layer:boolean): string[] {
@@ -294,6 +316,24 @@ export class utils{
     }
     return result;
   }
+
+
+  public filterHotSpots(geojson: GeoJSON): GeoJSON[] {
+    const maxStep = Math.max(...geojson.features.map(feature => feature.properties.step));
+    const filteredGeoJSONs: GeoJSON[] = [];
+
+    for (let step = 0; step <= maxStep; step++) {
+      const filteredFeatures = geojson.features.filter(feature => feature.properties.step === step);
+
+      filteredGeoJSONs.push({
+        ...geojson,
+        features: filteredFeatures
+      });
+    }
+
+    return filteredGeoJSONs;
+  }
+
 
 }
 

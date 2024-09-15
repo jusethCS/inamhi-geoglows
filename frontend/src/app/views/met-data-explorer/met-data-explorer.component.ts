@@ -149,6 +149,10 @@ export class MetDataExplorerComponent {
   public isActiveBosqueProtector:boolean = false;
   public isActiveSNAP:boolean = false;
 
+  public GOESHotspotsLayer:any
+  public isActiveGOESHotspots:boolean = false;
+  public GOESHotspotsLegend:any;
+  public autoUpdateGOESHotspotsFun:any;
 
 
   // Point plot
@@ -604,8 +608,63 @@ export class MetDataExplorerComponent {
     this.plotClass = "forecast";
   }
 
+  public updateGOESHotspots(){
+    this.isActiveFireVIIRS24 = false;
+    this.FireVIIRSLayer !== undefined && this.map.removeLayer(this.FireVIIRSLayer);
+    this.fireVIIRSLegend !== undefined && this.fireVIIRSLegend.remove();
+    if (this.isActiveGOESHotspots) {
+      const url = `${environment.urlAPI}/geoglows/goes-hotspots`;
+      fetch(url)
+        .then((response) => response.json())
+        .then((response) => {
 
+          this.GOESHotspotsLayer =  L.geoJSON(response, {
+            pointToLayer: (feature, latlng) => {
+              return L.marker(latlng, {
+                icon: L.icon({
+                  iconUrl: `assets/icons/hotspots/M${feature.properties.diff}.svg`,
+                  iconSize: [16, 16],
+                  iconAnchor: [8, 8],
+                })
+              });
+            }
+          }).addTo(this.map);
 
+          let legendElement = document.createElement('div');
+          this.GOESHotspotsLegend = new L.Control({ position: 'bottomright' });
+          this.GOESHotspotsLegend.onAdd = () => legendElement;
+          this.GOESHotspotsLegend.addTo(this.map);
+
+          legendElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+          legendElement.style.color = 'black';
+          legendElement.style.padding = '5px';
+          legendElement.style.borderRadius = "5px"
+
+          const imageElement = document.createElement('img');
+          imageElement.src = `assets/img/goes-hotspots.png`;
+          imageElement.height = 200;
+          legendElement.innerHTML = "";
+          legendElement.appendChild(imageElement);
+        });
+    } else {
+      this.GOESHotspotsLayer !== undefined && this.map.removeLayer(this.GOESHotspotsLayer);
+      this.GOESHotspotsLegend !== undefined && this.GOESHotspotsLegend.remove();
+    }
+  }
+
+  public autoUpdateGOESHotspots(){
+    if (this.isActiveGOESHotspots) {
+      this.updateGOESHotspots();
+      this.autoUpdateGOESHotspotsFun = setInterval(() => {
+        this.GOESHotspotsLayer !== undefined && this.map.removeLayer(this.GOESHotspotsLayer);
+        this.GOESHotspotsLegend !== undefined && this.GOESHotspotsLegend.remove();
+        this.updateGOESHotspots();
+        console.log("Actualizar GOES Hotspots")
+      }, 60000);
+    } else {
+      this.autoUpdateGOESHotspotsFun && clearInterval(this.autoUpdateGOESHotspotsFun);
+    }
+  }
 
   public playTimeControl(){
     if (this.isPlay) {
@@ -623,6 +682,8 @@ export class MetDataExplorerComponent {
     this.isActiveNoRain = false;
     this.isActiveSoilMoisture = false;
     this.isActiveHaines = false;
+    this.isActiveFireGOES = false;
+    this.isActiveGOESHotspots = false;
   }
   public previousTimeControl(){
     this.timeControl?.previous();
@@ -751,6 +812,9 @@ export class MetDataExplorerComponent {
   }
 
   public updateFireVIIRS(): void {
+    this.isActiveGOESHotspots = false;
+    this.GOESHotspotsLayer !== undefined && this.map.removeLayer(this.GOESHotspotsLayer);
+    this.GOESHotspotsLegend !== undefined && this.GOESHotspotsLegend.remove();
     if (this.isActiveFireVIIRS24) {
       const url = `${environment.urlAPI}/geoglows/firms-data-24`;
       fetch(url)

@@ -176,6 +176,11 @@
           [(ngModel)]="isActiveFireGOES" (ngModelChange)="autoUpdateFireGOES()">
         <label class="form-check-label" for="fire-goes">Fire Temperature GOES</label>
       </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="goes-hotspots"
+          [(ngModel)]="isActiveGOESHotspots" (ngModelChange)="autoUpdateGOESHotspots()">
+        <label class="form-check-label" for="goes-hotspots">Focos de calor en tiempo real (GOES)</label>
+      </div>
     </app-dropdown>
 
     <!--------------------------------------------------------------------------------------->
