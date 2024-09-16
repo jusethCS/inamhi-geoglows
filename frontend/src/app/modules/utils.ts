@@ -162,7 +162,7 @@ export class utils{
     const month_yesterday = String(yesterday.getUTCMonth() + 1).padStart(2, '0');
     const day_yesterday = String(yesterday.getUTCDate()).padStart(2, '0');
 
-    return `<br>Desde ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 hasta ${year_today}-${month_today}-${day_today} 07:00`
+    return `<b>Desde</b> ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 <b>hasta</b> ${year_today}-${month_today}-${day_today} 07:00`
   }
 
   public getAcumulatedDate48():string{
@@ -180,7 +180,7 @@ export class utils{
     const month_yesterday = String(yesterday.getUTCMonth() + 1).padStart(2, '0');
     const day_yesterday = String(yesterday.getUTCDate()).padStart(2, '0');
 
-    return `<br>Desde ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 hasta ${year_today}-${month_today}-${day_today} 07:00`
+    return `<b>Desde</b> ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 <b>hasta</b> ${year_today}-${month_today}-${day_today} 07:00`
   }
 
   public getAcumulatedDate72():string{
@@ -198,7 +198,7 @@ export class utils{
     const month_yesterday = String(yesterday.getUTCMonth() + 1).padStart(2, '0');
     const day_yesterday = String(yesterday.getUTCDate()).padStart(2, '0');
 
-    return `<br>Desde ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 hasta ${year_today}-${month_today}-${day_today} 07:00`
+    return `<b>Desde</b> ${year_yesterday}-${month_yesterday}-${day_yesterday} 07:00 <b>hasta</b> ${year_today}-${month_today}-${day_today} 07:00`
   }
 
 
@@ -220,7 +220,7 @@ export class utils{
     const month_today = String(today.getUTCMonth() + 1).padStart(2, '0');
     const day_today = String(today.getUTCDate()).padStart(2, '0');
 
-    return `<br>Última actualización: ${year_today}-${month_today}-${day_today} 07:00<br><span style='font-size:10px; font-weigth:200'>*Se considera "sin lluvia significativa" a días con precipitaciones acumuladas menores a 2mm</span>`
+    return `<b>Última actualización:</b> ${year_today}-${month_today}-${day_today} 07:00<br><span style='font-size:10px; font-weigth:200'>*Se considera "sin lluvia significativa" a días con precipitaciones acumuladas menores a 2mm</span>`
   }
 
   public formatForecastDate(input: string): string {
@@ -230,7 +230,7 @@ export class utils{
         throw new Error("El formato del string de entrada no es válido");
     }
     const [_, date, timeZ, duration, forecastDate, forecastTime] = matches;
-    const result = `Inicialización: ${date} ${timeZ}. Pronóstico: ${forecastDate.slice(0, 4)}-${forecastDate.slice(4, 6)}-${forecastDate.slice(6, 8)} ${forecastTime.replace('h', ':')}`;
+    const result = `<b>Inicialización:</b> ${date} ${timeZ}. <b>Pronóstico:</b> ${forecastDate.slice(0, 4)}-${forecastDate.slice(4, 6)}-${forecastDate.slice(6, 8)} ${forecastTime.replace('h', ':')}`;
     return result;
   }
 

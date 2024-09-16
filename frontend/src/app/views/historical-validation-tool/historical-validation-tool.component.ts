@@ -104,7 +104,7 @@ export class HistoricalValidationToolComponent {
   public geoglowsFlood025:any;
   public geoglowsFlood050:any;
   public geoglowsFlood100:any;
-  public legendControl = new L.Control({position: 'bottomleft'});
+  public legendControl = new L.Control({position: 'bottomright'});
 
   // Plots
   public historicalSimulationPlot: any;
@@ -715,52 +715,40 @@ export class HistoricalValidationToolComponent {
             version: '1.1.1',
             crs: L.CRS.EPSG4326
           }).addTo(this.map);
-          console.log("Funciona")
 
           let legendElement = document.createElement('div');
-          let imgElement = document.createElement('div');
 
-          this.ffgsLegend = new L.Control({ position: 'bottomright' });
+          this.ffgsLegend = new L.Control({ position: 'bottomleft' });
           this.ffgsLegend.onAdd = () => legendElement;
           this.ffgsLegend.addTo(this.map);
-
-          this.imgLegend = new L.Control({ position: 'bottomright' });
-          this.imgLegend.onAdd = () => imgElement;
-          this.imgLegend.addTo(this.map);
 
           legendElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
           legendElement.style.color = 'black';
           legendElement.style.padding = '5px';
           legendElement.style.borderRadius = "5px"
 
-          imgElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-          imgElement.style.color = 'black';
-          imgElement.style.padding = '5px';
-          imgElement.style.borderRadius = "5px"
-
           const imageElement = document.createElement('img');
-          imageElement.src = `assets/img/${param}.png`;
-          imageElement.height = 250;
-          imgElement.innerHTML = "";
-          if(imgCond){
-            imgElement.appendChild(imageElement);
-          }
-
+          imageElement.src = `assets/legend/${param}.png`;
+          imageElement.style.maxWidth = "98%";
+          imageElement.style.width = "400px";
 
           if(type==="ffgs"){
-            legendElement.innerHTML = `<b>${title}</b> <br> <b>Última actualización:</b> ${this.utilsApp.getFFGSDate()}`;
+            let unit: string;
+            const percentParams = ["asm", "fmap06", "fmap24"];
+            unit = percentParams.includes(param) ? "(%)" : "(mm)";
+            legendElement.innerHTML = `<b>${title} ${unit}</b><br><b>Última actualización:</b> ${this.utilsApp.getFFGSDate()}<br>`;
           }
 
           if(type==="pacum24"){
-            legendElement.innerHTML = `<b>${title}</b>${this.utilsApp.getAcumulatedDate7()}`;
+            legendElement.innerHTML = `<b>${title} en 24h (mm)</b><br>${this.utilsApp.getAcumulatedDate7()}<br>`;
           }
 
           if(type==="pacum48"){
-            legendElement.innerHTML = `<b>${title}</b>${this.utilsApp.getAcumulatedDate48()}`;
+            legendElement.innerHTML = `<b>${title} en 48h (mm)</b><br>${this.utilsApp.getAcumulatedDate48()}<br>`;
           }
 
           if(type==="pacum72"){
-            legendElement.innerHTML = `<b>${title}</b>${this.utilsApp.getAcumulatedDate72()}`;
+            legendElement.innerHTML = `<b>${title} en 72h (mm)</b><br>${this.utilsApp.getAcumulatedDate72()}<br>`;
           }
 
           if(type==="sat"){
@@ -800,6 +788,10 @@ export class HistoricalValidationToolComponent {
               </div>
             </div>
             `;
+          }
+
+          if(imgCond){
+            legendElement.appendChild(imageElement);
           }
     }
   }

@@ -6,37 +6,37 @@ export class dataApp{
   // Satellite based products
   public satelliteData =   [
 
-    { Variable: 'Precipitación', Product: 'CHIRPS', Code:"chirps-daily", Temporal: 'Diaria' },
-    { Variable: 'Precipitación', Product: 'CHIRPS', Code:"chirps-monthly", Temporal: 'Mensual' },
-    { Variable: 'Precipitación', Product: 'CHIRPS', Code:"chirps-annual", Temporal: 'Anual' },
+    { Variable: 'Precipitación', Product: 'CHIRPS', Code:"chirps-daily", Temporal: 'Diaria', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'CHIRPS', Code:"chirps-monthly", Temporal: 'Mensual', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'CHIRPS', Code:"chirps-annual", Temporal: 'Anual', Tag: "(mm)" },
 
-    { Variable: 'Precipitación', Product: 'CMORPH', Code:"cmorph-daily", Temporal: 'Diaria' },
-    { Variable: 'Precipitación', Product: 'CMORPH', Code:"cmorph-monthly", Temporal: 'Mensual' },
-    { Variable: 'Precipitación', Product: 'CMORPH', Code:"cmorph-annual", Temporal: 'Anual' },
+    { Variable: 'Precipitación', Product: 'CMORPH', Code:"cmorph-daily", Temporal: 'Diaria', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'CMORPH', Code:"cmorph-monthly", Temporal: 'Mensual', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'CMORPH', Code:"cmorph-annual", Temporal: 'Anual', Tag: "(mm)" },
 
-    { Variable: 'Precipitación', Product: 'PERSIANN', Code:"persiann-daily", Temporal: 'Diaria' },
-    { Variable: 'Precipitación', Product: 'PERSIANN', Code:"persiann-monthly", Temporal: 'Mensual' },
-    { Variable: 'Precipitación', Product: 'PERSIANN',Code:"persiann-annual", Temporal: 'Anual' },
+    { Variable: 'Precipitación', Product: 'PERSIANN', Code:"persiann-daily", Temporal: 'Diaria', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'PERSIANN', Code:"persiann-monthly", Temporal: 'Mensual', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'PERSIANN',Code:"persiann-annual", Temporal: 'Anual', Tag: "(mm)" },
 
-    { Variable: 'Precipitación', Product: 'PERSIANN CCS', Code:"persiann-ccs-daily", Temporal: 'Diaria' },
-    { Variable: 'Precipitación', Product: 'PERSIANN CCS', Code:"persiann-ccs-monthly", Temporal: 'Mensual' },
-    { Variable: 'Precipitación', Product: 'PERSIANN CCS', Code:"persiann-ccs-annual", Temporal: 'Anual' },
+    { Variable: 'Precipitación', Product: 'PERSIANN CCS', Code:"persiann-ccs-daily", Temporal: 'Diaria', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'PERSIANN CCS', Code:"persiann-ccs-monthly", Temporal: 'Mensual', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'PERSIANN CCS', Code:"persiann-ccs-annual", Temporal: 'Anual', Tag: "(mm)" },
 
-    { Variable: 'Precipitación', Product: 'PERSIANN PDIR', Code:"persiann-pdir-daily", Temporal: 'Diaria' },
-    { Variable: 'Precipitación', Product: 'PERSIANN PDIR', Code:"persiann-pdir-monthly", Temporal: 'Mensual' },
-    { Variable: 'Precipitación', Product: 'PERSIANN PDIR', Code:"persiann-pdir-annual", Temporal: 'Anual' },
+    { Variable: 'Precipitación', Product: 'PERSIANN PDIR', Code:"persiann-pdir-daily", Temporal: 'Diaria', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'PERSIANN PDIR', Code:"persiann-pdir-monthly", Temporal: 'Mensual', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'PERSIANN PDIR', Code:"persiann-pdir-annual", Temporal: 'Anual', Tag: "(mm)" },
 
-    { Variable: 'Precipitación', Product: 'IMERG', Code:"imerg-daily", Temporal: 'Diaria' },
-    { Variable: 'Precipitación', Product: 'IMERG', Code:"imerg-monthly", Temporal: 'Mensual' },
-    { Variable: 'Precipitación', Product: 'IMERG', Code:"imerg-annual", Temporal: 'Anual' },
+    { Variable: 'Precipitación', Product: 'IMERG', Code:"imerg-daily", Temporal: 'Diaria', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'IMERG', Code:"imerg-monthly", Temporal: 'Mensual', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'IMERG', Code:"imerg-annual", Temporal: 'Anual', Tag: "(mm)" },
 
-    { Variable: 'Precipitación', Product: 'IMERG Early run', Code:"imerg-early-daily", Temporal: 'Diaria' },
-    { Variable: 'Precipitación', Product: 'IMERG Early run', Code:"imerg-early-monthly", Temporal: 'Mensual' },
-    { Variable: 'Precipitación', Product: 'IMERG Early run', Code:"imerg-early-annual", Temporal: 'Anual' },
+    { Variable: 'Precipitación', Product: 'IMERG Early run', Code:"imerg-early-daily", Temporal: 'Diaria', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'IMERG Early run', Code:"imerg-early-monthly", Temporal: 'Mensual', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'IMERG Early run', Code:"imerg-early-annual", Temporal: 'Anual', Tag: "(mm)" },
 
-    { Variable: 'Precipitación', Product: 'IMERG Late run', Code:"imerg-late-daily", Temporal: 'Diaria' },
-    { Variable: 'Precipitación', Product: 'IMERG Late run', Code:"imerg-late-monthly", Temporal: 'Mensual' },
-    { Variable: 'Precipitación', Product: 'IMERG Late run', Code:"imerg-late-annual", Temporal: 'Anual' }
+    { Variable: 'Precipitación', Product: 'IMERG Late run', Code:"imerg-late-daily", Temporal: 'Diaria', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'IMERG Late run', Code:"imerg-late-monthly", Temporal: 'Mensual', Tag: "(mm)" },
+    { Variable: 'Precipitación', Product: 'IMERG Late run', Code:"imerg-late-annual", Temporal: 'Anual', Tag: "(mm)" }
   ];
 
   public provinces:string[] = [

@@ -476,13 +476,13 @@ export class MetDataExplorerComponent {
                   .map((date) => this.getLeafletLayer(url, `${layerCode}:${date}`))
     let dates = this.utilsApp
                   .generateSatelliteDates(startDate, endDate, this.selectedSatelliteTemporal, false)
-    let layerName = `${this.selectedSatelliteProduct} ${this.selectedSatelliteTemporal}`;
-    let legendSRC = `assets/img/legend-${layerCode}.png`
-    if (this.timeControl !== undefined) {
-      this.timeControl.destroy();
-    }
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, layers, 500, dates, layerName, legendSRC);
-
+    const varUnit = this.satelliteData.filter((item) => item.Code === layerCode)[0].Tag;
+    const legendTexts = dates.map((item) => `
+      <b><b>${this.selectedSatelliteVariable.toUpperCase()} ${this.selectedSatelliteTemporal.toUpperCase()} ${varUnit} </b></b><br>
+      <b>PRODUCTO:</b> ${this.selectedSatelliteProduct.toUpperCase()}. <b>FECHA:</b> ${item}`)
+    let legendSRC = `assets/legend/P_${this.selectedSatelliteTemporal}.png`;
+    this.timeControl?.destroy();
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, layers, 500, legendTexts, legendSRC);
     // Status plot
     this.activeURLLayer = url;
     this.activeLayers = layers.map(layer => layer.options.layers);
@@ -513,17 +513,36 @@ export class MetDataExplorerComponent {
         item.Product === this.selectedGoesProduct &&
         item.Band === this.selectedGoesBand
     )[0].Code;
-    let url = `${environment.urlGeoserver}/${layerCode}/wms`;
-    let img = `assets/img/${layerCode}.png`;
+
+    const url = `${environment.urlGeoserver}/${layerCode}/wms`;
+    const layers = await this.utilsApp.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
+    const wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
+
+    const img = `assets/legend/${layerCode}.png`;
     let imgCond = true;
-    if(layerCode === "GOES-RGB-TRUE-COLOR"){
-      imgCond = false;
+    layerCode === "GOES-RGB-TRUE-COLOR" && (imgCond = false);
+
+    const unitLayer = this.goesData.filter(
+      (item) =>
+        item.Product === this.selectedGoesProduct &&
+        item.Band === this.selectedGoesBand
+    )[0].Tag;
+
+    const dates = this.utilsApp.parseGOESDate(layers);
+    const band = this.selectedGoesBand.replace("Banda", "BANDA").replace(":", ":</b>")
+    let legendText = dates.map((item) => `
+      <b><b>${this.selectedGoesProduct.toUpperCase()} ${unitLayer}</b></b><br>
+      <b>${band}<b><br>
+      FECHA:</b> ${item}`)
+
+    if(this.selectedGoesProduct === "Custom RGB Products"){
+      legendText = dates.map((item) => `
+      <b>PRODUCTO RGB:</b>${this.selectedGoesBand.toUpperCase()}<br>
+      <b>FECHA:</b> ${item}`)
     }
-    let layers = await this.utilsApp.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
-    let dates = this.utilsApp.parseGOESDate(layers);
-    let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
-    this.timeControl !== undefined && this.timeControl.destroy();
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, layerCode, img, imgCond, true);
+
+    this.timeControl?.destroy();
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, legendText, img, imgCond);
 
     // Status plot
     this.activeURLLayer = url;
@@ -583,7 +602,9 @@ export class MetDataExplorerComponent {
     let timestep: string;
     if(this.selectedForecastTemporal === "Diaria"){
       timestep = "24H";
-    }else{
+    } else if(this.selectedForecastTemporal === "Semanal"){
+      timestep = "1W";
+    } else{
       timestep = "3H"
     }
     let layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDate}-${timestep}`);
@@ -591,14 +612,14 @@ export class MetDataExplorerComponent {
       const initForecastDateLast = this.utilsApp.getInitForecastDate(false);
       layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDateLast}-${timestep}`);
     }
-    const img = `assets/img/${layerCode}.png`;
-    const title = `Pronóstico de ${this.selectedForecastVariable} (${this.selectedForecastModel})`
-    const layerTags = layers.map(layer => `<br>${this.utilsApp.formatForecastDate(layer)}`);
-    let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
-    if (this.timeControl !== undefined) {
-      this.timeControl.destroy();
-    }
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, layerTags, title, img);
+    const wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
+    const img = `assets/legend/${layerCode}-${timestep}.png`;
+    const varUnit = this.forecastData.filter((item) => item.Code === layerCode)[0].Tag;
+    const legendText = layers.map(layer => `
+      <b><b>Pronóstico de ${this.selectedForecastVariable} ${this.selectedForecastTemporal} ${varUnit}</b></b><br>
+      ${this.utilsApp.formatForecastDate(layer)}`);
+    this.timeControl?.destroy();
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, legendText, img);
 
     // Status plot
     this.activeURLLayer = url;
@@ -738,10 +759,10 @@ export class MetDataExplorerComponent {
       const layer = 'fireforest:daily_precipitation';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
       const layerTag = [this.utilsApp.getAcumulatedDate7()];
-      const title = "Precipitacion acumulada"
-      const img = `assets/img/legend-persiann-pdir-daily.png`;
-      this.timeControl !== undefined && this.timeControl.destroy();
-      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img);
+      const legendText = layerTag.map((item)=> `<b><b>Precipitacion acumulada (mm)</b></b><br> ${item}`)
+      const img = `assets/legend/P_Diaria.png`;
+      this.timeControl?.destroy();
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, legendText, img);
       this.activeURLLayer = url;
       this.activeLayers = wmsLayer.map(layer => layer.options.layers);
       this.activeLayersCode = [layer];
@@ -768,10 +789,10 @@ export class MetDataExplorerComponent {
       const layer = 'fireforest:no_precipitation_days';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
       const layerTag = [this.utilsApp.getUpdateNoRain()];
-      const title = "Dias consecutivos sin lluvia significativa"
-      const img = `assets/img/days-without-precipitation.png`;
-      this.timeControl !== undefined && this.timeControl.destroy();
-      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img);
+      const legendText = layerTag.map((item)=> `<b><b>Dias consecutivos sin lluvia significativa</b></b><br> ${item}`)
+      const img = `assets/legend/days-without-precipitation.png`;
+      this.timeControl?.destroy();
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, legendText, img);
       this.activeURLLayer = url;
       this.activeLayers = wmsLayer.map(layer => layer.options.layers);
       this.activeLayersCode = [layer];
@@ -797,10 +818,10 @@ export class MetDataExplorerComponent {
       const layer = 'fireforest:soil_moisture';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
       const layerTag = [this.utilsApp.getAcumulatedDate7()];
-      const title = "Humedad del suelo"
-      const img = `assets/img/soil-moisture.png`;
-      this.timeControl !== undefined && this.timeControl.destroy();
-      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img);
+      const legendText = layerTag.map((item)=> `<b><b>Humedad del suelo (%)</b></b><br> ${item}`)
+      const img = `assets/legend/soil-moisture.png`;
+      this.timeControl?.destroy();
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, legendText, img);
       this.activeURLLayer = url;
       this.activeLayers = wmsLayer.map(layer => layer.options.layers);
       this.activeLayersCode = [layer];
@@ -874,16 +895,12 @@ export class MetDataExplorerComponent {
         const initForecastDateLast = this.utilsApp.getInitForecastDate(false);
         layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDateLast}-3H`);
       }
-
-      const img = `assets/img/haines.png`;
-      const title = `Indice de Haines`
-      const layerTags = layers.map(layer => `<br>${this.utilsApp.formatForecastDate(layer)}`);
       let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
-      if (this.timeControl !== undefined) {
-        this.timeControl.destroy();
-      }
-      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, layerTags, title, img);
-
+      const layerTags = layers.map(layer => `<br>${this.utilsApp.formatForecastDate(layer)}`);
+      const legendText = layerTags.map((item)=> `<b><b>Índice de Haines</b></b> ${item}`)
+      const img = `assets/legend/haines.png`;
+      this.timeControl?.destroy();
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, legendText, img);
       // Status plot
       this.activeURLLayer = url;
       this.activeLayers = wmsLayers.map(layer => layer.options.layers);
@@ -898,12 +915,16 @@ export class MetDataExplorerComponent {
   public async updateFireGOES(){
     const layerCode = "GOES-RGB-FIRE-TEMPERATURE"
     let url = `${environment.urlGeoserver}/${layerCode}/wms`;
-    let img = `assets/img/${layerCode}.png`;
+    let img = `assets/legend/${layerCode}.png`;
     let layers = await this.utilsApp.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
     let dates = this.utilsApp.parseGOESDate(layers);
     let wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
     this.timeControl !== undefined && this.timeControl.destroy();
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, dates, "Fire temperature", img, true);
+    const legendText = dates.map((item) => `
+      <b>PRODUCTO RGB:</b>FIRE TEMPERATURE<br>
+      <b>FECHA:</b> ${item}`)
+    this.timeControl?.destroy();
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, legendText, img);
     // Status plot
     this.activeURLLayer = url;
     this.activeLayers = wmsLayers.map(layer => layer.options.layers);
@@ -944,8 +965,9 @@ export class MetDataExplorerComponent {
       const url = `${environment.urlGeoserver}/inamhi/wms`;
       const layer = 'inamhi:advertencia_pacum';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
-      const layerTag = [
-        `<a href="https://inamhi.geoglows.org/hydrometeorological-charts/wp.jpg" target="_blank">Ver reporte</a>
+      const legendText = [
+        `<div><b>Advertencia por lluvias y tormentas</b></div>
+        <a href="https://inamhi.geoglows.org/hydrometeorological-charts/wp.jpg" target="_blank">Ver reporte</a>
           <div style="background-color:rgba(255,255,255,0.8); width:350px !important">
             <div style="padding-bottom:3px !important; padding-top: 3px !important;">
               <style>
@@ -980,14 +1002,12 @@ export class MetDataExplorerComponent {
           </div>
           `
       ];
-      const title = "Advertencia por lluvias y tormentas"
       const img = `noimage`;
       this.timeControl !== undefined && this.timeControl.destroy();
-      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img, false);
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, legendText, img, false);
       this.activeURLLayer = url;
       this.activeLayers = wmsLayer.map(layer => layer.options.layers);
       this.activeLayersCode = [layer];
-      this.activeDates = layerTag;
       this.plotClass = "satellite";
     } else {
       this.timeControl !== undefined && this.timeControl.destroy();
@@ -1009,8 +1029,9 @@ export class MetDataExplorerComponent {
       const url = `${environment.urlGeoserver}/inamhi/wms`;
       const layer = 'inamhi:advertencia_temp';
       const wmsLayer = [this.getLeafletLayer(url, layer)];
-      const layerTag = [
-        `<a href="https://inamhi.geoglows.org/hydrometeorological-charts/wt.jpg" target="_blank">Ver reporte</a>
+      const legendText = [
+        `<div><b>Advertencia por altas temperaturas</b></div>
+        <a href="https://inamhi.geoglows.org/hydrometeorological-charts/wt.jpg" target="_blank">Ver reporte</a>
           <div style="background-color:rgba(255,255,255,0.8); width:350px !important">
             <div style="padding-bottom:3px !important; padding-top: 3px !important;">
               <style>
@@ -1045,14 +1066,12 @@ export class MetDataExplorerComponent {
           </div>
           `
       ];
-      const title = "Advertencia por altas temperaturas"
       const img = `noimge`;
       this.timeControl !== undefined && this.timeControl.destroy();
-      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, layerTag, title, img, false);
+      this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayer, 250, legendText, img, false);
       this.activeURLLayer = url;
       this.activeLayers = wmsLayer.map(layer => layer.options.layers);
       this.activeLayersCode = [layer];
-      this.activeDates = layerTag;
       this.plotClass = "satellite";
 
     } else {

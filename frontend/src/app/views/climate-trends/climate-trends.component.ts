@@ -9,7 +9,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormGroup, FormControl, FormsModule } from '@angular/forms';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
 
 // JS LIBRARIES
 import * as L from 'leaflet';
@@ -138,7 +137,7 @@ export class ClimateTrendsComponent {  // Components variables
   // Time control Layers
   public isPlay:boolean = false;
   public isErrorPlot:boolean = false;
-  public videoLoaderText:string = "HOLA";
+  public videoLoaderText:string = "";
 
   // Plot - geographical area
   public ecuadorData = this.dataAppConfig.ecuador;
@@ -430,13 +429,13 @@ export class ClimateTrendsComponent {  // Components variables
                   .map((date) => this.getLeafletLayer(url, `${layerCode}:${date}`))
     let dates = this.utilsApp
                   .generateSatelliteDates(startDate, endDate, this.selectedSatelliteTemporal, false)
-    let layerName = `${this.selectedSatelliteProduct} ${this.selectedSatelliteTemporal}`;
-    let legendSRC = `assets/img/legend-${layerCode}.png`
-    if (this.timeControl !== undefined) {
-      this.timeControl.destroy();
-    }
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, layers, 500, dates, layerName, legendSRC);
-
+    const varUnit = this.satelliteData.filter((item) => item.Code === layerCode)[0].Tag;
+    const legendTexts = dates.map((item) => `
+      <b><b>${this.selectedSatelliteVariable.toUpperCase()} ${this.selectedSatelliteTemporal.toUpperCase()} ${varUnit} </b></b><br>
+      <b>PRODUCTO:</b> ${this.selectedSatelliteProduct.toUpperCase()}. <b>FECHA:</b> ${item}`)
+    let legendSRC = `assets/legend/P_${this.selectedSatelliteTemporal}.png`;
+    this.timeControl?.destroy();
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, layers, 500, legendTexts, legendSRC);
     // Status plot
     this.activeURLLayer = url;
     this.activeLayers = layers.map(layer => layer.options.layers);
