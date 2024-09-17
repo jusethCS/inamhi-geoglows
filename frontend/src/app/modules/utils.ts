@@ -144,7 +144,7 @@ export class utils{
     const year = now.getUTCFullYear();
     const month = String(now.getUTCMonth() + 1).padStart(2, '0');
     const day = String(now.getUTCDate()).padStart(2, '0');
-    return `${year}-${month}-${day}00Z`;
+    return `${year}-${month}-${day}`;
   }
 
   public getAcumulatedDate7():string{
@@ -224,10 +224,14 @@ export class utils{
   }
 
   public formatForecastDate(input: string): string {
-    const regex = /(\d{4}-\d{2}-\d{2})(\d{2}Z)-(\d+H)-(\d{8})(\d{2}h\d{2})/;
-    const matches = input.match(regex);
+    let regex = /(\d{4}-\d{2}-\d{2})(\d{2}Z)-(\d+H)-(\d{8})(\d{2}h\d{2})/;
+    let matches = input.match(regex);
     if (!matches) {
+      regex = /(\d{4}-\d{2}-\d{2})(\d{2}Z)-(\d+W)-(\d{8})(\d{2}h\d{2})/;
+      matches = input.match(regex);
+      if (!matches) {
         throw new Error("El formato del string de entrada no es válido");
+      }
     }
     const [_, date, timeZ, duration, forecastDate, forecastTime] = matches;
     const result = `<b>Inicialización:</b> ${date} ${timeZ}. <b>Pronóstico:</b> ${forecastDate.slice(0, 4)}-${forecastDate.slice(4, 6)}-${forecastDate.slice(6, 8)} ${forecastTime.replace('h', ':')}`;
@@ -235,10 +239,14 @@ export class utils{
   }
 
   public formatForecastDatePlot(input: string): string {
-    const regex = /(\d{4}-\d{2}-\d{2})(\d{2}Z)-(\d+H)-(\d{8})(\d{2}h\d{2})/;
-    const matches = input.match(regex);
+    let regex = /(\d{4}-\d{2}-\d{2})(\d{2}Z)-(\d+H)-(\d{8})(\d{2}h\d{2})/;
+    let matches = input.match(regex);
     if (!matches) {
+      regex = /(\d{4}-\d{2}-\d{2})(\d{2}Z)-(\d+W)-(\d{8})(\d{2}h\d{2})/;
+      matches = input.match(regex);
+      if (!matches) {
         throw new Error("El formato del string de entrada no es válido");
+      }
     }
     const [_, date, timeZ, duration, forecastDate, forecastTime] = matches;
     const result = `${forecastDate.slice(0, 4)}-${forecastDate.slice(4, 6)}-${forecastDate.slice(6, 8)} ${forecastTime.replace('h', ':')}:00`;
@@ -330,9 +338,46 @@ export class utils{
         features: filteredFeatures
       });
     }
-
     return filteredGeoJSONs;
   }
+
+  public formatDateForecast(type: string, input: string): string {
+    let regex = /(\d{4}-\d{2}-\d{2})(\d{2}Z)-(\d+H)-(\d{8})(\d{2}h\d{2})/;
+    let matches = input.match(regex);
+    if (!matches) {
+      regex = /(\d{4}-\d{2}-\d{2})(\d{2}Z)-(\d+W)-(\d{8})(\d{2}h\d{2})/;
+      matches = input.match(regex);
+      if (!matches) {
+        throw new Error("El formato del string de entrada no es válido");
+      }
+    }
+
+    const [_, date, timeZ, duration, forecastDate, forecastTime] = matches;
+
+    let forecastDateTimeInit = new Date(`${forecastDate.slice(0, 4)}-${forecastDate.slice(4, 6)}-${forecastDate.slice(6, 8)}T${forecastTime.replace('h', ':')}:00Z`);
+    let forecastDateTimeEnd = new Date(`${forecastDate.slice(0, 4)}-${forecastDate.slice(4, 6)}-${forecastDate.slice(6, 8)}T${forecastTime.replace('h', ':')}:00Z`);
+
+    if (type === "3H") {
+        forecastDateTimeEnd.setHours(forecastDateTimeEnd.getHours() + 3);
+    } else if (type === "24H") {
+        forecastDateTimeEnd.setHours(forecastDateTimeEnd.getHours() + 24);
+    } else if (type === "1W") {
+        forecastDateTimeEnd.setDate(forecastDateTimeEnd.getDate() + 7);
+    }
+
+    // Formatear la nueva fecha y hora
+    const dateInit = forecastDateTimeInit.toISOString().slice(0, 10);
+    const timeInit = forecastDateTimeInit.toISOString().slice(11, 16);
+    const dateEnd = forecastDateTimeEnd.toISOString().slice(0, 10);
+    const timeEnd = forecastDateTimeEnd.toISOString().slice(11, 16);
+
+    const result = `
+      <b>Inicialización:</b> ${date} ${timeZ}. <br>
+      <b>Desde</b> ${dateInit} ${timeInit} <b>Hasta</b> ${dateEnd} ${timeEnd}
+    `;
+    return result;
+}
+
 
 
 }

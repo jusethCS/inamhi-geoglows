@@ -600,24 +600,35 @@ export class MetDataExplorerComponent {
     const url = `${environment.urlGeoserver}/${layerCode}/wms`;
     const initForecastDate = this.utilsApp.getInitForecastDate();
     let timestep: string;
+    let timeZ: string;
+
     if(this.selectedForecastTemporal === "Diaria"){
       timestep = "24H";
+      timeZ = "00Z";
     } else if(this.selectedForecastTemporal === "Semanal"){
       timestep = "1W";
+      timeZ = "12Z";
     } else{
-      timestep = "3H"
+      timestep = "3H";
+      timeZ = "00Z";
     }
-    let layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDate}-${timestep}`);
+
+    let layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDate}${timeZ}-${timestep}`);
+    console.log(`${initForecastDate}${timeZ}-${timestep}`);
     if(layers.length === 0){
       const initForecastDateLast = this.utilsApp.getInitForecastDate(false);
-      layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDateLast}-${timestep}`);
+      this.selectedForecastTemporal === "Semanal" && initForecastDateLast.replace("00Z", "12Z");
+      layers = await this.utilsApp.getLayersStartWidth(url, `${initForecastDateLast}${timeZ}-${timestep}`);
+      console.log(`${initForecastDateLast}${timeZ}-${timestep}`);
     }
+
+
     const wmsLayers = layers.map((layer) => this.getLeafletLayer(url, layer));
     const img = `assets/legend/${layerCode}-${timestep}.png`;
     const varUnit = this.forecastData.filter((item) => item.Code === layerCode)[0].Tag;
     const legendText = layers.map(layer => `
       <b><b>Pronóstico de ${this.selectedForecastVariable} ${this.selectedForecastTemporal} ${varUnit}</b></b><br>
-      ${this.utilsApp.formatForecastDate(layer)}`);
+      ${this.utilsApp.formatDateForecast(timestep, layer)}`);
     this.timeControl?.destroy();
     this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, legendText, img);
 
