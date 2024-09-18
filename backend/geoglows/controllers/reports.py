@@ -97,7 +97,7 @@ def agregar_tabla(datos):
 
 
 
-def report():
+def report(table):
     # Vars
     header_path = "/home/ubuntu/data/celec/report_header.png"
     footer_path = "/home/ubuntu/data/celec/report_footer.png"
@@ -162,7 +162,7 @@ def report():
         Spacer(1, 10),
         Paragraph(parrafo_2, estilo_parrafo2),
         Spacer(1, 10),
-        #agregar_tabla(table),
+        agregar_tabla(table),
     ]
 
     # Construir el PDF

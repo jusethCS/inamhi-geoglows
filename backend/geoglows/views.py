@@ -96,5 +96,23 @@ def get_forecast_csv(request):
 
 
 def retrieve_daily_hydropower_report(request):
-    pdf_report = report()
+    mazar = request.GET.get("mazar")
+    paute = request.GET.get("paute")
+    sopladora = request.GET.get("sopladora")
+    cocacodo = request.GET.get("cocacodo")
+    pucara = request.GET.get("pucara")
+    agoyan = request.GET.get("agoyan")
+    minas = request.GET.get("minas")
+    delsitanisagua = request.GET.get("delsitanisagua")
+    data = {
+        'Hidroeléctrica': [
+            "Mazar", "Paute-Molino", "Sopladora", "Coca-Codo Sinclair", "Pucará",
+            "Agoyán", "Minas San Francisco", "Delsitanisagua"
+        ],
+        'Pronóstico de precipitación WRF (mm)': [
+            mazar, paute, sopladora, cocacodo, pucara, agoyan, minas, delsitanisagua
+        ],
+    }
+    df = pd.DataFrame(data)
+    pdf_report = report(df)
     return pdf_report
