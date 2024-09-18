@@ -104,7 +104,7 @@ def report(table):
     titulo = "<b>Boletín Hidrometeorológico: Centrales hidroeléctricas</b>"
     emision, vigencia, anterior, actual, futuro = get_datetime()
     parrafo_1 = "La <b>DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI</b>, basándose en la información obtenida de la plataforma <b>INAMHI GEOGLOWS</b> emite el siguiente boletín de vigilancia satelital y predicción de precipitación en centrales hidroeléctricas con generación mayor a 50 MW:"
-    parrafo_2 = f"Las <b>condiciones antedecentes de precipitación</b>, desde {anterior} hasta {actual}, son estimadas a través del producto satelital PERSIANN PDIR. El <b>pronóstico de precipitación</b>, desde {actual} hasta {futuro}, son obtenidos del modelo WRF de INAMHI."
+    parrafo_2 = f"El <b>pronóstico de precipitación</b>, desde el {actual} hasta el {futuro}, son obtenidos del modelo WRF de INAMHI."
 
     # Configurar estilos
     estilos = getSampleStyleSheet()
@@ -157,7 +157,7 @@ def report(table):
         Spacer(1, 10),
         Paragraph(parrafo_1, estilo_parrafo),
         Spacer(1, 3),
-        Image("/var/www/html/assets/reports/hydropowers-forecast-daily.png", width=doc.width, height=8 * cm),
+        Image("/var/www/html/assets/reports/hydropowers-forecast-daily.png", width=8, height=8 * cm),
         Image("/var/www/html/assets/reports/colorbar-pacum.png", width=14 * cm, height=0.7 * cm),
         Spacer(1, 10),
         Paragraph(parrafo_2, estilo_parrafo2),
