@@ -157,7 +157,7 @@ def report(table):
         Spacer(1, 10),
         Paragraph(parrafo_1, estilo_parrafo),
         Spacer(1, 3),
-        Image("/var/www/html/assets/reports/hydropowers-forecast-daily.png", width=8, height=8 * cm),
+        Image("/var/www/html/assets/reports/hydropowers-forecast-daily.png", width=8*cm, height=8*cm),
         Image("/var/www/html/assets/reports/colorbar-pacum.png", width=14 * cm, height=0.7 * cm),
         Spacer(1, 10),
         Paragraph(parrafo_2, estilo_parrafo2),
