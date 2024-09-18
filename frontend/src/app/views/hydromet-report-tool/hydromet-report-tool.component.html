@@ -1,0 +1,117 @@
+@if(isAuth){
+  <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.4.2/css/all.css">
+  <link rel="stylesheet" href="https://kit-pro.fontawesome.com/releases/v6.4.2/css/pro.min.css">
+
+  <app-app-template
+    #template
+    [imageUrl]="'/assets/img/hydroviewer.png'"
+    [appName]="'HYDROMET REPORT TOOL'"
+    [appUrl]="'/apps/hydromet-warning-tool'">
+
+    <div panelContainer class="panel-container">
+      <app-dropdown iconClass="fa-regular fa-cloud-bolt-sun" title="Boletines hidroeléctricas" [expanded]="true">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="check-hydropowers-daily"
+            [(ngModel)]="isActiveHydropowerDaily" (ngModelChange)="updateReport('hydropowers-daily')">
+          <label class="form-check-label" for="check-hydropowers-daily">Boletin diario</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="check-hydropowers-weekly"
+          [(ngModel)]="isActiveHydropowerWeekly" (ngModelChange)="updateReport('hydropowers-weekly')">
+          <label class="form-check-label" for="check-hydropowers-weekly">Boletin semanal</label>
+        </div>
+      </app-dropdown>
+    </div>
+
+    <div mapContainer class="contentDiv">
+      @if(isActiveHydropowerDaily){
+        <div class="d-flex justify-content-center">
+          <div style="width: 70%;">
+            <div class="text-center report-title">Boletín Hidrometeorológico: Centrales hidroeléctricas</div>
+            <div class="text-center pt-2 pb-1"><b>Hora y fecha de emision:</b> {{datesDaily[0]}}</div>
+            <div class="text-center pt-1 pb-1"><b>Vigencia:</b> {{datesDaily[1]}}</div>
+            <div class="text-center pt-2">
+              La <b>DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI</b>, basándose en la información
+              obtenida de la <b>plataforma INAMHI GEOGLOWS</b> emite el siguiente boletín de vigilancia satelital y predicción de precipitación en
+              centrales hidroeléctricas con generación mayor a 50 MW:
+            </div>
+            <div class="d-flex justify-content-center">
+              <img src="/assets/reports/hydropowers-forecast-daily.png" width="400">
+            </div>
+            <div class="d-flex justify-content-center">
+              <img src="/assets/legend/P_Diaria.png" width="400">
+            </div>
+
+            <div class="text-justify pt-4 pb-3">
+              El <b>pronóstico de precipitación</b>, {{datesDaily[2]}}, son obtenidos del modelo WRF de INAMHI.
+            </div>
+
+            <div class="d-flex justify-content-center">
+              <table border="1">
+                <thead>
+                  <tr class="text-center">
+                    <th>Hidroeléctrica</th>
+                    <th>Pronóstico de precipitación WRF (mm)</th>
+                  </tr>
+                </thead>
+                <tbody class="text-center">
+                  <tr>
+                    <td>Mazar</td>
+                    <td contenteditable="true" #mazarDaily>{{forecastDaily[5]}}</td>
+                  </tr>
+                  <tr>
+                    <td>Paute-Molino</td>
+                    <td contenteditable="true" #pauteDaily>{{forecastDaily[4]}}</td>
+                  </tr>
+                  <tr>
+                    <td>Sopladora</td>
+                    <td contenteditable="true" #sopladoraDaily>{{forecastDaily[7]}}</td>
+                  </tr>
+                  <tr>
+                    <td>Coca-Codo Sinclair</td>
+                    <td contenteditable="true" #cocacodoDaily>{{forecastDaily[9]}}</td>
+                  </tr>
+                  <tr>
+                    <td>Pucará</td>
+                    <td contenteditable="true" #pucaraDaily>{{forecastDaily[1]}}</td>
+                  </tr>
+                  <tr>
+                    <td>Agoyán</td>
+                    <td contenteditable="true" #agoyanDaily>{{forecastDaily[0]}}</td>
+                  </tr>
+                  <tr>
+                    <td>Minas San Francisco</td>
+                    <td contenteditable="true" #minasDaily>{{forecastDaily[6]}}</td>
+                  </tr>
+                  <tr>
+                    <td>Delsitanisagua</td>
+                    <td contenteditable="true" #delsitanisaguaDaily>{{forecastDaily[12]}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+        <div class="reprod-container d-flex align-items-center justify-content-center p-4">
+          <button mat-stroked-button class="dark-mode reprod-button" (click)="generateHydropowerDailyReport()">
+            Generar reporte PDF
+          </button>
+        </div>
+      }
+      @if(isActiveHydropowerWeekly){
+        MAPA SEMANAL
+      }
+    </div>
+
+
+
+    <div dataModalHeader></div>
+    <div dataModalBody></div>
+  </app-app-template>
+
+}@else {
+  <div>Requiere acceso con usuario. Redirigiendo a inicio de session ....</div>
+}
+
+
