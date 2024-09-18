@@ -2,6 +2,8 @@ from django.http import JsonResponse, HttpResponse
 from .controllers.download import stream_file
 from .controllers.fireforest import get_heatpoints_24h, get_goes_hotspots
 from .controllers.geoglows import *
+from .controllers.reports import *
+
 
 def download_daily_precipitation(request):
     response = stream_file(
@@ -93,3 +95,6 @@ def get_forecast_csv(request):
     return response
 
 
+def retrieve_daily_hydropower_report(request):
+    pdf_report = report()
+    return pdf_report

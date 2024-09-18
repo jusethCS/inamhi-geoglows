@@ -62,5 +62,9 @@ urlpatterns = [
           get_forecast_csv, 
           name="get-forecast-csv"),
 
+    path('retrieve-daily-hydropower-report', 
+          retrieve_daily_hydropower_report, 
+          name="retrieve-daily-hydropower-report"),
+      
 ]
 
