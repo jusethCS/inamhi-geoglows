@@ -138,7 +138,7 @@ os.chdir("logs")
 
 ## Downloaded daily data
 try:
-    start_date = (actual_date - relativedelta(months=1)).strftime("%Y-%m-01")
+    start_date = (actual_date).strftime("%Y-%m-01")
     end_date = actual_date.strftime("%Y-%m-%d")
     download_chirps(start_date, end_date, "daily")
 except:
