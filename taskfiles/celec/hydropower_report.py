@@ -506,10 +506,19 @@ datestr = now.strftime("%Y-%m-%d00Z-24H-%Y%m%d07h00")
 url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
 os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast-hydro.tif")
 forecast = extract_raster_values_to_points("forecast-hydro.tif", hydropowers, "Pronóstico de precipitación (mm)")
-forecast.to_csv("/var/www/html/assets/reports/forecast-daily.csv", sep=",",index=False)
 plot_ec("forecast-hydro.tif", 1, prov, hydropowers, color_pacum, "forecast-hydro.png", "Pronóstico de precipitación (WRF)")
-plot_ec("forecast-hydro.tif", 1, prov, hydropowers, color_pacum, "/var/www/html/assets/reports/hydropowers-forecast-daily.png", "Pronóstico de precipitación (WRF)")
 os.remove("forecast-hydro.tif")
+
+# Pronostico para el siguiente dia
+tomorrow = now + dt.timedelta(days=1)
+a = now.strftime("%Y-%m-%d00Z-24H-")
+b = tomorrow.strftime("%Y%m%d07h00")
+datestr = f"{a}{b}"
+url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
+os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast-tomorrow.tif")
+forecast2 = extract_raster_values_to_points("forecast-tomorrow.tif", hydropowers, "Pronóstico de precipitación (mm)")
+forecast2.to_csv("/var/www/html/assets/reports/forecast-daily.csv", sep=",",index=False)
+plot_ec("forecast-tomorrow.tif", 1, prov, hydropowers, color_pacum, "/var/www/html/assets/reports/hydropowers-forecast-daily.png", "Pronóstico de precipitación (WRF)")
 
 
 # Table and plot
