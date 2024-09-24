@@ -80,6 +80,7 @@ export class HydrometReportToolComponent {
   }
 
   public formatDates(date: Date): string[] {
+    date.setDate(date.getDate() + 1);
     const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
     const day = date.getDate();
     const month = months[date.getMonth()];
