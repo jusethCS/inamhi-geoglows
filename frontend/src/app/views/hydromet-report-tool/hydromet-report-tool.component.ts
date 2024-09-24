@@ -54,7 +54,7 @@ export class HydrometReportToolComponent {
     }
     this.datesDaily = this.formatDates(new Date());
 
-    fetch("/assets/reports/forecast-daily.csv")
+    fetch("/assets/reports/forecast-daily.csv?timestamp=${new Date().getTime()}")
       .then(response => response.text())  // Obtener el texto del CSV
       .then(csvData => {
         const rows = csvData.split('\n');
