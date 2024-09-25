@@ -8,6 +8,7 @@
     [appName]="'HYDROMET REPORT TOOL'"
     [appUrl]="'/apps/hydromet-warning-tool'">
 
+
     <div panelContainer class="panel-container">
       <app-dropdown iconClass="fa-regular fa-cloud-bolt-sun" title="Boletines hidroeléctricas" [expanded]="true">
         <div class="form-check form-switch">
@@ -36,7 +37,7 @@
               centrales hidroeléctricas con generación mayor a 50 MW:
             </div>
             <div class="d-flex justify-content-center">
-              <img src="/assets/reports/hydropowers-forecast-daily.png" width="400">
+              <img src="/assets/reports/hydropowers-forecast-daily.png?timestamp=${{datesDaily[0]}}" width="400">
             </div>
             <div class="d-flex justify-content-center">
               <img src="/assets/legend/P_Diaria.png" width="400">

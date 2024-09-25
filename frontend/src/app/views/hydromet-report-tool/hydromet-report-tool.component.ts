@@ -80,7 +80,6 @@ export class HydrometReportToolComponent {
   }
 
   public formatDates(date: Date): string[] {
-    date.setDate(date.getDate() + 1);
     const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
     const day = date.getDate();
     const month = months[date.getMonth()];
@@ -88,9 +87,10 @@ export class HydrometReportToolComponent {
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const format1 = `${day} de ${month} del ${year}, ${hours}:${minutes}`;
-    const startDay = day;
-    const startMonth = month;
-    const startYear = year;
+    date.setDate(date.getDate() + 1);
+    const startDay = date.getDate();
+    const startMonth = months[date.getMonth()];
+    const startYear = date.getFullYear();
     const endDate = new Date(date);
     endDate.setDate(date.getDate() + 1);
     const endDay = endDate.getDate();
