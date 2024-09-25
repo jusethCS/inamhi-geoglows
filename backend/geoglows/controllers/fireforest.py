@@ -101,6 +101,25 @@ def get_goes_hotspots():
     return geojson_dict
 
 
+
+def get_goes_hotspots():
+    now = dt.datetime.now()
+    start = (now - dt.timedelta(hours=12)).strftime("%Y-%m-%d %H:%M:00")
+    con = db.connect()
+    sql = f"""
+        SELECT  *
+        FROM goes_hotspots
+        WHERE datetime > '{start}'
+        ORDER BY datetime ASC;
+        """
+    query = pd.read_sql(sql, con)
+    con.close()
+    gdf = gpd.GeoDataFrame(query, geometry='geometry')
+    geojson_dict = gdf.__geo_interface__
+    return geojson_dict
+
+
+
 #a = get_goes_hotspots()
 
 
