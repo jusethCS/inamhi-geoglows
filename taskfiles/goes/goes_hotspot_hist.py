@@ -146,10 +146,10 @@ def tif_to_dataframe(tif_path):
 
 
 
-def goes_hotspot(product, workdir):     
+def goes_hotspot(product, workdir, con):     
     # Generate dates (start and end)
     now = datetime.datetime.now()
-    start = now - relativedelta(minutes=30)
+    start = now - relativedelta(days=3)
     end = now + relativedelta(minutes=30)
     start_str = start.strftime("%Y%m%d-%H%M00")
     end_str = end.strftime("%Y%m%d-%H%M00")
@@ -168,28 +168,16 @@ def goes_hotspot(product, workdir):
     for nc_file in nc_files:
         start = extract_datetime_from_path(nc_file)
         print(start.strftime(f'{product} - %Y-%m-%d %H:%M'))
-        layer_name = start.strftime('%Y%m%d%H%M')
         outpath = start.strftime('%Y%m%d%H%M.tif')
         try:
             parse_goes(nc_file, outpath, 2)
+            data = tif_to_dataframe(outpath)
+            data["datetime"] = pd.to_datetime(outpath.replace(".tif", ""), format="%Y%m%d%H%M")
+            data.to_sql('goes_hotspots', con=con, if_exists='append', index=False)
+            con.commit()
         except:
             print("GOES data was not parse to TIFF")
             pass
-    #
-    # List TIFF files
-    tif_files = glob.glob("*.tif")
-    tif_files.sort()
-    #
-    print(tif_files[-1])
-    data = tif_to_dataframe(tif_files[-1])
-    data["datetime"] = pd.to_datetime(tif_files[-1].replace(".tif", ""), format="%Y%m%d%H%M")
-    #
-    # Remove data
-    for archivo in os.listdir(workdir):
-        ruta_completa = os.path.join(workdir, archivo)
-        if os.path.isfile(ruta_completa):
-            os.unlink(ruta_completa)
-    return(data)
     
 
 
@@ -219,10 +207,7 @@ con = db.connect()
 # Change the work directory
 workdir = "/home/ubuntu/data/goes"
 product = "ABI-L2-FDCF"
-hotspots = goes_hotspot(product, workdir)
-hotspots.to_sql('goes_hotspots', con=con, if_exists='append', index=False)
-print(hotspots)
-con.commit()
+goes_hotspot(product, workdir, con)
 con.close()
 
 
