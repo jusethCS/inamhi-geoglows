@@ -102,27 +102,23 @@ def get_goes_hotspots():
 
 
 
-def get_goes_hotspots():
-    now = dt.datetime.now()
-    start = (now - dt.timedelta(hours=48)).strftime("%Y-%m-%d %H:%M:00")
-    con = db.connect()
-    sql = f"""
-        SELECT  *
-        FROM goes_hotspots
-        WHERE datetime > '{start}'
-        ORDER BY datetime ASC;
-        """
-    query = pd.read_sql(sql, con)
-    con.close()
-    query['datetime'] = pd.to_datetime(query['datetime']) + dt.timedelta(minutes=10) - dt.timedelta(hours=5)
-    query['datetime'] = query['datetime'].apply(lambda x: x.strftime("%Y-%m-%d %H:00:00"))
-    query['geometry'] = query.apply(lambda row: Point(row['longitude'], row['latitude']), axis=1)
-    gdf = gpd.GeoDataFrame(query, geometry='geometry')
-    geojson_dict = gdf.__geo_interface__
-    return geojson_dict
-
-
-
-#a = get_goes_hotspots()
+#def get_goes_hotspots():
+#    now = dt.datetime.now()
+#    start = (now - dt.timedelta(hours=48)).strftime("%Y-%m-%d %H:%M:00")
+#    con = db.connect()
+#    sql = f"""
+#        SELECT  *
+#        FROM goes_hotspots
+#        WHERE datetime > '{start}'
+#        ORDER BY datetime ASC;
+#        """
+#    query = pd.read_sql(sql, con)
+#    con.close()
+#    query['datetime'] = pd.to_datetime(query['datetime']) + dt.timedelta(minutes=10) - dt.timedelta(hours=5)
+#    query['datetime'] = query['datetime'].apply(lambda x: x.strftime("%Y-%m-%d %H:00:00"))
+#    query['geometry'] = query.apply(lambda row: Point(row['longitude'], row['latitude']), axis=1)
+#    gdf = gpd.GeoDataFrame(query, geometry='geometry')
+#    geojson_dict = gdf.__geo_interface__
+#    return geojson_dict
 
 
