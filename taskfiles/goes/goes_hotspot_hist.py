@@ -149,7 +149,7 @@ def tif_to_dataframe(tif_path):
 def goes_hotspot(product, workdir, con):     
     # Generate dates (start and end)
     now = datetime.datetime.now()
-    start = now - relativedelta(days=3)
+    start = now - relativedelta(hours=6)
     end = now + relativedelta(minutes=30)
     start_str = start.strftime("%Y%m%d-%H%M00")
     end_str = end.strftime("%Y%m%d-%H%M00")
