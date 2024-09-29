@@ -542,7 +542,7 @@ export class MetDataExplorerComponent {
     }
 
     this.timeControl?.destroy();
-    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, legendText, img, imgCond);
+    this.timeControl = new WMSLayerTimeControl(this.map, L.control, wmsLayers, 250, legendText, img, imgCond, true);
 
     // Status plot
     this.activeURLLayer = url;
@@ -1300,6 +1300,82 @@ export class MetDataExplorerComponent {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  public groupByDateTime(geojsonData: any) {
+    const grouped = geojsonData.features.reduce((acc: any, feature: any) => {
+      const date = feature.properties.datetime;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(feature);
+      return acc;
+    }, {});
+    const sortedGrouped = Object.keys(grouped)
+      .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+      .reduce((acc: any, key: string) => {
+        acc[key] = grouped[key];
+        return acc;
+      }, {});
+    return sortedGrouped;
+  }
+
+  showNextStep(currentIndex:any, datetimes:any, groupedData:any, geoJsonLayer:any, map:any) {
+    (currentIndex >= datetimes.length) && (currentIndex = 0)
+    geoJsonLayer && map.removeLayer(geoJsonLayer);
+    geoJsonLayer = L.geoJSON(groupedData[datetimes[currentIndex]],{
+      pointToLayer: (feature, latlng) => {
+        return L.marker(latlng, {
+          icon: L.icon({
+            iconUrl: `assets/icons/hotspots/M30.svg`,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8],
+          })
+        });
+      }
+    }).addTo(map);
+
+    this.GOESHotspotsLegend !== undefined && this.GOESHotspotsLegend.remove();
+    let legendElement = document.createElement('div');
+    this.GOESHotspotsLegend = new L.Control({ position: 'bottomleft' });
+    this.GOESHotspotsLegend.onAdd = () => legendElement;
+    this.GOESHotspotsLegend.addTo(this.map);
+    legendElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+    legendElement.style.color = 'black';
+    legendElement.style.padding = '5px';
+    legendElement.style.borderRadius = "5px"
+    legendElement.innerHTML = `<b>Focos de calor en tiempo real (GOES)</b><br>${datetimes[currentIndex]}`;
+
+    currentIndex++;
+    return [geoJsonLayer, currentIndex];
+  }
+
+  public update_goes_hotspots_prov(){
+    const url = `${environment.urlAPI}/geoglows/goes-hotspots`;
+      fetch(url)
+        .then((response) => response.json())
+        .then((response) => {
+          let groupedData = this.groupByDateTime(response);
+          const datetimes = Object.keys(groupedData);
+          let currentIndex = 0;
+          let geoJsonLayer:any;
+          let a = this.showNextStep(currentIndex, datetimes, groupedData, geoJsonLayer, this.map);
+          geoJsonLayer = a[0]
+          currentIndex = a[1]
+
+          this.autoUpdateGOESHotspotsFun = setInterval(() => {
+            a = this.showNextStep(currentIndex, datetimes, groupedData, geoJsonLayer, this.map);
+            geoJsonLayer = a[0]
+            currentIndex = a[1]
+          }, 1000);
+
+        })
+
+
+
   }
 
 }

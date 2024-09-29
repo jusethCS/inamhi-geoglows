@@ -8,3 +8,4 @@ activate.bat
 inamhi-geoglows.pem
 connect.bat
 crontab.sh
+scripts/*
