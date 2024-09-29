@@ -24,7 +24,6 @@ import sqlalchemy as sql
 from sqlalchemy import create_engine
 
 # Visualization
-import geoglows
 import plotly.io as pio
 import plotly.graph_objects as go
 
@@ -32,6 +31,8 @@ import plotly.graph_objects as go
 import jinja2
 from django.http import JsonResponse, HttpResponse
 
+# Custom
+from .utils import correct_historical
 
 
 
@@ -112,7 +113,7 @@ def get_bias_corrected_data(sim, obs):
         The bias-corrected simulated data, with the datetime index formatted
         as "%Y-%m-%d %H:%M:%S" and converted back to a pandas `DatetimeIndex`.
     """
-    outdf = geoglows.bias.correct_historical(sim.dropna(), obs.dropna())
+    outdf = correct_historical(sim.dropna(), obs.dropna())
     outdf.index = pd.to_datetime(outdf.index)
     outdf.index = outdf.index.to_series().dt.strftime("%Y-%m-%d %H:%M:%S")
     outdf.index = pd.to_datetime(outdf.index)
