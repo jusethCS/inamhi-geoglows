@@ -6,4 +6,6 @@ urlpatterns = [
     path('api/', include('users.urls') ),
     path('api/metdata/', include('metdata.urls') ),
     path('api/geoglows/', include('geoglows.urls') ),
+    ###############################################
+    path('api/national-waterlevel-forecast/', include('app-national-waterlevel-forecast.urls') ),
 ]
