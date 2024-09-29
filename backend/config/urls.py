@@ -7,5 +7,5 @@ urlpatterns = [
     path('api/metdata/', include('metdata.urls') ),
     path('api/geoglows/', include('geoglows.urls') ),
     ###############################################
-    path('api/national-waterlevel-forecast/', include('app-national-waterlevel-forecast.urls') ),
+    path('api/national-waterlevel-forecast/', include('app_national_waterlevel_forecast.urls')),
 ]
