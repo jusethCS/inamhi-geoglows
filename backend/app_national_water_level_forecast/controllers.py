@@ -294,6 +294,165 @@ def get_return_periods(comid: int, data: pd.DataFrame) -> pd.DataFrame:
 
 
 
+def ensemble_quantile(ensemble: pd.DataFrame, quantile: float, 
+                      label: str) -> pd.DataFrame:
+    """
+    Calculate the specified quantile for an ensemble and return it as a 
+    DataFrame.
+
+    This function computes the specified quantile for each row in the ensemble
+    DataFrame and returns the results in a new DataFrame with the specified 
+    label as the column name.
+
+    Parameters:
+    -----------
+    - ensemble: pd.DataFrame
+        DataFrame containing the ensemble data.
+    - quantile: float
+        The quantile to compute (between 0 and 1).
+    - label:str 
+        The label for the resulting quantile column.
+
+    Returns:
+    --------
+    - pd.DataFrame
+        DataFrame containing the computed quantile with the specified label.
+    """
+    # Calculate the quantile along the columns (axis=1) and convert to a DataFrame
+    quantile_df = ensemble.quantile(quantile, axis=1).to_frame()
+    
+    # Rename the column to the specified label
+    quantile_df.rename(columns={quantile: label}, inplace=True)
+    return quantile_df
+
+
+
+def get_ensemble_stats(ensemble: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate various statistical measures for an ensemble and return them in a 
+    DataFrame.
+
+    This function calculates the maximum, 75th percentile, median, 25th percentile,
+    and minimum flows for the ensemble. It also includes the high-resolution flow 
+    data (ensemble_52).
+
+    Parameters:
+    -----------
+    - ensemble: pd.DataFrame
+        DataFrame containing the ensemble data.
+
+    Returns:
+    --------
+    - pd.DataFrame
+        DataFrame containing the statistical measures and high-resolution flow data.
+    """
+    # Extract the high-resolution data and remove it from the ensemble
+    high_res_df = ensemble['ensemble_52'].to_frame()
+    ensemble.drop(columns=['ensemble_52'], inplace=True)
+    
+    # Remove rows with NaN values in both the ensemble and high-resolution data
+    ensemble.dropna(inplace=True)
+    high_res_df.dropna(inplace=True)
+    
+    # Rename the column for high-resolution data
+    high_res_df.rename(columns={'ensemble_52': 'high_res'}, inplace=True)
+    
+    # Calculate various quantiles and concatenate them into a single DataFrame
+    stats_df = pd.concat([
+        ensemble_quantile(ensemble, 1.00, 'flow_max'),
+        ensemble_quantile(ensemble, 0.75, 'flow_75%'),
+        ensemble_quantile(ensemble, 0.50, 'flow_avg'),
+        ensemble_quantile(ensemble, 0.25, 'flow_25%'),
+        ensemble_quantile(ensemble, 0.00, 'flow_min'),
+        high_res_df
+    ], axis=1)
+    return stats_df
+
+
+
+def get_corrected_forecast_records(records_df, simulated_df, observed_df):
+    """
+    Correct the forecasted records based on simulated and observed data.
+
+    This function iterates through the months present in the input records 
+    DataFrame, applies bias correction using the simulated and observed data, 
+    and ensures that the corrected values fall within the range defined by 
+    the historical simulated data.
+
+    Parameters:
+    -----------
+    records_df : pandas.DataFrame
+        A DataFrame containing forecasted records with a datetime index.
+    
+    simulated_df : pandas.DataFrame
+        A DataFrame containing simulated historical data with a datetime index.
+    
+    observed_df : pandas.DataFrame
+        A DataFrame containing observed historical data with a datetime index.
+
+    Returns:
+    --------
+    pandas.DataFrame
+        A DataFrame containing the bias-corrected forecast records.
+    """    
+    # Extract the starting and ending dates from the records DataFrame
+    date_ini = records_df.index[0]
+    date_end = records_df.index[-1]
+    
+    # Create a range of months from the initial month to the final month
+    meses = np.arange(date_ini.month, date_end.month + 1, 1)
+    fixed_records = pd.DataFrame()
+    
+    # Iterate through each month in the specified range
+    for mes in meses:
+        # Filter records, simulated, and observed data for the current month
+        values = records_df.loc[records_df.index.month == mes]
+        monthly_simulated = simulated_df[simulated_df.index.month == mes].dropna()
+        monthly_observed = observed_df[observed_df.index.month == mes].dropna()
+        
+        # Calculate min and max of the simulated data for the current month
+        min_simulated = monthly_simulated.iloc[:, 0].min()
+        max_simulated = monthly_simulated.iloc[:, 0].max()
+
+        # Create temporary DataFrame for the current month's values
+        column_records = values.columns[0]
+        tmp = values[column_records].dropna().to_frame()
+
+        # Create min and max correction factors
+        min_factor = np.where(tmp[column_records] >= min_simulated, 1,
+                              tmp[column_records] / min_simulated)
+        max_factor = np.where(tmp[column_records] <= max_simulated, 1,
+                              tmp[column_records] / max_simulated)
+
+        # Clip the values to ensure they are within the simulated range
+        tmp[column_records] = tmp[column_records].clip(lower=min_simulated, upper=max_simulated)
+        
+        # Create a DataFrame to hold corrected values
+        fixed_records_df = values.copy()
+        fixed_records_df[column_records] = tmp[column_records]
+        
+        # Create DataFrames for correction factors
+        min_factor_records_df = values.copy()
+        max_factor_records_df = values.copy()
+        min_factor_records_df[column_records] = min_factor
+        max_factor_records_df[column_records] = max_factor
+        
+        # Apply bias correction using the GEOGloWS library
+        corrected_values = correct_forecast(fixed_records_df, simulated_df, observed_df)
+        
+        # Multiply the corrected values by the min and max correction factors
+        corrected_values *= min_factor_records_df
+        corrected_values *= max_factor_records_df
+        
+        # Append the corrected values to the final DataFrame
+        fixed_records = pd.concat([fixed_records, corrected_values])
+
+    # Sort the index of the final DataFrame
+    fixed_records.sort_index(inplace=True)
+    return fixed_records
+
+
+
 
 ###############################################################################
 #                                CONTROLLERS                                  #
@@ -388,7 +547,13 @@ def get_plot_data(request):
 
     # Corrected forecast
     corrected_ensemble_forecast = get_corrected_forecast(simulated_data, ensemble_forecast, observed_data)
-    return_periods = get_return_periods(comid, corrected_data)
+    corrected_return_periods = get_return_periods(comid, corrected_data)
+    corrected_stats = get_ensemble_stats(corrected_ensemble_forecast)
+
+    # Forecast records
+    sql = f"SELECT datetime,value FROM forecast_records where comid={comid}"
+    forecast_records = get_format_data(sql, con)
+    corrected_forecast_records = get_corrected_forecast_records(forecast_records, simulated_data, observed_data)
     return HttpResponse("Funciona todo!")
 
 
@@ -396,12 +561,8 @@ def get_plot_data(request):
 
 
     
-    #return_periods = get_return_periods(comid, historical_simulation)
-    #sql = f"SELECT * FROM ensemble_forecast WHERE initialized='{date}' AND comid={comid}"
-    #ensemble_forecast = get_format_data(sql, con).drop(columns=['comid', "initialized"])
-    #stats = get_ensemble_stats(ensemble_forecast)
-    #sql = f"SELECT datetime,value FROM forecast_records where comid={comid}"
-    #records = get_format_data(sql, con)
+
+    
     #hs = hs_plot(historical_simulation, return_periods, comid, width)
     #dp = daily_plot(historical_simulation, comid, width)
     #mp = monthly_plot(historical_simulation, comid, width)
