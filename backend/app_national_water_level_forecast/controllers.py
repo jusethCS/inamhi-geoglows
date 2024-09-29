@@ -452,6 +452,50 @@ def get_corrected_forecast_records(records_df, simulated_df, observed_df):
     return fixed_records
 
 
+###############################################################################
+#                             PLOTS AND TABLES                                #
+###############################################################################
+def historical_plot(cor, obs, code, name):
+    dates = cor.index.tolist()
+    startdate = dates[0]
+    enddate = dates[-1]
+    corrected_data = {
+        'x_datetime': cor.index.tolist(),
+        'y_flow': cor.values.flatten(),
+    }
+    observed_data = {
+        'x_datetime': obs.index.tolist(),
+        'y_flow': obs.values.flatten(),
+    }
+    scatter_plots = [
+        go.Scatter(
+            name='Simulación histórica corregida', 
+            x=corrected_data['x_datetime'], 
+            y=corrected_data['y_flow']),
+        go.Scatter(
+            name='Datos observados', 
+            x=observed_data['x_datetime'], 
+            y=observed_data['y_flow'])
+    ]
+    layout = go.Layout(
+        title=f"Simulación histórica <br>{str(code).upper()} - {name}",
+        yaxis={
+            'title': 'Nivel (m)', 
+            'range': [0, 'auto']},
+        xaxis={
+            'title': 'Fecha (UTC +0:00)', 
+            'range': [startdate, enddate], 
+            'hoverformat': '%b %d %Y', 
+            'tickformat': '%Y'},
+    )
+    figure = go.Figure(scatter_plots, layout=layout)
+    figure.update_layout(template='simple_white')
+    figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
+    figure_dict = figure.to_dict()
+    return figure_dict
+    
+
 
 
 ###############################################################################
@@ -523,6 +567,7 @@ def get_plot_data(request):
     # Query request param and initialize the db connection
     comid = request.GET.get('comid')
     code = request.GET.get('code')
+    name = request.GET.get('name')
     date = request.GET.get('date')
     width = request.GET.get('width')
     width = float(width)
@@ -554,7 +599,10 @@ def get_plot_data(request):
     sql = f"SELECT datetime,value FROM forecast_records where comid={comid}"
     forecast_records = get_format_data(sql, con)
     corrected_forecast_records = get_corrected_forecast_records(forecast_records, simulated_data, observed_data)
-    return HttpResponse("Funciona todo!")
+
+    #Plots
+    hs = historical_plot(corrected_data, observed_data, code, name)
+    return({"hs":hs})
 
 
 
