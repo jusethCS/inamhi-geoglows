@@ -359,8 +359,12 @@ def get_water_level_alerts(request):
 
 
 
-def get_plot_data(comid, code, date, width):
+def get_plot_data(request):
     # Query request param and initialize the db connection
+    comid = request.GET.get('comid')
+    code = request.GET.get('code')
+    date = request.GET.get('date')
+    width = request.GET.get('width')
     width = float(width)
     width2 = width/2
     db = create_engine(token)
