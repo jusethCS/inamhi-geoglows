@@ -32,7 +32,7 @@ import jinja2
 from django.http import JsonResponse, HttpResponse
 
 # Custom
-from .utils import correct_historical
+from .utils import correct_historical, correct_forecast
 
 
 
@@ -185,7 +185,7 @@ def get_corrected_forecast(simulated_df, ensemble_df, observed_df):
         max_factor_df[column] = max_factor
 
     # Apply bias correction using the GEOGloWS library
-    corrected_ensembles = geoglows.bias.correct_forecast(forecast_ens_df, simulated_df, observed_df)
+    corrected_ensembles = correct_forecast(forecast_ens_df, simulated_df, observed_df)
     
     # Apply the minimum and maximum correction factors
     corrected_ensembles *= min_factor_df
