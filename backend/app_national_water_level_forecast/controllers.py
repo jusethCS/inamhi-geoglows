@@ -93,7 +93,7 @@ def get_format_data(sql_statement, conn):
 ###############################################################################
 #                                CONTROLLERS                                  #
 ###############################################################################
-def get_waterlevel_alerts(request):
+def get_water_level_alerts(request):
     """
     Retrieve water level alerts for a specified date from the database and 
     return them as a GeoJSON response.
