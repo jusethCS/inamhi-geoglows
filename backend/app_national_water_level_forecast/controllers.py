@@ -601,8 +601,9 @@ def get_plot_data(request):
     corrected_forecast_records = get_corrected_forecast_records(forecast_records, simulated_data, observed_data)
 
     #Plots
+    con.close()
     hs = historical_plot(corrected_data, observed_data, code, name)
-    return HttpResponse("Funciona")
+    return JsonResponse({"hs":hs})
 
 
 
