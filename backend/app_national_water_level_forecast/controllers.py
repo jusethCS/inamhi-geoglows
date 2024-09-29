@@ -461,7 +461,7 @@ def historical_plot(cor, obs, code, name):
     dates = cor.index.tolist()
     startdate = dates[0]
     enddate = dates[-1]
-    
+
     corrected_data = {
         'x_datetime': cor.index.tolist(),
         'y_flow': cor.values.flatten().tolist(),  # Convert to list
@@ -508,7 +508,7 @@ def daily_average_plot(sim, cor, code, name):
 
     daily_avg_obs_Q = go.Scatter(
         x=daily_avg_sim.index.tolist(),  # Convert index to list
-        y=daily_avg_sim.iloc[:, 1].values.flatten().tolist(),  # Convert values to list
+        y=daily_avg_sim.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
         name='Observado'
     )
     daily_avg_corr_sim_Q = go.Scatter(
