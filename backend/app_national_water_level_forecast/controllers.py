@@ -602,7 +602,7 @@ def get_plot_data(request):
 
     #Plots
     hs = historical_plot(corrected_data, observed_data, code, name)
-    return({"hs":hs})
+    return HttpResponse("Funciona")
 
 
 
