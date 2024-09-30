@@ -930,19 +930,22 @@ def get_metrics_table(sim, cor, my_metrics):
     table_sim = table_sim.rename(index={'Full Time Series': 'Serie Simulada'})
     table_sim = table_sim.transpose()
 
-    # Renombrar las columnas para evitar superposiciones.
-    table_sim.columns = [col + '_sim' for col in table_sim.columns]
-
     # Metrics for corrected simulation data
     table_cor = hs.make_table(cor, my_metrics)
     table_cor = table_cor.rename(index={'Full Time Series': 'Serie Corregida'})
     table_cor = table_cor.transpose()
 
-    # Renombrar las columnas para evitar superposiciones.
-    table_cor.columns = [col + '_cor' for col in table_cor.columns]
+    # Imprimir columnas de ambos DataFrames antes de la fusión
+    print("Columnas de table_sim:", table_sim.columns)
+    print("Columnas de table_cor:", table_cor.columns)
 
-    # Fusionar las tablas
-    table_final = pd.merge(table_sim, table_cor, right_index=True, left_index=True)
+    # Renombrar las columnas si es necesario, o realizar la fusión
+    try:
+        # Fusionar las tablas
+        table_final = pd.merge(table_sim, table_cor, right_index=True, left_index=True)
+    except ValueError as e:
+        print("Error de fusión:", e)
+        raise e
 
     # Redondear y convertir a HTML
     table_final = table_final.round(decimals=2)
@@ -956,6 +959,7 @@ def get_metrics_table(sim, cor, my_metrics):
         '<tr style="text-align: right;">', '<tr style="text-align: left;">')
 
     return table_final
+
 
 
 
