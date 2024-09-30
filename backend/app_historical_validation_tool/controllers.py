@@ -532,8 +532,8 @@ def historical_plot(sim, cor, obs, code, name, width):
     scatter_plots = [
         go.Scatter(
             name='Simulación histórica', 
-            x=corrected_data['x_datetime'], 
-            y=corrected_data['y_flow']),
+            x=simulated_data['x_datetime'], 
+            y=simulated_data['y_flow']),
         go.Scatter(
             name='Simulación corregida', 
             x=corrected_data['x_datetime'], 
@@ -1075,7 +1075,7 @@ def get_plot_data(request):
             "R (Pearson)", "R (Spearman)", "r2"])
 
     #Plots
-    hs = historical_plot(simulated_data,corrected_data, observed_data, code, name, width)
+    hs = historical_plot(simulated_data, corrected_data, observed_data, code, name, width)
     dp = daily_average_plot(observed_data, corrected_data, code, name, width)
     mp = monthly_average_plot(observed_data, corrected_data, code, name, width)
     vp = scatter_plot(corrected_data, observed_data, code, name, False, width2)
