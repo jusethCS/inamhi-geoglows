@@ -934,13 +934,6 @@ def get_water_level_alerts(request):
     - JsonResponse
         A Django JsonResponse object containing the GeoJSON data of water 
         level alerts for the given date.
-    
-    Notes:
-    ------
-    - The function assumes that `create_engine(token)` is correctly defined 
-      and that `token` contains valid database connection information.
-    - GeoPandas is used to handle geospatial data and generate GeoJSON format.
-    
     """
     # Query request param and initialize the db connection
     date = request.GET.get('date')
@@ -981,6 +974,34 @@ def get_water_level_alerts(request):
 
 
 def get_plot_data(request):
+    """
+    Retrieve water level data (observed, simulated, corrected, and forecast) 
+    from the database, generate plots and metrics, and return them as a JSON 
+    response.
+
+    Parameters:
+    -----------
+    - request : HttpRequest
+        The HTTP request object from Django, which should contain the following 
+        parameters in the GET request:
+        - 'comid' : str
+            A unique identifier for the location.
+        - 'code' : str
+            A code that identifies the dataset for observed water level data.
+        - 'name' : str
+            The name associated with the location or dataset.
+        - 'date' : str
+            The initialization date for the forecast.
+        - 'width' : str
+            The width used for plotting, which is later converted to a float.
+
+    Returns:
+    --------
+    - JsonResponse
+        A Django JsonResponse object containing various types of water level 
+        plots and statistical metrics.
+    """
+
     # Query request param and initialize the db connection
     comid = request.GET.get('comid')
     code = request.GET.get('code')
@@ -993,29 +1014,48 @@ def get_plot_data(request):
     con = db.connect()
 
     # Retrieve observed data
-    sql = f"SELECT datetime, value FROM waterlevel_data WHERE code='{code}'"
+    sql = f""" 
+        SELECT datetime, value 
+        FROM waterlevel_data 
+        WHERE code='{code}'
+    """
     observed_data = get_format_data(sql, con)
     observed_data[observed_data < 0.1] = 0.1
     
     # Retrieve historical simulation and corrected data
-    sql = f"SELECT datetime, value FROM historical_simulation WHERE comid={comid}"
+    sql = f"""
+        SELECT datetime, value 
+        FROM historical_simulation 
+        WHERE comid={comid}
+    """
     simulated_data = get_format_data(sql, con)
     simulated_data[simulated_data < 0.1] = 0.1
     corrected_data = get_bias_corrected_data(simulated_data, observed_data)
 
     # Retrieve ensemble forecast data
-    sql = f"SELECT * FROM ensemble_forecast WHERE initialized='{date}' AND comid={comid}"
-    ensemble_forecast = get_format_data(sql, con).drop(columns=['comid', "initialized"])
+    sql = f"""
+        SELECT * FROM ensemble_forecast 
+        WHERE initialized='{date}' AND comid={comid}
+    """
+    ensemble_forecast = get_format_data(sql, con)
+    ensemble_forecast = ensemble_forecast.drop(columns=['comid', "initialized"])
 
     # Corrected forecast
-    corrected_ensemble_forecast = get_corrected_forecast(simulated_data, ensemble_forecast, observed_data)
+    corrected_ensemble_forecast = get_corrected_forecast(
+        simulated_data, 
+        ensemble_forecast, 
+        observed_data
+    )
     corrected_return_periods = get_return_periods(comid, corrected_data)
     corrected_stats = get_ensemble_stats(corrected_ensemble_forecast)
 
     # Forecast records
     sql = f"SELECT datetime,value FROM forecast_records where comid={comid}"
     forecast_records = get_format_data(sql, con)
-    corrected_forecast_records = get_corrected_forecast_records(forecast_records, simulated_data, observed_data)
+    corrected_forecast_records = get_corrected_forecast_records(
+        forecast_records, 
+        simulated_data, 
+        observed_data)
     con.close()
 
     # Merged data
@@ -1032,40 +1072,274 @@ def get_plot_data(request):
     mp = monthly_average_plot(observed_data, corrected_data, code, name, width)
     vp = scatter_plot(corrected_data, observed_data, code, name, False, width2)
     fd = scatter_plot(corrected_data, observed_data, code, name, True, width2)
-    fp = forecast_plot(corrected_stats, corrected_return_periods, comid, corrected_forecast_records, observed_data, width)
-    return JsonResponse({"hs":hs, "dp":dp, "mp": mp, "vp":vp, "fd": fd, "fp":fp, "table": metrics_table})
-
+    fp = forecast_plot(
+        corrected_stats, 
+        corrected_return_periods, 
+        comid, 
+        corrected_forecast_records, 
+        observed_data, 
+        width)
+    return JsonResponse({
+        "hs":hs, "dp":dp, "mp": mp, "vp":vp, "fd": fd, "fp":fp, 
+        "table": metrics_table
+    })
 
 
 def get_forecast_table(request):
-    # Query request param and initialize the db connection
+    """
+    Retrieve forecast data, correct it, and return a table with probabilities
+    based on the ensemble forecast, historical simulation, and observed data.
+
+    Parameters:
+    -----------
+    - request : HttpRequest
+        The HTTP request object from Django, which should contain the following
+        parameters in the GET request:
+        - 'comid' : str
+            A unique identifier for the location.
+        - 'code' : str
+            A code that identifies the dataset for observed water level data.
+        - 'date' : str
+            The initialization date for the ensemble forecast.
+
+    Returns:
+    --------
+    - HttpResponse
+        A Django HttpResponse object containing the forecast probabilities
+        table based on corrected ensemble forecast data.
+    """    
+    # Query request parameters and initialize the database connection
     comid = request.GET.get('comid')
     code = request.GET.get('code')
     date = request.GET.get('date')
+    db = create_engine(token)  # Initialize the database engine
+    con = db.connect()  # Establish the database connection
+
+    # Retrieve observed data
+    sql = f"""
+            SELECT datetime, value 
+            FROM waterlevel_data 
+            WHERE code='{code}'
+        """
+    observed_data = get_format_data(sql, con) 
+    observed_data[observed_data < 0.1] = 0.1  
+
+    # Retrieve historical simulation and apply bias correction
+    sql = f"""
+            SELECT datetime, value 
+            FROM historical_simulation 
+            WHERE comid={comid}
+        """
+    simulated_data = get_format_data(sql, con)
+    simulated_data[simulated_data < 0.1] = 0.1  
+    corrected_data = get_bias_corrected_data(simulated_data, observed_data) 
+
+    # Retrieve ensemble forecast data
+    sql = f"""
+            SELECT * 
+            FROM ensemble_forecast 
+            WHERE initialized='{date}' AND comid={comid}
+        """
+    ensemble_forecast = get_format_data(sql, con) 
+    ensemble_forecast = ensemble_forecast.drop(columns=['comid', "initialized"]) 
+
+    # Apply corrections to the forecast data
+    corrected_ensemble_forecast = get_corrected_forecast(simulated_data, 
+                                                         ensemble_forecast, 
+                                                         observed_data)  
+    # Correct the ensemble forecast
+    corrected_return_periods = get_return_periods(comid, corrected_data) 
+    corrected_stats = get_ensemble_stats(corrected_ensemble_forecast)
+    con.close() 
+    
+    # Generate the probabilities table based on corrected forecast data
+    pt = probabilities_table(corrected_stats, corrected_ensemble_forecast, 
+                             corrected_return_periods)
+    return HttpResponse(pt)
+
+
+
+def get_historical_simulation_csv(request):
+    """
+    Retrieve historical simulation data for a specified 'comid' and return it 
+    as a CSV file.
+
+    Parameters:
+    -----------
+    - request : HttpRequest
+        The HTTP request object from Django, which should contain a 'comid'
+        parameter in the GET request.
+
+    Returns:
+    --------
+    - HttpResponse
+        A Django HttpResponse object that contains the historical simulation 
+        data in CSV format. The response is sent as an attachment for download.
+    """
+    
+    # Query the 'comid' parameter from the request
+    comid = request.GET.get('comid')
+
+    # Initialize the database connection
+    db = create_engine(token) 
+    con = db.connect()
+
+    # SQL query to retrieve the historical simulation 
+    sql = f"""
+            SELECT datetime, value 
+            FROM historical_simulation 
+            WHERE comid={comid}
+        """
+    
+    # Fetch and format the historical simulation data
+    historical_simulation = get_format_data(sql, con)
+    
+    # Close the database connection
+    con.close()
+
+    # Prepare the HTTP response with content type set to CSV
+    response = HttpResponse(content_type='text/csv')
+    
+    # Set the content-disposition to indicate a file attachment
+    response['Content-Disposition'] = (
+        f'attachment; filename="historical_simulation_{comid}.csv"'
+    )
+    
+    # Write the historical simulation data to the CSV response
+    historical_simulation.to_csv(path_or_buf=response, index=True)
+    return response
+
+
+
+
+
+def get_corrected_simulation_csv(request):
+    """
+    Retrieve corrected simulation data for a specified 'comid' and return it 
+    as a CSV file.
+
+    Parameters:
+    -----------
+    - request : HttpRequest
+        The HTTP request object from Django, which should contain 'comid'
+         and 'code' parameters in the GET request.
+
+    Returns:
+    --------
+    - HttpResponse
+        A Django HttpResponse object that contains the historical simulation 
+        data in CSV format. The response is sent as an attachment for download.
+    """
+    # Query request parameters and initialize the database connection
+    comid = request.GET.get('comid')
+    code = request.GET.get('code')
     db = create_engine(token)
     con = db.connect()
 
     # Retrieve observed data
-    sql = f"SELECT datetime, value FROM waterlevel_data WHERE code='{code}'"
-    observed_data = get_format_data(sql, con)
-    observed_data[observed_data < 0.1] = 0.1
+    sql = f"""
+            SELECT datetime, value 
+            FROM waterlevel_data 
+            WHERE code='{code}'
+        """
+    observed_data = get_format_data(sql, con) 
+    observed_data[observed_data < 0.1] = 0.1  
 
-    # Retrieve historical simulation and corrected data
-    sql = f"SELECT datetime, value FROM historical_simulation WHERE comid={comid}"
+    # Retrieve historical simulation and apply bias correction
+    sql = f"""
+            SELECT datetime, value 
+            FROM historical_simulation 
+            WHERE comid={comid}
+        """
     simulated_data = get_format_data(sql, con)
-    simulated_data[simulated_data < 0.1] = 0.1
-    corrected_data = get_bias_corrected_data(simulated_data, observed_data)
+    simulated_data[simulated_data < 0.1] = 0.1  
+    corrected_data = get_bias_corrected_data(simulated_data, observed_data) 
+
+    # Prepare the HTTP response with content type set to CSV
+    response = HttpResponse(content_type='text/csv')
+    
+    # Set the content-disposition to indicate a file attachment
+    response['Content-Disposition'] = (
+        f'attachment; filename="corrected_simulation_{comid}.csv"'
+    )
+    
+    # Write the historical simulation data to the CSV response
+    corrected_data.to_csv(path_or_buf=response, index=True)
+    return response
+
+
+
+def get_forecast_csv(request):
+    """
+    Retrieve forecast data, correct it, and return it as a CSV file
+
+    Parameters:
+    -----------
+    - request : HttpRequest
+        The HTTP request object from Django, which should contain the following
+        parameters in the GET request:
+        - 'comid' : str
+            A unique identifier for the location.
+        - 'code' : str
+            A code that identifies the dataset for observed water level data.
+        - 'date' : str
+            The initialization date for the ensemble forecast.
+
+    Returns:
+    --------
+    - HttpResponse
+        A Django HttpResponse object that contains the corrected forecast 
+        data in CSV format. The response is sent as an attachment for download.
+    """    
+    # Query request parameters and initialize the database connection
+    comid = request.GET.get('comid')
+    code = request.GET.get('code')
+    date = request.GET.get('date')
+    db = create_engine(token)  # Initialize the database engine
+    con = db.connect()  # Establish the database connection
+
+    # Retrieve observed data
+    sql = f"""
+            SELECT datetime, value 
+            FROM waterlevel_data 
+            WHERE code='{code}'
+        """
+    observed_data = get_format_data(sql, con) 
+    observed_data[observed_data < 0.1] = 0.1  
+
+    # Retrieve historical simulation and apply bias correction
+    sql = f"""
+            SELECT datetime, value 
+            FROM historical_simulation 
+            WHERE comid={comid}
+        """
+    simulated_data = get_format_data(sql, con)
+    simulated_data[simulated_data < 0.1] = 0.1  
+    corrected_data = get_bias_corrected_data(simulated_data, observed_data) 
 
     # Retrieve ensemble forecast data
-    sql = f"SELECT * FROM ensemble_forecast WHERE initialized='{date}' AND comid={comid}"
-    ensemble_forecast = get_format_data(sql, con).drop(columns=['comid', "initialized"])
+    sql = f"""
+            SELECT * 
+            FROM ensemble_forecast 
+            WHERE initialized='{date}' AND comid={comid}
+        """
+    ensemble_forecast = get_format_data(sql, con) 
+    ensemble_forecast = ensemble_forecast.drop(columns=['comid', "initialized"]) 
 
-    # Corrected forecast
-    corrected_ensemble_forecast = get_corrected_forecast(simulated_data, ensemble_forecast, observed_data)
-    corrected_return_periods = get_return_periods(comid, corrected_data)
-    corrected_stats = get_ensemble_stats(corrected_ensemble_forecast)
-    con.close()
+    # Apply corrections to the forecast data
+    corrected_ensemble_forecast = get_corrected_forecast(simulated_data, 
+                                                         ensemble_forecast, 
+                                                         observed_data)  
+    con.close() 
+
+    # Prepare the HTTP response with content type set to CSV
+    response = HttpResponse(content_type='text/csv')
     
-    # Generate table
-    pt = probabilities_table(corrected_stats, corrected_ensemble_forecast, corrected_return_periods)
-    return HttpResponse(pt)
+    # Set the content-disposition to indicate a file attachment
+    response['Content-Disposition'] = (
+        f'attachment; filename="corrected_simulation_{comid}.csv"'
+    )
+    
+    # Write the historical simulation data to the CSV response
+    corrected_ensemble_forecast.to_csv(path_or_buf=response, index=True)
+    return response
