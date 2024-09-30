@@ -513,13 +513,16 @@ def historical_plot(cor, obs, code, name, width):
     startdate = dates[0]
     enddate = dates[-1]
 
+    full_date_range = pd.date_range(start=obs.index.min(), end=obs.index.max(), freq='D')
+    obs = obs.reindex(full_date_range)
+
     corrected_data = {
         'x_datetime': cor.index.tolist(),
         'y_flow': cor.values.flatten().tolist(),  # Convert to list
     }
     observed_data = {
         'x_datetime': obs.index.tolist(),
-        'y_flow': obs.values.flatten().tolist(),  # Convert to list
+        'y_flow': obs.apply(lambda x: None if pd.isna(x) else x).values.flatten().tolist(),
     }
     
     scatter_plots = [
@@ -530,7 +533,8 @@ def historical_plot(cor, obs, code, name, width):
         go.Scatter(
             name='Datos observados', 
             x=observed_data['x_datetime'], 
-            y=observed_data['y_flow'])
+            y=observed_data['y_flow'],
+            connectgaps=False)
     ]
     
     layout = go.Layout(
@@ -1017,11 +1021,6 @@ def get_forecast_table(request):
     sql = f"SELECT datetime, value FROM waterlevel_data WHERE code='{code}'"
     observed_data = get_format_data(sql, con)
     observed_data[observed_data < 0.1] = 0.1
-    full_date_range = pd.date_range(
-        start=observed_data.index.min(), 
-        end=observed_data.index.max(), 
-        freq='D')
-    observed_data = observed_data.reindex(full_date_range)
 
     # Retrieve historical simulation and corrected data
     sql = f"SELECT datetime, value FROM historical_simulation WHERE comid={comid}"
