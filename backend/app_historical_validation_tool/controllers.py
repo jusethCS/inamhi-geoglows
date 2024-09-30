@@ -565,8 +565,9 @@ def historical_plot(sim, cor, obs, code, name, width):
     return figure_dict
 
 
-def daily_average_plot(obs, cor, code, name, width):
+def daily_average_plot(obs, sim, cor, code, name, width):
     daily_avg_obs = hd.daily_average(obs)
+    daily_avg_sim = hd.daily_average(sim)
     daily_avg_cor = hd.daily_average(cor)
 
     daily_avg_obs_Q = go.Scatter(
@@ -574,7 +575,12 @@ def daily_average_plot(obs, cor, code, name, width):
         y=daily_avg_obs.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
         name='Observado'
     )
-    daily_avg_corr_sim_Q = go.Scatter(
+    daily_avg_sim_Q = go.Scatter(
+        x=daily_avg_sim.index.tolist(),  # Convert index to list
+        y=daily_avg_sim.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
+        name='Simulado'
+    )
+    daily_avg_cor_Q = go.Scatter(
         x=daily_avg_cor.index.tolist(),  # Convert index to list
         y=daily_avg_cor.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
         name='Corregido'
@@ -590,7 +596,7 @@ def daily_average_plot(obs, cor, code, name, width):
         showlegend=True
     )
 
-    figure = go.Figure(data=[daily_avg_obs_Q, daily_avg_corr_sim_Q], layout=layout)
+    figure = go.Figure(data=[daily_avg_sim_Q, daily_avg_cor_Q, daily_avg_obs_Q], layout=layout)
     figure.update_layout(template='simple_white', width=width)
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
@@ -598,8 +604,9 @@ def daily_average_plot(obs, cor, code, name, width):
 
 
 
-def monthly_average_plot(obs, cor, code, name, width):
+def monthly_average_plot(obs, sim, cor, code, name, width):
     daily_avg_obs = hd.monthly_average(obs)
+    daily_avg_sim = hd.monthly_average(sim)
     daily_avg_cor = hd.monthly_average(cor)
 
     daily_avg_obs_Q = go.Scatter(
@@ -607,7 +614,12 @@ def monthly_average_plot(obs, cor, code, name, width):
         y=daily_avg_obs.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
         name='Observado'
     )
-    daily_avg_corr_sim_Q = go.Scatter(
+    daily_avg_sim_Q = go.Scatter(
+        x=daily_avg_sim.index.tolist(),  # Convert index to list
+        y=daily_avg_sim.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
+        name='Simulado'
+    )
+    daily_avg_cor_Q = go.Scatter(
         x=daily_avg_cor.index.tolist(),  # Convert index to list
         y=daily_avg_cor.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
         name='Corregido'
@@ -623,7 +635,7 @@ def monthly_average_plot(obs, cor, code, name, width):
         showlegend=True
     )
 
-    figure = go.Figure(data=[daily_avg_obs_Q, daily_avg_corr_sim_Q], layout=layout)
+    figure = go.Figure(data=[daily_avg_sim_Q, daily_avg_cor_Q, daily_avg_obs_Q], layout=layout)
     figure.update_layout(template='simple_white', width=width)
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
@@ -1076,8 +1088,8 @@ def get_plot_data(request):
 
     #Plots
     hs = historical_plot(simulated_data, corrected_data, observed_data, code, name, width)
-    dp = daily_average_plot(observed_data, corrected_data, code, name, width)
-    mp = monthly_average_plot(observed_data, corrected_data, code, name, width)
+    dp = daily_average_plot(observed_data, simulated_data, corrected_data, code, name, width)
+    mp = monthly_average_plot(observed_data, simulated_data, corrected_data, code, name, width)
     vp = scatter_plot(corrected_data, observed_data, code, name, False, width2)
     fd = scatter_plot(corrected_data, observed_data, code, name, True, width2)
     fp = forecast_plot(
