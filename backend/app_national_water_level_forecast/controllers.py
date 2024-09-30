@@ -512,9 +512,8 @@ def historical_plot(cor, obs, code, name, width):
     dates = cor.index.tolist()
     startdate = dates[0]
     enddate = dates[-1]
-
-    full_date_range = pd.date_range(start=obs.index.min(), end=obs.index.max(), freq='D')
-    obs = obs.reindex(full_date_range)
+    #full_date_range = pd.date_range(start=obs.index.min(), end=obs.index.max(), freq='D')
+    #obs = obs.reindex(full_date_range)
 
     corrected_data = {
         'x_datetime': cor.index.tolist(),
