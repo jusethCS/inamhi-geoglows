@@ -724,8 +724,8 @@ def get_plot_data(request):
     hs = historical_plot(corrected_data, observed_data, code, name, width)
     dp = daily_average_plot(observed_data, corrected_data, code, name, width)
     mp = monthly_average_plot(observed_data, corrected_data, code, name, width)
-    vp = get_scatter_plot(corrected_data, code, name, False, width)
-    fd = get_scatter_plot(corrected_data, code, name, True, width)
+    vp = get_scatter_plot(corrected_data, code, name, False, width2)
+    fd = get_scatter_plot(corrected_data, code, name, True, width2)
     return JsonResponse({"hs":hs, "dp":dp, "mp": mp, "vp":vp, "fd": fd})
 
 
