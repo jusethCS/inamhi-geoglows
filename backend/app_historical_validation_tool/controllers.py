@@ -643,10 +643,18 @@ def monthly_average_plot(obs, sim, cor, code, name, width):
 
 
 
-def scatter_plot(cor, obs, code, name, log, width):
+def scatter_plot(sim, cor, obs, code, name, log, width):
     x_values = cor.iloc[:, 0].values.flatten().tolist()  # Convert to list
     y_values = obs.iloc[:, 0].values.flatten().tolist()  # Convert to list
-    
+    z_values = sim.iloc[:, 0].values.flatten().tolist()  # Convert to list
+
+    scatter_data = go.Scatter(
+        x=z_values,
+        y=y_values,
+        mode='markers',
+        name='Simulado',
+        marker=dict(color='#ef553b')
+    )
     scatter_data2 = go.Scatter(
         x=x_values,
         y=y_values,
@@ -655,8 +663,8 @@ def scatter_plot(cor, obs, code, name, log, width):
         marker=dict(color='#00cc96')
     )
     
-    min_value = min(min(y_values), min(x_values))
-    max_value = max(max(y_values), max(x_values))
+    min_value = min(min(y_values), min(x_values), min(z_values))
+    max_value = max(max(y_values), max(x_values), max(z_values))
     
     line_45 = go.Scatter(
         x=[min_value, max_value],  # Use list for x-axis
@@ -669,7 +677,7 @@ def scatter_plot(cor, obs, code, name, log, width):
     if log:
         layout = go.Layout(
             title="Gráfica de dispersión (escala logarítmica) <br>{0} - {1}".format(code.upper(), name),
-            xaxis=dict(title='Caudal corregido (m<sup>3</sup>/s)', type='log'),
+            xaxis=dict(title='Caudal simulado (m<sup>3</sup>/s)', type='log'),
             yaxis=dict(title='Caudal observado (m<sup>3</sup>/s)', type='log', autorange=True),
             showlegend=True,
             template='simple_white'
@@ -677,7 +685,7 @@ def scatter_plot(cor, obs, code, name, log, width):
     else:
         layout = go.Layout(
             title="Gráfica de dispersión <br>{0} - {1}".format(code.upper(), name),
-            xaxis=dict(title='Caudal corregido (m<sup>3</sup>/s)'),
+            xaxis=dict(title='Caudal simulado (m<sup>3</sup>/s)'),
             yaxis=dict(title='Caudal observado (m<sup>3</sup>/s)', autorange=True),
             showlegend=True,
             template='simple_white'
