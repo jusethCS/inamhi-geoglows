@@ -1017,7 +1017,7 @@ def get_forecast_table(request):
     sql = f"SELECT datetime, value FROM waterlevel_data WHERE code='{code}'"
     sql = f"""
             SELECT gs.datetime, wd.value
-            FROM generate_series('2021-01-01'::date, '2021-12-31'::date, '1 day'::interval) AS gs(datetime)
+            FROM generate_series('1980-01-01'::date, '2017-12-31'::date, '1 day'::interval) AS gs(datetime)
             LEFT JOIN waterlevel_data wd ON gs.datetime = wd.datetime AND wd.code = '{code}';
             """
     observed_data = get_format_data(sql, con)
