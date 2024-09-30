@@ -522,7 +522,7 @@ def historical_plot(cor, obs, code, name, width):
     }
     observed_data = {
         'x_datetime': obs.index.tolist(),
-        'y_flow': obs.values.flatten().tolist(),
+        'y_flow': obs.where(pd.notnull(obs), None).values.flatten().tolist(),
     }
     
     scatter_plots = [
