@@ -929,8 +929,8 @@ def get_water_level_alerts(request):
 
     # SQL query to retrieve water level data for the specified date
     sql = f"""SELECT 
-                    dn.code, dn.comid, dn.latitude, dn.longitude, dn.river,
-                    dn.location1, dn.location2, ag.datetime,
+                    dn.code, dn.comid, dn.name, dn.latitude, dn.longitude, 
+                    dn.river, dn.location1, dn.location2, ag.datetime,
                     ag.d01, ag.d02, ag.d03, ag.d04, 
                     ag.d05, ag.d06, ag.d07, ag.d08, 
                     ag.d09, ag.d10, ag.d11, ag.d12, 
