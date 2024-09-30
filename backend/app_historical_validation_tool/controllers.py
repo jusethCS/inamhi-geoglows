@@ -1098,8 +1098,8 @@ def get_plot_data(request):
     hs = historical_plot(simulated_data, corrected_data, observed_data, code, name, width)
     dp = daily_average_plot(observed_data, simulated_data, corrected_data, code, name, width)
     mp = monthly_average_plot(observed_data, simulated_data, corrected_data, code, name, width)
-    vp = scatter_plot(corrected_data, observed_data, code, name, False, width2)
-    fd = scatter_plot(corrected_data, observed_data, code, name, True, width2)
+    vp = scatter_plot(simulated_data,corrected_data, observed_data, code, name, False, width2)
+    fd = scatter_plot(simulated_data,corrected_data, observed_data, code, name, True, width2)
     fp = forecast_plot(
         corrected_stats, 
         corrected_return_periods, 
