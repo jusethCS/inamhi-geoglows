@@ -457,7 +457,7 @@ def get_corrected_forecast_records(records_df, simulated_df, observed_df):
 ###############################################################################
 #                             PLOTS AND TABLES                                #
 ###############################################################################
-def historical_plot(cor, obs, code, name):
+def historical_plot(cor, obs, code, name, width):
     dates = cor.index.tolist()
     startdate = dates[0]
     enddate = dates[-1]
@@ -495,14 +495,14 @@ def historical_plot(cor, obs, code, name):
     )
     
     figure = go.Figure(scatter_plots, layout=layout)
-    figure.update_layout(template='simple_white')
+    figure.update_layout(template='simple_white', width=width)
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)    
     figure_dict = figure.to_dict()
     return figure_dict
 
 
-def daily_average_plot(obs, cor, code, name):
+def daily_average_plot(obs, cor, code, name, width):
     daily_avg_obs = hd.daily_average(obs)
     daily_avg_cor = hd.daily_average(cor)
 
@@ -528,14 +528,14 @@ def daily_average_plot(obs, cor, code, name):
     )
 
     figure = go.Figure(data=[daily_avg_obs_Q, daily_avg_corr_sim_Q], layout=layout)
-    figure.update_layout(template='simple_white')
+    figure.update_layout(template='simple_white', width=width)
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
     return figure.to_dict()
 
 
 
-def monthly_average_plot(obs, cor, code, name):
+def monthly_average_plot(obs, cor, code, name, width):
     daily_avg_obs = hd.monthly_average(obs)
     daily_avg_cor = hd.monthly_average(cor)
 
@@ -561,7 +561,7 @@ def monthly_average_plot(obs, cor, code, name):
     )
 
     figure = go.Figure(data=[daily_avg_obs_Q, daily_avg_corr_sim_Q], layout=layout)
-    figure.update_layout(template='simple_white')
+    figure.update_layout(template='simple_white', width=width)
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
     return figure.to_dict()
@@ -672,9 +672,9 @@ def get_plot_data(request):
 
     #Plots
     con.close()
-    hs = historical_plot(corrected_data, observed_data, code, name)
-    dp = daily_average_plot(observed_data, corrected_data, code, name)
-    mp = monthly_average_plot(observed_data, corrected_data, code, name)
+    hs = historical_plot(corrected_data, observed_data, code, name, width)
+    dp = daily_average_plot(observed_data, corrected_data, code, name, width)
+    mp = monthly_average_plot(observed_data, corrected_data, code, name, width)
     return JsonResponse({"hs":hs, "dp":dp, "mp": mp})
 
 
@@ -687,6 +687,7 @@ def get_plot_data(request):
     #hs = hs_plot(historical_simulation, return_periods, comid, width)
     #dp = daily_plot(historical_simulation, comid, width)
     #mp = monthly_plot(historical_simulation, comid, width)
+
     #vp = volumen_plot(historical_simulation, comid, width2)
     #fd = fd_plot(historical_simulation, comid, width2)
     #fp = forecast_plot(stats, return_periods, comid, records, historical_simulation, width)
