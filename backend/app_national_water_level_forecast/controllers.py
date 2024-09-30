@@ -568,10 +568,9 @@ def monthly_average_plot(obs, cor, code, name, width):
 
 
 
-def get_scatter_plot(cor, code, name, log, width):
-    merged_cor = cor
-    x_values = merged_cor.iloc[:, 0].values.flatten().tolist()  # Convert to list
-    y_values = merged_cor.iloc[:, 1].values.flatten().tolist()  # Convert to list
+def get_scatter_plot(cor, obs, code, name, log, width):
+    x_values = cor.iloc[:, 0].values.flatten().tolist()  # Convert to list
+    y_values = obs.iloc[:, 0].values.flatten().tolist()  # Convert to list
     
     scatter_data2 = go.Scatter(
         x=x_values,
@@ -595,7 +594,7 @@ def get_scatter_plot(cor, code, name, log, width):
     if log:
         layout = go.Layout(
             title="Gráfica de dispersión (escala logarítmica) <br>{0} - {1}".format(code.upper(), name),
-            xaxis=dict(title='Nivel simulado (m<sup>3</sup>/s)', type='log'),
+            xaxis=dict(title='Nivel corregido (m<sup>3</sup>/s)', type='log'),
             yaxis=dict(title='Nivel observado (m<sup>3</sup>/s)', type='log', autorange=True),
             showlegend=True,
             template='simple_white'
@@ -603,7 +602,7 @@ def get_scatter_plot(cor, code, name, log, width):
     else:
         layout = go.Layout(
             title="Gráfica de dispersión <br>{0} - {1}".format(code.upper(), name),
-            xaxis=dict(title='Nivel simulado (m)'),
+            xaxis=dict(title='Nivel corregido (m)'),
             yaxis=dict(title='Nivel observado (m)', autorange=True),
             showlegend=True,
             template='simple_white'
@@ -724,8 +723,8 @@ def get_plot_data(request):
     hs = historical_plot(corrected_data, observed_data, code, name, width)
     dp = daily_average_plot(observed_data, corrected_data, code, name, width)
     mp = monthly_average_plot(observed_data, corrected_data, code, name, width)
-    vp = get_scatter_plot(corrected_data, code, name, False, width2)
-    fd = get_scatter_plot(corrected_data, code, name, True, width2)
+    vp = get_scatter_plot(corrected_data, observed_data, code, name, False, width2)
+    fd = get_scatter_plot(corrected_data, observed_data, code, name, True, width2)
     return JsonResponse({"hs":hs, "dp":dp, "mp": mp, "vp":vp, "fd": fd})
 
 
