@@ -557,11 +557,11 @@ def historical_plot(cor, obs, code, name, width):
     obs_full = obs.reindex(full_range)
     corrected_data = {
         'x_datetime': cor.index.tolist(),
-        'y_flow': cor.values.flatten().tolist(),  # Convert to list
+        'y_flow': cor.fillna(None).values.flatten().tolist(),  # Convert to list
     }
     observed_data = {
         'x_datetime': obs_full.index.tolist(),
-        'y_flow': obs_full.values.flatten().tolist(),  # Convert to list
+        'y_flow': obs_full.fillna(None).values.flatten().tolist(),  # Reemplazar NaN con None
     }
     scatter_plots = [
         go.Scatter(
