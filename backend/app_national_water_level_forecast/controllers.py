@@ -522,7 +522,7 @@ def historical_plot(cor, obs, code, name, width):
     }
     observed_data = {
         'x_datetime': obs.index.tolist(),
-        'y_flow': obs.apply(lambda x: None if pd.isna(x) else x).values.flatten().tolist(),
+        'y_flow': obs.values.flatten().tolist(),
     }
     
     scatter_plots = [
@@ -533,7 +533,8 @@ def historical_plot(cor, obs, code, name, width):
         go.Scatter(
             name='Datos observados', 
             x=observed_data['x_datetime'], 
-            y=observed_data['y_flow'])
+            y=observed_data['y_flow'],
+            connectgaps=False)
     ]
     
     layout = go.Layout(
