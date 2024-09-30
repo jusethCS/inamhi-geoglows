@@ -924,13 +924,17 @@ def probabilities_table(stats, ensem, rperiods):
 
 
 
-def get_metrics_table(cor, my_metrics):
+def get_metrics_table(sim, cor, my_metrics):
+    # Metrics for simulated data
+    table_sim = hs.make_table(sim, my_metrics)
+    table_sim = table_sim.rename(index={'Full Time Series': 'Serie Simulada'})
+    table_sim = table_sim.transpose()
     # Metrics for corrected simulation data
     table_cor = hs.make_table(cor, my_metrics)
     table_cor = table_cor.rename(index={'Full Time Series': 'Serie Corregida'})
     table_cor = table_cor.transpose()
     # Merging data
-    table_final = table_cor
+    table_final = pd.merge(table_sim, table_cor, right_index=True, left_index=True)
     table_final = table_final.round(decimals=2)
     table_final = table_final.to_html(
         classes="table table-hover table-striped", 
@@ -1087,8 +1091,10 @@ def get_plot_data(request):
     con.close()
 
     # Merged data
+    merged_sim = hd.merge_data(sim_df = simulated_data, obs_df = observed_data)
     merged_cor = hd.merge_data(sim_df = corrected_data, obs_df = observed_data)
     metrics_table = get_metrics_table(
+        sim = merged_sim,
         cor = merged_cor,
         my_metrics = [
             "ME", "RMSE", "NRMSE (Mean)", "NSE", "KGE (2009)", "KGE (2012)", 
