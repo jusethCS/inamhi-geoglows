@@ -502,13 +502,13 @@ def historical_plot(cor, obs, code, name):
     return figure_dict
 
 
-def daily_average_plot(sim, cor, code, name):
-    daily_avg_sim = hd.daily_average(sim)
+def daily_average_plot(obs, cor, code, name):
+    daily_avg_obs = hd.daily_average(obs)
     daily_avg_cor = hd.daily_average(cor)
 
     daily_avg_obs_Q = go.Scatter(
-        x=daily_avg_sim.index.tolist(),  # Convert index to list
-        y=daily_avg_sim.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
+        x=daily_avg_obs.index.tolist(),  # Convert index to list
+        y=daily_avg_obs.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
         name='Observado'
     )
     daily_avg_corr_sim_Q = go.Scatter(
@@ -520,6 +520,39 @@ def daily_average_plot(sim, cor, code, name):
     layout = go.Layout(
         title='Nivel medio multi-diario<br>{0} - {1}'.format(str(code).upper(), name),
         xaxis=dict(title='Día del año'), 
+        yaxis=dict(title='Nivel (m)', autorange=True),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        template='simple_white',
+        showlegend=True
+    )
+
+    figure = go.Figure(data=[daily_avg_obs_Q, daily_avg_corr_sim_Q], layout=layout)
+    figure.update_layout(template='simple_white')
+    figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    figure.update_xaxes(linecolor='gray', mirror=True, showline=True) 
+    return figure.to_dict()
+
+
+
+def monthly_average_plot(obs, cor, code, name):
+    daily_avg_obs = hd.monthly_average(obs)
+    daily_avg_cor = hd.monthly_average(cor)
+
+    daily_avg_obs_Q = go.Scatter(
+        x=daily_avg_obs.index.tolist(),  # Convert index to list
+        y=daily_avg_obs.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
+        name='Observado'
+    )
+    daily_avg_corr_sim_Q = go.Scatter(
+        x=daily_avg_cor.index.tolist(),  # Convert index to list
+        y=daily_avg_cor.iloc[:, 0].values.flatten().tolist(),  # Convert values to list
+        name='Corregido'
+    )
+
+    layout = go.Layout(
+        title='Nivel medio multi-mensual<br>{0} - {1}'.format(str(code).upper(), name),
+        xaxis=dict(title='Mes'), 
         yaxis=dict(title='Nivel (m)', autorange=True),
         plot_bgcolor='white',
         paper_bgcolor='white',
@@ -613,7 +646,7 @@ def get_plot_data(request):
     con = db.connect()
 
     # Retrieve observed data
-    sql = f"SELECT datetime, value FROM streamflow_data WHERE code='{code}'"
+    sql = f"SELECT datetime, value FROM waterlevel_data WHERE code='{code}'"
     observed_data = get_format_data(sql, con)
     observed_data[observed_data < 0.1] = 0.1
     
@@ -640,8 +673,9 @@ def get_plot_data(request):
     #Plots
     con.close()
     hs = historical_plot(corrected_data, observed_data, code, name)
-    dp = daily_average_plot(simulated_data, corrected_data, code, name)
-    return JsonResponse({"hs":hs, "dp":dp})
+    dp = daily_average_plot(observed_data, corrected_data, code, name)
+    mp = monthly_average_plot(observed_data, corrected_data, code, name)
+    return JsonResponse({"hs":hs, "dp":dp, "mp": mp})
 
 
 
