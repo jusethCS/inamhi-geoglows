@@ -292,6 +292,38 @@ export class utils{
   }
 
 
+  public filterByDayWaterLevel(geojson: any, propertyKey: string) {
+    const aa = {
+      type: geojson.type,
+      features: geojson.features.map(
+        (feature: {
+          type: any;
+          id: any;
+          properties: { [x: string]: any; };
+          geometry: any;
+          bbox: any;
+        }) => ({
+          type: feature.type,
+          id: feature.id,
+          properties: {
+            "comid": feature.properties["comid"],
+            "code": feature.properties["code"],
+            "name": feature.properties["name"],
+            "latitude": feature.properties["latitude"],
+            "longitude": feature.properties["longitude"],
+            "river": feature.properties["river"],
+            "location1": feature.properties["location1"],
+            "location2": feature.properties["location2"],
+            "alert": feature.properties[propertyKey]
+          },
+          geometry: feature.geometry,
+          bbox: feature.bbox
+      }))
+    };
+    return aa;
+  }
+
+
   public filterByRP(geojson:any, condition:string){
     const aa = geojson;
     const filtered = {

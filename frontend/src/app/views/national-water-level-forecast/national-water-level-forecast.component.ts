@@ -115,9 +115,12 @@ export class NationalWaterLevelForecastComponent {
   public forecastPlot:any;
   public isReadyDataPlot:boolean = false;
   public htmlContent:string = "";
+  public metricTable:string = "";
 
   // Variables for panel
   public comid: string = "";
+  public code: string = "";
+  public name: string = "";
   public latitude: string = "";
   public longitude: string = "";
   public river: string = "";
@@ -324,7 +327,6 @@ export class NationalWaterLevelForecastComponent {
       this.draingeNetwork = L.geoJSON(data, {
           style: {weight: 12, color: "rgba(0, 0, 0, 0)"}
       }).addTo(this.map);
-      this.draingeNetwork.on("click", (e: L.LeafletMouseEvent) => this.getParamRiver(e));
       this.initializeRiverNameControl(data);
       this.initializeComidControl(data);
     });
@@ -434,14 +436,17 @@ export class NationalWaterLevelForecastComponent {
   }
 
 
-  private getParamRiver(e: L.LeafletMouseEvent){
+  private getParamAlert(e: L.LeafletMouseEvent){
     // Conditions
     this.isReadyDataPlot = false;
     this.renderer.setProperty(this.table.nativeElement, 'innerHTML', "");
 
     // Data
     const prop = e.layer.feature.properties;
+    console.log(prop)
     this.comid = prop.comid;
+    this.code = prop.code;
+    this.name = prop.name;
     this.latitude = prop.latitude;
     this.longitude = prop.longitude;
     this.river = prop.river;
@@ -451,45 +456,8 @@ export class NationalWaterLevelForecastComponent {
 
     this.template.showDataModal();
     setTimeout(() => {
-      const elementWidth = this.panelPlot.nativeElement.offsetWidth; //this.template.dataModal?.nativeElement.offsetWidth;
-      fetch(`${environment.urlAPI}/geoglows/geoglows-data-plot?comid=${this.comid}&date=${this.rangeDate[0]}&width=${elementWidth}`)
-      .then((response) => response.json())
-      .then((response) => {
-        this.historicalSimulationPlot = response.hs;
-        this.dailyAveragePlot = response.dp;
-        this.monthlyAveragePlot = response.mp;
-        this.flowDurationCurve = response.fd;
-        this.volumePlot = response.vp;
-        this.forecastPlot = response.fp;
-        this.isReadyDataPlot = true;
-        fetch(`${environment.urlAPI}/geoglows/geoglows-table?comid=${this.comid}&date=${this.rangeDate[0]}`)
-          .then((response) => response.text())
-          .then((response) => {
-            this.renderer.setProperty(this.table.nativeElement, 'innerHTML', response);
-          })
-      })
-    }, 300);
-  }
-
-  private getParamAlert(e: L.LeafletMouseEvent){
-    // Conditions
-    this.isReadyDataPlot = false;
-    this.renderer.setProperty(this.table.nativeElement, 'innerHTML', "");
-
-    // Data
-    const prop = e.layer.feature.properties;
-    this.comid = prop.comid;
-    this.latitude = prop.latitude;
-    this.longitude = prop.longitude;
-    this.river = prop.river;
-    this.province = prop.location1;
-    this.canton = prop.location2;
-    this.dateControlPanel.setValue(this.dateControl.value);
-
-    this.template.showDataModal();
-    setTimeout(() => {
       const elementWidth = this.panelPlot.nativeElement.offsetWidth;
-      fetch(`${environment.urlAPI}/geoglows/geoglows-data-plot?comid=${this.comid}&date=${this.rangeDate[0]}&width=${elementWidth}`)
+      fetch(`${environment.urlAPI}/national-water-level-forecast/plot-data?comid=${this.comid}&date=${this.rangeDate[0]}&width=${elementWidth}&code=${this.code}&name=${this.name}`)
       .then((response) => response.json())
       .then((response) => {
         this.historicalSimulationPlot = response.hs;
@@ -498,8 +466,9 @@ export class NationalWaterLevelForecastComponent {
         this.flowDurationCurve = response.fd;
         this.volumePlot = response.vp;
         this.forecastPlot = response.fp;
+        this.metricTable = response.table;
         this.isReadyDataPlot = true;
-        fetch(`${environment.urlAPI}/geoglows/geoglows-table?comid=${this.comid}&date=${this.rangeDate[0]}`)
+        fetch(`${environment.urlAPI}/national-water-level-forecast/forecast-table?comid=${this.comid}&date=${this.rangeDate[0]}&code=${this.code}`)
           .then((response) => response.text())
           .then((response) => {
             this.renderer.setProperty(this.table.nativeElement, 'innerHTML', response);
@@ -516,7 +485,7 @@ export class NationalWaterLevelForecastComponent {
       const currentDate = this.utilsApp.getDateRangeGeoglows(this.dateControlPanel.value);
       setTimeout(() => {
         const elementWidth = this.panelPlot.nativeElement.offsetWidth;
-        fetch(`${environment.urlAPI}/geoglows/geoglows-data-plot?comid=${this.comid}&date=${currentDate[0]}&width=${elementWidth}`)
+        fetch(`${environment.urlAPI}/national-water-level-forecast/plot-data?comid=${this.comid}&date=${currentDate[0]}&width=${elementWidth}&code=${this.code}&name=${this.name}`)
         .then((response) => response.json())
         .then((response) => {
           this.historicalSimulationPlot = response.hs;
@@ -525,8 +494,10 @@ export class NationalWaterLevelForecastComponent {
           this.flowDurationCurve = response.fd;
           this.volumePlot = response.vp;
           this.forecastPlot = response.fp;
+          this.metricTable = response.table;
           this.isReadyDataPlot = true;
-          fetch(`${environment.urlAPI}/geoglows/geoglows-table?comid=${this.comid}&date=${currentDate[0]}`)
+
+          fetch(`${environment.urlAPI}/national-water-level-forecast/forecast-table?comid=${this.comid}&date=${this.rangeDate[0]}&code=${this.code}`)
             .then((response) => response.text())
             .then((response) => {
               this.renderer.setProperty(this.table.nativeElement, 'innerHTML', response);
@@ -541,27 +512,27 @@ export class NationalWaterLevelForecastComponent {
   }
 
   public getFloodWarnings(){
-    const url = `${environment.urlAPI}/geoglows/geoglows-waterlevel-warnings?date=${this.rangeDate[0]}`;
+    const url = `${environment.urlAPI}/national-water-level-forecast/water-level-alerts?date=${this.rangeDate[0]}`;
     console.log(url);
       fetch(url)
         .then((response) => response.json())
         .then((response)=> {
           this.geoglowsFloodWarnings = [
-            this.utilsApp.filterByDay(response, "d01"),
-            this.utilsApp.filterByDay(response, "d02"),
-            this.utilsApp.filterByDay(response, "d03"),
-            this.utilsApp.filterByDay(response, "d04"),
-            this.utilsApp.filterByDay(response, "d05"),
-            this.utilsApp.filterByDay(response, "d06"),
-            this.utilsApp.filterByDay(response, "d07"),
-            this.utilsApp.filterByDay(response, "d08"),
-            this.utilsApp.filterByDay(response, "d09"),
-            this.utilsApp.filterByDay(response, "d10"),
-            this.utilsApp.filterByDay(response, "d11"),
-            this.utilsApp.filterByDay(response, "d12"),
-            this.utilsApp.filterByDay(response, "d13"),
-            this.utilsApp.filterByDay(response, "d14"),
-            this.utilsApp.filterByDay(response, "d15")
+            this.utilsApp.filterByDayWaterLevel(response, "d01"),
+            this.utilsApp.filterByDayWaterLevel(response, "d02"),
+            this.utilsApp.filterByDayWaterLevel(response, "d03"),
+            this.utilsApp.filterByDayWaterLevel(response, "d04"),
+            this.utilsApp.filterByDayWaterLevel(response, "d05"),
+            this.utilsApp.filterByDayWaterLevel(response, "d06"),
+            this.utilsApp.filterByDayWaterLevel(response, "d07"),
+            this.utilsApp.filterByDayWaterLevel(response, "d08"),
+            this.utilsApp.filterByDayWaterLevel(response, "d09"),
+            this.utilsApp.filterByDayWaterLevel(response, "d10"),
+            this.utilsApp.filterByDayWaterLevel(response, "d11"),
+            this.utilsApp.filterByDayWaterLevel(response, "d12"),
+            this.utilsApp.filterByDayWaterLevel(response, "d13"),
+            this.utilsApp.filterByDayWaterLevel(response, "d14"),
+            this.utilsApp.filterByDayWaterLevel(response, "d15")
           ];
           this.updateFloodWarnings();
         })
@@ -798,7 +769,14 @@ export class NationalWaterLevelForecastComponent {
 
 
   public downloadHistoricalSimulation(){
-    const url = `${environment.urlAPI}/geoglows/get-historical-simulation-csv?comid=${this.comid}`
+    const url = `${environment.urlAPI}/national-water-level-forecast/historical-simulation-csv?comid=${this.comid}`
+    const link = document.createElement('a');
+    link.href = url;
+    link.click();
+  }
+
+  public downloadCorrectedSimulation(){
+    const url = `${environment.urlAPI}/national-water-level-forecast/corrected-simulation-csv?comid=${this.comid}&code=${this.code}`
     const link = document.createElement('a');
     link.href = url;
     link.click();
@@ -807,7 +785,7 @@ export class NationalWaterLevelForecastComponent {
   public downloadForecast(){
     if(this.dateControlPanel.value){
       const currentDate = this.utilsApp.getDateRangeGeoglows(this.dateControlPanel.value);
-      const url = `${environment.urlAPI}/geoglows/get-forecast-csv?comid=${this.comid}&date=${currentDate[0]}`
+      const url = `${environment.urlAPI}/national-water-level-forecast/forecast-csv?comid=${this.comid}&date=${currentDate[0]}&code=${this.code}`
       const link = document.createElement('a');
       link.href = url;
       link.click();

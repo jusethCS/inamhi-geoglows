@@ -342,7 +342,7 @@
         </div>
         <div class="row modal-header-content">
           <div class="col-sm-12 col-md-4 py-1">
-            <b>RIO:</b> {{river.toUpperCase()}}
+            <b>RIO:</b> {{river}}
           </div>
           <div class="col-sm-12 col-md-4 py-1">
             <b>LONGITUD:</b> {{longitude}}
@@ -379,6 +379,17 @@
             aria-selected="false">Análisis visual</button>
         </li>
         <li class="nav-item" role="presentation">
+          <button
+              class="nav-link"
+              id="metrics-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#metrics"
+              type="button"
+              role="tab"
+              aria-controls="metrics"
+              aria-selected="false"> Métricas </button>
+        </li>
+        <li class="nav-item" role="presentation">
         <button
             class="nav-link"
             id="forecast-tab"
@@ -387,9 +398,10 @@
             type="button"
             role="tab"
             aria-controls="forecast"
-            aria-selected="false"> Pronóstico </button>
+            aria-selected="false"> Pronóstico Corregido </button>
         </li>
     </ul>
+
     <div class="tab-content" id="panel-tab-content">
       <div class="tab-pane fade show active" id="hydrograph" role="tabpanel" aria-labelledby="hydrograph-tab">
         @if(isReadyDataPlot){
@@ -400,6 +412,11 @@
             <button type="button" class="btn btn-primary btn-sm" (click)="downloadHistoricalSimulation()">
               <i class="fa-regular fa-download"></i>
               &nbsp; Descargar Simulación Histórica
+            </button>
+            &nbsp;
+            <button type="button" class="btn btn-primary btn-sm" (click)="downloadCorrectedSimulation()">
+              <i class="fa-regular fa-download"></i>
+              &nbsp; Descargar Simulación Corregida
             </button>
         }@else {
           <app-loading></app-loading>
@@ -439,6 +456,19 @@
           <app-loading></app-loading>
         }
       </div>
+
+      <div class="tab-pane fade" id="metrics" role="tabpanel" aria-labelledby="metrics-tab">
+        @if(isReadyDataPlot){
+          <div style="padding: 12px;">
+            <div style="font-weight: bold;">Métricas de desempeño del proceso de correción</div>
+            <div style="font-size: 12px;">La lista predeterminada de estadísticos incluye: Error medio (ME), Raíz del error cuadrático medio (RMSE), Eficiencia de Nash-Sutcliffe (NSE), Eficiencia de Kling-Gupta (2009), Eficiencia de King-Glupta (2012), Coeficiente de correlación de Pearson, Coeficiente de correlación de Spearman y coeficiente de determinación.</div>
+            <div [innerHTML]="metricTable"></div>
+          </div>
+        }@else {
+          <app-loading></app-loading>
+        }
+      </div>
+
       <div class="tab-pane fade" id="forecast" role="tabpanel" aria-labelledby="forecast-tab">
         @if(isReadyDataPlot){
           <div style="width: 125% !important; height: 70px !important;">
