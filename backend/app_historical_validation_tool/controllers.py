@@ -1089,6 +1089,7 @@ def get_plot_data(request):
     con.close()
 
     # Merged data
+    simulated_data.columns = ["sim"]
     merged_sim = hd.merge_data(sim_df = simulated_data, obs_df = observed_data)
     merged_cor = hd.merge_data(sim_df = corrected_data, obs_df = observed_data)
     metrics_table = get_metrics_table(
