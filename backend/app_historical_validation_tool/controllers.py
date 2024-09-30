@@ -929,20 +929,29 @@ def get_metrics_table(sim, cor, my_metrics):
     table_sim = hs.make_table(sim, my_metrics)
     table_sim = table_sim.rename(index={'Full Time Series': 'Serie Simulada'})
     table_sim = table_sim.transpose()
+    
     # Metrics for corrected simulation data
     table_cor = hs.make_table(cor, my_metrics)
     table_cor = table_cor.rename(index={'Full Time Series': 'Serie Corregida'})
     table_cor = table_cor.transpose()
-    # Merging data
-    table_final = pd.merge(table_sim, table_cor, right_index=True, left_index=True)
+    
+    # Merging data, adding suffixes to avoid column name overlap
+    table_final = pd.merge(table_sim, table_cor, right_index=True, left_index=True, 
+                           suffixes=('_sim', '_cor'))
+    
+    # Rounding and converting to HTML
     table_final = table_final.round(decimals=2)
     table_final = table_final.to_html(
         classes="table table-hover table-striped", 
         table_id="corrected_1")
+    
+    # Adjusting the table HTML output
     table_final = table_final.replace(
         'border="1"', 'border="0"').replace(
-            '<tr style="text-align: right;">','<tr style="text-align: left;">')
-    return(table_final)
+        '<tr style="text-align: right;">', '<tr style="text-align: left;">')
+    
+    return table_final
+
 
 
 
