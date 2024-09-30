@@ -509,12 +509,55 @@ def _rperiod_scatters(startdate: str, enddate: str, rperiods: pd.DataFrame,
 
 
 def historical_plot(cor, obs, code, name, width):
+    dates = cor.index.tolist()
+    startdate = dates[0]
+    enddate = dates[-1]
+
+    corrected_data = {
+        'x_datetime': cor.index.tolist(),
+        'y_flow': cor.values.flatten().tolist(),  # Convert to list
+    }
+    observed_data = {
+        'x_datetime': obs.index.tolist(),
+        'y_flow': obs.values.flatten().tolist(),  # Convert to list
+    }
+    
+    scatter_plots = [
+        go.Scatter(
+            name='Simulación corregida', 
+            x=corrected_data['x_datetime'], 
+            y=corrected_data['y_flow']),
+        go.Scatter(
+            name='Datos observados', 
+            x=observed_data['x_datetime'], 
+            y=observed_data['y_flow'])
+    ]
+    
+    layout = go.Layout(
+        title=f"Simulación histórica <br>{str(code).upper()} - {name}",
+        yaxis={
+            'title': 'Nivel (m)', 
+            'range': [0, 'auto']},
+        xaxis={
+            'title': 'Fecha (UTC +0:00)', 
+            'range': [startdate, enddate], 
+            'hoverformat': '%b %d %Y', 
+            'tickformat': '%Y'},
+    )
+    
+    figure = go.Figure(scatter_plots, layout=layout)
+    figure.update_layout(template='simple_white', width=width)
+    figure.update_yaxes(linecolor='gray', mirror=True, showline=True) 
+    figure.update_xaxes(linecolor='gray', mirror=True, showline=True)    
+    figure_dict = figure.to_dict()
+    return figure_dict
+
+def historical_plot(cor, obs, code, name, width):
     full_range = pd.date_range(start=obs.index.min(), end=obs.index.max(), freq='D')
     obs_full = obs.reindex(full_range)
-    cor_full = cor.reindex(full_range)
     corrected_data = {
-        'x_datetime': cor_full.index.tolist(),
-        'y_flow': cor_full.values.flatten().tolist(),  # Convert to list
+        'x_datetime': cor.index.tolist(),
+        'y_flow': cor.values.flatten().tolist(),  # Convert to list
     }
     observed_data = {
         'x_datetime': obs_full.index.tolist(),
@@ -553,6 +596,7 @@ def historical_plot(cor, obs, code, name, width):
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)    
     figure_dict = figure.to_dict()
     return figure_dict
+
 
 
 
