@@ -508,7 +508,7 @@ def _rperiod_scatters(startdate: str, enddate: str, rperiods: pd.DataFrame,
     ]
 
 
-def historical_plot(cor, obs, code, name, width):
+def historical_plot(sim, cor, obs, code, name, width):
     dates = cor.index.tolist()
     startdate = dates[0]
     enddate = dates[-1]
@@ -516,6 +516,10 @@ def historical_plot(cor, obs, code, name, width):
     obs = obs.reindex(full_date_range)
     obs = obs.where(pd.notnull(obs), "")
 
+    simulated_data = {
+        'x_datetime': sim.index.tolist(),
+        'y_flow': sim.values.flatten().tolist(),  # Convert to list
+    }
     corrected_data = {
         'x_datetime': cor.index.tolist(),
         'y_flow': cor.values.flatten().tolist(),  # Convert to list
@@ -526,6 +530,10 @@ def historical_plot(cor, obs, code, name, width):
     }
     
     scatter_plots = [
+        go.Scatter(
+            name='Simulación histórica', 
+            x=corrected_data['x_datetime'], 
+            y=corrected_data['y_flow']),
         go.Scatter(
             name='Simulación corregida', 
             x=corrected_data['x_datetime'], 
@@ -540,7 +548,7 @@ def historical_plot(cor, obs, code, name, width):
     layout = go.Layout(
         title=f"Simulación histórica <br>{str(code).upper()} - {name}",
         yaxis={
-            'title': 'Nivel (m)', 
+            'title': 'Caudal (m<sup>3</sup>/s)', 
             'range': [0, 'auto']},
         xaxis={
             'title': 'Fecha (UTC +0:00)', 
@@ -573,9 +581,9 @@ def daily_average_plot(obs, cor, code, name, width):
     )
 
     layout = go.Layout(
-        title='Nivel medio multi-diario<br>{0} - {1}'.format(str(code).upper(), name),
+        title='Caudal medio multi-diario<br>{0} - {1}'.format(str(code).upper(), name),
         xaxis=dict(title='Día del año'), 
-        yaxis=dict(title='Nivel (m)', autorange=True),
+        yaxis=dict(title='Caudal (m<sup>3</sup>/s)', autorange=True),
         plot_bgcolor='white',
         paper_bgcolor='white',
         template='simple_white',
@@ -606,9 +614,9 @@ def monthly_average_plot(obs, cor, code, name, width):
     )
 
     layout = go.Layout(
-        title='Nivel medio multi-mensual<br>{0} - {1}'.format(str(code).upper(), name),
+        title='Caudal medio multi-mensual<br>{0} - {1}'.format(str(code).upper(), name),
         xaxis=dict(title='Mes'), 
-        yaxis=dict(title='Nivel (m)', autorange=True),
+        yaxis=dict(title='Caudal (m<sup>3</sup>/s)', autorange=True),
         plot_bgcolor='white',
         paper_bgcolor='white',
         template='simple_white',
@@ -649,16 +657,16 @@ def scatter_plot(cor, obs, code, name, log, width):
     if log:
         layout = go.Layout(
             title="Gráfica de dispersión (escala logarítmica) <br>{0} - {1}".format(code.upper(), name),
-            xaxis=dict(title='Nivel corregido (m)', type='log'),
-            yaxis=dict(title='Nivel observado (m)', type='log', autorange=True),
+            xaxis=dict(title='Caudal corregido (m<sup>3</sup>/s)', type='log'),
+            yaxis=dict(title='Caudal observado (m<sup>3</sup>/s)', type='log', autorange=True),
             showlegend=True,
             template='simple_white'
         )
     else:
         layout = go.Layout(
             title="Gráfica de dispersión <br>{0} - {1}".format(code.upper(), name),
-            xaxis=dict(title='Nivel corregido (m)'),
-            yaxis=dict(title='Nivel observado (m)', autorange=True),
+            xaxis=dict(title='Caudal corregido (m<sup>3</sup>/s)'),
+            yaxis=dict(title='Caudal observado (m<sup>3</sup>/s)', autorange=True),
             showlegend=True,
             template='simple_white'
         )
@@ -818,8 +826,8 @@ def forecast_plot(stats, rperiods, comid, records, obs, width):
     #
     scatter_plots += rperiod_scatters
     layout = go.Layout(
-        title=f"Pronóstico de niveles <br>COMID:{comid}",
-        yaxis={'title': 'Nivel (m)', 'range': [0, 'auto']},
+        title=f"Pronóstico de Caudales <br>COMID:{comid}",
+        yaxis={'title': 'Caudal (m<sup>3</sup>/s)', 'range': [0, 'auto']},
         xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y %H:%M',
                'tickformat': '%b %d %Y'},
     )
@@ -1067,7 +1075,7 @@ def get_plot_data(request):
             "R (Pearson)", "R (Spearman)", "r2"])
 
     #Plots
-    hs = historical_plot(corrected_data, observed_data, code, name, width)
+    hs = historical_plot(simulated_data,corrected_data, observed_data, code, name, width)
     dp = daily_average_plot(observed_data, corrected_data, code, name, width)
     mp = monthly_average_plot(observed_data, corrected_data, code, name, width)
     vp = scatter_plot(corrected_data, observed_data, code, name, False, width2)
