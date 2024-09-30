@@ -619,7 +619,7 @@ def monthly_average_plot(obs, cor, code, name, width):
 
 
 
-def get_scatter_plot(cor, obs, code, name, log, width):
+def scatter_plot(cor, obs, code, name, log, width):
     x_values = cor.iloc[:, 0].values.flatten().tolist()  # Convert to list
     y_values = obs.iloc[:, 0].values.flatten().tolist()  # Convert to list
     
@@ -826,6 +826,71 @@ def forecast_plot(stats, rperiods, comid, records, obs, width):
     return figure.to_dict()
 
 
+
+def probabilities_table(stats, ensem, rperiods):
+    dates = stats.index.tolist()
+    startdate = dates[0]
+    enddate = dates[-1]
+    span = enddate - startdate
+    uniqueday = [startdate + dt.timedelta(days=i) for i in range(span.days + 2)]
+    # get the return periods for the stream reach
+    rp2 = rperiods['return_period_2'].values
+    rp5 = rperiods['return_period_5'].values
+    rp10 = rperiods['return_period_10'].values
+    rp25 = rperiods['return_period_25'].values
+    rp50 = rperiods['return_period_50'].values
+    rp100 = rperiods['return_period_100'].values
+    # fill the lists of things used as context in rendering the template
+    days = []
+    r2 = []
+    r5 = []
+    r10 = []
+    r25 = []
+    r50 = []
+    r100 = []
+    for i in range(len(uniqueday) - 2):  # (-1) omit the extra day used for reference only
+        tmp = ensem.loc[uniqueday[i]:uniqueday[i + 1]]
+        days.append(uniqueday[i].strftime('%b %d'))
+        num2 = 0
+        num5 = 0
+        num10 = 0
+        num25 = 0
+        num50 = 0
+        num100 = 0
+        for column in tmp:
+            if not tmp[column].empty:
+                column_max = tmp[column].to_numpy().max()
+                if column_max > rp100:
+                    num100 += 1
+                if column_max > rp50:
+                    num50 += 1
+                if column_max > rp25:
+                    num25 += 1
+                if column_max > rp10:
+                    num10 += 1
+                if column_max > rp5:
+                    num5 += 1
+                if column_max > rp2:
+                    num2 += 1
+        r2.append(round(num2 * 100 / 52))
+        r5.append(round(num5 * 100 / 52))
+        r10.append(round(num10 * 100 / 52))
+        r25.append(round(num25 * 100 / 52))
+        r50.append(round(num50 * 100 / 52))
+        r100.append(round(num100 * 100 / 52))
+    path = "/home/ubuntu/inamhi-geoglows/backend/app_national_water_level_forecast/probabilities_table.html"
+    with open(path) as template:
+        return jinja2.Template(template.read()).render(
+            days=days, 
+            r2=r2, 
+            r5=r5, 
+            r10=r10, 
+            r25=r25, 
+            r50=r50, 
+            r100=r100,
+            colors=_plot_colors())
+
+
 ###############################################################################
 #                                CONTROLLERS                                  #
 ###############################################################################
@@ -933,7 +998,42 @@ def get_plot_data(request):
     hs = historical_plot(corrected_data, observed_data, code, name, width)
     dp = daily_average_plot(observed_data, corrected_data, code, name, width)
     mp = monthly_average_plot(observed_data, corrected_data, code, name, width)
-    vp = get_scatter_plot(corrected_data, observed_data, code, name, False, width2)
-    fd = get_scatter_plot(corrected_data, observed_data, code, name, True, width2)
+    vp = scatter_plot(corrected_data, observed_data, code, name, False, width2)
+    fd = scatter_plot(corrected_data, observed_data, code, name, True, width2)
     fp = forecast_plot(corrected_stats, corrected_return_periods, comid, corrected_forecast_records, observed_data, width)
     return JsonResponse({"hs":hs, "dp":dp, "mp": mp, "vp":vp, "fd": fd, "fp":fp})
+
+
+
+def get_forecast_table(request):
+    # Query request param and initialize the db connection
+    comid = request.GET.get('comid')
+    code = request.GET.get('code')
+    date = request.GET.get('date')
+    db = create_engine(token)
+    con = db.connect()
+
+    # Retrieve observed data
+    sql = f"SELECT datetime, value FROM waterlevel_data WHERE code='{code}'"
+    observed_data = get_format_data(sql, con)
+    observed_data[observed_data < 0.1] = 0.1
+    
+    # Retrieve historical simulation and corrected data
+    sql = f"SELECT datetime, value FROM historical_simulation WHERE comid={comid}"
+    simulated_data = get_format_data(sql, con)
+    simulated_data[simulated_data < 0.1] = 0.1
+    corrected_data = get_bias_corrected_data(simulated_data, observed_data)
+
+    # Retrieve ensemble forecast data
+    sql = f"SELECT * FROM ensemble_forecast WHERE initialized='{date}' AND comid={comid}"
+    ensemble_forecast = get_format_data(sql, con).drop(columns=['comid', "initialized"])
+
+    # Corrected forecast
+    corrected_ensemble_forecast = get_corrected_forecast(simulated_data, ensemble_forecast, observed_data)
+    corrected_return_periods = get_return_periods(comid, corrected_data)
+    corrected_stats = get_ensemble_stats(corrected_ensemble_forecast)
+    con.close()
+    
+    # Generate table
+    pt = probabilities_table(corrected_stats, corrected_ensemble_forecast, corrected_return_periods)
+    return HttpResponse(pt)
