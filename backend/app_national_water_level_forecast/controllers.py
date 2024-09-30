@@ -568,6 +568,55 @@ def monthly_average_plot(obs, cor, code, name, width):
 
 
 
+def get_scatter_plot(cor, code, name, log, width):
+    merged_cor = cor
+    x_values = merged_cor.iloc[:, 0].values.flatten().tolist()  # Convert to list
+    y_values = merged_cor.iloc[:, 1].values.flatten().tolist()  # Convert to list
+    
+    scatter_data2 = go.Scatter(
+        x=x_values,
+        y=y_values,
+        mode='markers',
+        name='Corregido',
+        marker=dict(color='#00cc96')
+    )
+    
+    min_value = min(min(y_values), min(x_values))
+    max_value = max(max(y_values), max(x_values))
+    
+    line_45 = go.Scatter(
+        x=[min_value, max_value],  # Use list for x-axis
+        y=[min_value, max_value],  # Use list for y-axis
+        mode='lines',
+        name='Linea 1:1',
+        line=dict(color='black')
+    )
+    
+    if log:
+        layout = go.Layout(
+            title="Gráfica de dispersión (escala logarítmica) <br>{0} - {1}".format(code.upper(), name),
+            xaxis=dict(title='Nivel simulado (m<sup>3</sup>/s)', type='log'),
+            yaxis=dict(title='Nivel observado (m<sup>3</sup>/s)', type='log', autorange=True),
+            showlegend=True,
+            template='simple_white'
+        )
+    else:
+        layout = go.Layout(
+            title="Gráfica de dispersión <br>{0} - {1}".format(code.upper(), name),
+            xaxis=dict(title='Nivel simulado (m)'),
+            yaxis=dict(title='Nivel observado (m)', autorange=True),
+            showlegend=True,
+            template='simple_white'
+        )
+    
+    # Plotting data
+    figure = go.Figure(data=[scatter_data2, line_45], layout=layout)
+    figure.update_yaxes(linecolor='gray', mirror=True, showline=True)
+    figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
+    figure.update_layout(template='simple_white', width=width)
+    return figure.to_dict()  # Ensure the result is JSON serializable
+
+
 ###############################################################################
 #                                CONTROLLERS                                  #
 ###############################################################################
@@ -675,7 +724,9 @@ def get_plot_data(request):
     hs = historical_plot(corrected_data, observed_data, code, name, width)
     dp = daily_average_plot(observed_data, corrected_data, code, name, width)
     mp = monthly_average_plot(observed_data, corrected_data, code, name, width)
-    return JsonResponse({"hs":hs, "dp":dp, "mp": mp})
+    vp = get_scatter_plot(corrected_data, code, name, False, width)
+    fd = get_scatter_plot(corrected_data, code, name, True, width)
+    return JsonResponse({"hs":hs, "dp":dp, "mp": mp, "vp":vp, "fd": fd})
 
 
 
