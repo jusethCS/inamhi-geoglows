@@ -1330,6 +1330,7 @@ def get_forecast_csv(request):
     corrected_ensemble_forecast = get_corrected_forecast(simulated_data, 
                                                          ensemble_forecast, 
                                                          observed_data)  
+    corrected_stats = get_ensemble_stats(corrected_ensemble_forecast)
     con.close() 
 
     # Prepare the HTTP response with content type set to CSV
@@ -1337,9 +1338,9 @@ def get_forecast_csv(request):
     
     # Set the content-disposition to indicate a file attachment
     response['Content-Disposition'] = (
-        f'attachment; filename="corrected_simulation_{comid}.csv"'
+        f'attachment; filename="corrected_forecast_{comid}.csv"'
     )
     
     # Write the historical simulation data to the CSV response
-    corrected_ensemble_forecast.to_csv(path_or_buf=response, index=True)
+    corrected_stats.to_csv(path_or_buf=response, index=True)
     return response
