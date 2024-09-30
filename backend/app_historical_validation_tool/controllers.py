@@ -925,41 +925,20 @@ def probabilities_table(stats, ensem, rperiods):
 
 
 def get_metrics_table(sim, cor, my_metrics):
-    # Metrics for simulated data
+ # Metrics for simulated data
     table_sim = hs.make_table(sim, my_metrics)
     table_sim = table_sim.rename(index={'Full Time Series': 'Serie Simulada'})
     table_sim = table_sim.transpose()
-
     # Metrics for corrected simulation data
     table_cor = hs.make_table(cor, my_metrics)
     table_cor = table_cor.rename(index={'Full Time Series': 'Serie Corregida'})
     table_cor = table_cor.transpose()
-
-    # Imprimir columnas de ambos DataFrames antes de la fusión
-    print("Columnas de table_sim:", table_sim.columns)
-    print("Columnas de table_cor:", table_cor.columns)
-
-    # Renombrar las columnas si es necesario, o realizar la fusión
-    try:
-        # Fusionar las tablas
-        table_final = pd.merge(table_sim, table_cor, right_index=True, left_index=True)
-    except ValueError as e:
-        print("Error de fusión:", e)
-        raise e
-
-    # Redondear y convertir a HTML
+    # Merging data
+    table_final = pd.merge(table_sim, table_cor, right_index=True, left_index=True)
     table_final = table_final.round(decimals=2)
-    table_final = table_final.to_html(
-        classes="table table-hover table-striped", 
-        table_id="corrected_1")
-    
-    # Ajustar el HTML para remover bordes y alinear texto
-    table_final = table_final.replace(
-        'border="1"', 'border="0"').replace(
-        '<tr style="text-align: right;">', '<tr style="text-align: left;">')
-
-    return table_final
-
+    table_final = table_final.to_html(classes="table table-hover table-striped", table_id="corrected_1")
+    table_final = table_final.replace('border="1"', 'border="0"').replace('<tr style="text-align: right;">','<tr style="text-align: left;">')
+    return(table_final)
 
 
 
