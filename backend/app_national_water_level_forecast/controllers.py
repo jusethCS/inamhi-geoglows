@@ -895,6 +895,26 @@ def probabilities_table(stats, ensem, rperiods):
             colors=_plot_colors())
 
 
+
+def get_metrics_table(cor, my_metrics):
+    # Metrics for corrected simulation data
+    table_cor = hs.make_table(cor, my_metrics)
+    table_cor = table_cor.rename(index={'Full Time Series': 'Serie Corregida'})
+    table_cor = table_cor.transpose()
+    # Merging data
+    table_final = table_cor
+    table_final = table_final.round(decimals=2)
+    table_final = table_final.to_html(
+        classes="table table-hover table-striped", 
+        table_id="corrected_1")
+    table_final = table_final.replace(
+        'border="1"', 'border="0"').replace(
+            '<tr style="text-align: right;">','<tr style="text-align: left;">')
+    return(table_final)
+
+
+
+
 ###############################################################################
 #                                CONTROLLERS                                  #
 ###############################################################################
@@ -998,6 +1018,14 @@ def get_plot_data(request):
     corrected_forecast_records = get_corrected_forecast_records(forecast_records, simulated_data, observed_data)
     con.close()
 
+    # Merged data
+    merged_cor = hd.merge_data(sim_df = corrected_data, obs_df = observed_data)
+    metrics_table = get_metrics_table(
+        cor = merged_cor,
+        my_metrics = [
+            "ME", "RMSE", "NRMSE (Mean)", "NSE", "KGE (2009)", "KGE (2012)", 
+            "R (Pearson)", "R (Spearman)", "r2"])
+
     #Plots
     hs = historical_plot(corrected_data, observed_data, code, name, width)
     dp = daily_average_plot(observed_data, corrected_data, code, name, width)
@@ -1005,7 +1033,7 @@ def get_plot_data(request):
     vp = scatter_plot(corrected_data, observed_data, code, name, False, width2)
     fd = scatter_plot(corrected_data, observed_data, code, name, True, width2)
     fp = forecast_plot(corrected_stats, corrected_return_periods, comid, corrected_forecast_records, observed_data, width)
-    return JsonResponse({"hs":hs, "dp":dp, "mp": mp, "vp":vp, "fd": fd, "fp":fp})
+    return JsonResponse({"hs":hs, "dp":dp, "mp": mp, "vp":vp, "fd": fd, "fp":fp, "table": metrics_table})
 
 
 
