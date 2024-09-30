@@ -692,7 +692,7 @@ def scatter_plot(sim, cor, obs, code, name, log, width):
         )
     
     # Plotting data
-    figure = go.Figure(data=[scatter_data2, line_45], layout=layout)
+    figure = go.Figure(data=[scatter_data, scatter_data2, line_45], layout=layout)
     figure.update_yaxes(linecolor='gray', mirror=True, showline=True)
     figure.update_xaxes(linecolor='gray', mirror=True, showline=True)
     figure.update_layout(template='simple_white', width=width)
