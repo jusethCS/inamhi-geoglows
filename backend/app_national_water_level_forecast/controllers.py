@@ -533,8 +533,7 @@ def historical_plot(cor, obs, code, name, width):
         go.Scatter(
             name='Datos observados', 
             x=observed_data['x_datetime'], 
-            y=observed_data['y_flow'],
-            connectgaps=False)
+            y=observed_data['y_flow'])
     ]
     
     layout = go.Layout(
