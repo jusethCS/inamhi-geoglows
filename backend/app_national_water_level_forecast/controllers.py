@@ -524,13 +524,15 @@ def historical_plot(cor, obs, code, name, width):
     
     scatter_plots = [
         go.Scatter(
-            name='Simulación histórica corregida', 
+            name='Simulación corregida', 
             x=corrected_data['x_datetime'], 
-            y=corrected_data['y_flow']),
+            y=corrected_data['y_flow'],
+            connectgaps=False),
         go.Scatter(
             name='Datos observados', 
             x=observed_data['x_datetime'], 
-            y=observed_data['y_flow'])
+            y=observed_data['y_flow'],
+            connectgaps=False)
     ]
     
     layout = go.Layout(
@@ -645,8 +647,8 @@ def scatter_plot(cor, obs, code, name, log, width):
     if log:
         layout = go.Layout(
             title="Gráfica de dispersión (escala logarítmica) <br>{0} - {1}".format(code.upper(), name),
-            xaxis=dict(title='Nivel corregido (m<sup>3</sup>/s)', type='log'),
-            yaxis=dict(title='Nivel observado (m<sup>3</sup>/s)', type='log', autorange=True),
+            xaxis=dict(title='Nivel corregido (m)', type='log'),
+            yaxis=dict(title='Nivel observado (m)', type='log', autorange=True),
             showlegend=True,
             template='simple_white'
         )
@@ -815,7 +817,7 @@ def forecast_plot(stats, rperiods, comid, records, obs, width):
     scatter_plots += rperiod_scatters
     layout = go.Layout(
         title=f"Pronóstico de niveles <br>COMID:{comid}",
-        yaxis={'title': 'Caudal (m)', 'range': [0, 'auto']},
+        yaxis={'title': 'Nivel (m)', 'range': [0, 'auto']},
         xaxis={'title': 'Fecha (UTC +0:00)', 'range': [startdate, enddate], 'hoverformat': '%b %d %Y %H:%M',
                'tickformat': '%b %d %Y'},
     )
