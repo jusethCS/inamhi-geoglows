@@ -1015,15 +1015,14 @@ def get_forecast_table(request):
 
     # Retrieve observed data
     sql = f"SELECT datetime, value FROM waterlevel_data WHERE code='{code}'"
-    sql = f"""
-            SELECT gs.datetime, wd.value
-            FROM generate_series('1980-01-01'::date, '2017-12-31'::date, '1 day'::interval) AS gs(datetime)
-            LEFT JOIN waterlevel_data wd ON gs.datetime = wd.datetime AND wd.code = '{code}';
-            """
     observed_data = get_format_data(sql, con)
     observed_data[observed_data < 0.1] = 0.1
-    observed_data.fillna(None)
-    
+    full_date_range = pd.date_range(
+        start=observed_data.index.min(), 
+        end=observed_data.index.max(), 
+        freq='D')
+    observed_data = observed_data.reindex(full_date_range)
+
     # Retrieve historical simulation and corrected data
     sql = f"SELECT datetime, value FROM historical_simulation WHERE comid={comid}"
     simulated_data = get_format_data(sql, con)
