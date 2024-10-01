@@ -57,6 +57,7 @@ def get_datetime():
     for mes_ingles, mes_espanol in meses_ingles_a_espanol.items():
         emision = emision.replace(mes_ingles, mes_espanol)
     #
+    now = now + timedelta(days=1)
     # Formatear dia anterior
     anterior = (now + timedelta(days=-1)).strftime("%d de %B del %Y (07H00)")
     for mes_ingles, mes_espanol in meses_ingles_a_espanol.items():
