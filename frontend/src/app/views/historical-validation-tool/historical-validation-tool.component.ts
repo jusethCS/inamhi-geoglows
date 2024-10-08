@@ -118,11 +118,14 @@ export class HistoricalValidationToolComponent {
 
   // Variables for panel
   public comid: string = "";
+  public code: string = "";
+  public name: string = "";
   public latitude: string = "";
   public longitude: string = "";
   public river: string = "";
   public province: string = "";
   public canton: string = "";
+  public metricTable: string = "";
 
   // Plot - geographical area
   public dataAppConfig = new dataApp();
@@ -324,7 +327,6 @@ export class HistoricalValidationToolComponent {
       this.draingeNetwork = L.geoJSON(data, {
           style: {weight: 12, color: "rgba(0, 0, 0, 0)"}
       }).addTo(this.map);
-      this.draingeNetwork.on("click", (e: L.LeafletMouseEvent) => this.getParamRiver(e));
       this.initializeRiverNameControl(data);
       this.initializeComidControl(data);
     });
@@ -434,42 +436,6 @@ export class HistoricalValidationToolComponent {
   }
 
 
-  private getParamRiver(e: L.LeafletMouseEvent){
-    // Conditions
-    this.isReadyDataPlot = false;
-    this.renderer.setProperty(this.table.nativeElement, 'innerHTML', "");
-
-    // Data
-    const prop = e.layer.feature.properties;
-    this.comid = prop.comid;
-    this.latitude = prop.latitude;
-    this.longitude = prop.longitude;
-    this.river = prop.river;
-    this.province = prop.loc1;
-    this.canton = prop.loc2;
-    this.dateControlPanel.setValue(this.dateControl.value);
-
-    this.template.showDataModal();
-    setTimeout(() => {
-      const elementWidth = this.panelPlot.nativeElement.offsetWidth; //this.template.dataModal?.nativeElement.offsetWidth;
-      fetch(`${environment.urlAPI}/geoglows/geoglows-data-plot?comid=${this.comid}&date=${this.rangeDate[0]}&width=${elementWidth}`)
-      .then((response) => response.json())
-      .then((response) => {
-        this.historicalSimulationPlot = response.hs;
-        this.dailyAveragePlot = response.dp;
-        this.monthlyAveragePlot = response.mp;
-        this.flowDurationCurve = response.fd;
-        this.volumePlot = response.vp;
-        this.forecastPlot = response.fp;
-        this.isReadyDataPlot = true;
-        fetch(`${environment.urlAPI}/geoglows/geoglows-table?comid=${this.comid}&date=${this.rangeDate[0]}`)
-          .then((response) => response.text())
-          .then((response) => {
-            this.renderer.setProperty(this.table.nativeElement, 'innerHTML', response);
-          })
-      })
-    }, 300);
-  }
 
   private getParamAlert(e: L.LeafletMouseEvent){
     // Conditions
@@ -478,7 +444,10 @@ export class HistoricalValidationToolComponent {
 
     // Data
     const prop = e.layer.feature.properties;
+    console.log(prop)
     this.comid = prop.comid;
+    this.code = prop.code;
+    this.name = prop.name;
     this.latitude = prop.latitude;
     this.longitude = prop.longitude;
     this.river = prop.river;
@@ -489,7 +458,7 @@ export class HistoricalValidationToolComponent {
     this.template.showDataModal();
     setTimeout(() => {
       const elementWidth = this.panelPlot.nativeElement.offsetWidth;
-      fetch(`${environment.urlAPI}/geoglows/geoglows-data-plot?comid=${this.comid}&date=${this.rangeDate[0]}&width=${elementWidth}`)
+      fetch(`${environment.urlAPI}/historical-validation-tool/plot-data?comid=${this.comid}&date=${this.rangeDate[0]}&width=${elementWidth}&code=${this.code}&name=${this.name}`)
       .then((response) => response.json())
       .then((response) => {
         this.historicalSimulationPlot = response.hs;
@@ -498,8 +467,9 @@ export class HistoricalValidationToolComponent {
         this.flowDurationCurve = response.fd;
         this.volumePlot = response.vp;
         this.forecastPlot = response.fp;
+        this.metricTable = response.table;
         this.isReadyDataPlot = true;
-        fetch(`${environment.urlAPI}/geoglows/geoglows-table?comid=${this.comid}&date=${this.rangeDate[0]}`)
+        fetch(`${environment.urlAPI}/historical-validation-tool/forecast-table?comid=${this.comid}&date=${this.rangeDate[0]}&code=${this.code}`)
           .then((response) => response.text())
           .then((response) => {
             this.renderer.setProperty(this.table.nativeElement, 'innerHTML', response);
@@ -516,7 +486,7 @@ export class HistoricalValidationToolComponent {
       const currentDate = this.utilsApp.getDateRangeGeoglows(this.dateControlPanel.value);
       setTimeout(() => {
         const elementWidth = this.panelPlot.nativeElement.offsetWidth;
-        fetch(`${environment.urlAPI}/geoglows/geoglows-data-plot?comid=${this.comid}&date=${currentDate[0]}&width=${elementWidth}`)
+        fetch(`${environment.urlAPI}/historical-validation-tool/plot-data?comid=${this.comid}&date=${currentDate[0]}&width=${elementWidth}&code=${this.code}&name=${this.name}`)
         .then((response) => response.json())
         .then((response) => {
           this.historicalSimulationPlot = response.hs;
@@ -525,8 +495,9 @@ export class HistoricalValidationToolComponent {
           this.flowDurationCurve = response.fd;
           this.volumePlot = response.vp;
           this.forecastPlot = response.fp;
+          this.metricTable = response.table;
           this.isReadyDataPlot = true;
-          fetch(`${environment.urlAPI}/geoglows/geoglows-table?comid=${this.comid}&date=${currentDate[0]}`)
+          fetch(`${environment.urlAPI}/historical-validation-tool/forecast-table?comid=${this.comid}&date=${this.rangeDate[0]}&code=${this.code}`)
             .then((response) => response.text())
             .then((response) => {
               this.renderer.setProperty(this.table.nativeElement, 'innerHTML', response);
@@ -541,27 +512,27 @@ export class HistoricalValidationToolComponent {
   }
 
   public getFloodWarnings(){
-    const url = `${environment.urlAPI}/geoglows/geoglows-streamflow-warnings?date=${this.rangeDate[0]}`;
+    const url = `${environment.urlAPI}/historical-validation-tool/streamflow-alerts?date=${this.rangeDate[0]}`;
     console.log(url);
       fetch(url)
         .then((response) => response.json())
         .then((response)=> {
           this.geoglowsFloodWarnings = [
-            this.utilsApp.filterByDay(response, "d01"),
-            this.utilsApp.filterByDay(response, "d02"),
-            this.utilsApp.filterByDay(response, "d03"),
-            this.utilsApp.filterByDay(response, "d04"),
-            this.utilsApp.filterByDay(response, "d05"),
-            this.utilsApp.filterByDay(response, "d06"),
-            this.utilsApp.filterByDay(response, "d07"),
-            this.utilsApp.filterByDay(response, "d08"),
-            this.utilsApp.filterByDay(response, "d09"),
-            this.utilsApp.filterByDay(response, "d10"),
-            this.utilsApp.filterByDay(response, "d11"),
-            this.utilsApp.filterByDay(response, "d12"),
-            this.utilsApp.filterByDay(response, "d13"),
-            this.utilsApp.filterByDay(response, "d14"),
-            this.utilsApp.filterByDay(response, "d15")
+            this.utilsApp.filterByDayWaterLevel(response, "d01"),
+            this.utilsApp.filterByDayWaterLevel(response, "d02"),
+            this.utilsApp.filterByDayWaterLevel(response, "d03"),
+            this.utilsApp.filterByDayWaterLevel(response, "d04"),
+            this.utilsApp.filterByDayWaterLevel(response, "d05"),
+            this.utilsApp.filterByDayWaterLevel(response, "d06"),
+            this.utilsApp.filterByDayWaterLevel(response, "d07"),
+            this.utilsApp.filterByDayWaterLevel(response, "d08"),
+            this.utilsApp.filterByDayWaterLevel(response, "d09"),
+            this.utilsApp.filterByDayWaterLevel(response, "d10"),
+            this.utilsApp.filterByDayWaterLevel(response, "d11"),
+            this.utilsApp.filterByDayWaterLevel(response, "d12"),
+            this.utilsApp.filterByDayWaterLevel(response, "d13"),
+            this.utilsApp.filterByDayWaterLevel(response, "d14"),
+            this.utilsApp.filterByDayWaterLevel(response, "d15")
           ];
           this.updateFloodWarnings();
         })
@@ -798,7 +769,14 @@ export class HistoricalValidationToolComponent {
 
 
   public downloadHistoricalSimulation(){
-    const url = `${environment.urlAPI}/geoglows/get-historical-simulation-csv?comid=${this.comid}`
+    const url = `${environment.urlAPI}/historical-validation-tool/historical-simulation-csv?comid=${this.comid}`
+    const link = document.createElement('a');
+    link.href = url;
+    link.click();
+  }
+
+  public downloadCorrectedSimulation(){
+    const url = `${environment.urlAPI}/historical-validation-tool/corrected-simulation-csv?comid=${this.comid}&code=${this.code}`
     const link = document.createElement('a');
     link.href = url;
     link.click();
@@ -807,7 +785,7 @@ export class HistoricalValidationToolComponent {
   public downloadForecast(){
     if(this.dateControlPanel.value){
       const currentDate = this.utilsApp.getDateRangeGeoglows(this.dateControlPanel.value);
-      const url = `${environment.urlAPI}/geoglows/get-forecast-csv?comid=${this.comid}&date=${currentDate[0]}`
+      const url = `${environment.urlAPI}/historical-validation-tool/forecast-csv?comid=${this.comid}&date=${currentDate[0]}&code=${this.code}`
       const link = document.createElement('a');
       link.href = url;
       link.click();
