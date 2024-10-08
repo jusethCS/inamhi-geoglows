@@ -33,10 +33,10 @@ from dotenv import load_dotenv
 ###############################################################################
 #                                   COLORBARS                                 #
 ###############################################################################
-def color_pacum(pixelValue:float) -> str:
+def color_pacum(pixelValue: float) -> str:
     """
     Returns the corresponding color for a given precipitation value (pixelValue)
-    based on predefined ranges.
+    based on predefined ranges following the XML style.
 
     Parameters:
     pixelValue (float): The precipitation value to determine the color.
@@ -44,60 +44,52 @@ def color_pacum(pixelValue:float) -> str:
     Returns:
     str: The color in hexadecimal format corresponding to the precipitation.
     """
-    if pixelValue == 0:
-        return "none"
-    elif 0.01 <= pixelValue <= 0.5:
-        return "#B4D7FF"
-    elif 0.5 < pixelValue <= 1:
-        return "#75BAFF"
-    elif 1 < pixelValue <= 2:
-        return "#359AFF"
-    elif 2 < pixelValue <= 3:
-        return "#0482FF"
-    elif 3 < pixelValue <= 4:
-        return "#0069FF"
-    elif 4 < pixelValue <= 5:
-        return "#00367F"
-    elif 5 < pixelValue <= 7:
-        return "#148F1B"
-    elif 7 < pixelValue <= 10:
-        return "#1ACF05"
-    elif 10 < pixelValue <= 15:
-        return "#63ED07"
-    elif 15 < pixelValue <= 20:
-        return "#FFF42B"
-    elif 20 < pixelValue <= 25:
-        return "#E8DC00"
-    elif 25 < pixelValue <= 30:
-        return "#F06000"
-    elif 30 < pixelValue <= 35:
-        return "#FF7F27"
-    elif 35 < pixelValue <= 40:
-        return "#FFA66A"
-    elif 40 < pixelValue <= 45:
-        return "#F84E78"
-    elif 45 < pixelValue <= 50:
-        return "#F71E54"
-    elif 50 < pixelValue <= 60:
-        return "#BF0000"
-    elif 60 < pixelValue <= 70:
-        return "#880000"
-    elif 70 < pixelValue <= 80:
-        return "#640000"
-    elif 80 < pixelValue <= 90:
-        return "#C200FB"
-    elif 90 < pixelValue <= 100:
-        return "#DD66FF"
-    elif 100 < pixelValue <= 125:
-        return "#EBA6FF"
-    elif 125 < pixelValue <= 150:
-        return "#F9E6FF"
-    elif 150 < pixelValue <= 300:
-        return "#D4D4D4"
-    elif pixelValue > 300:
-        return "#000000"
+    if pixelValue < 1:
+        return "none"  # Label 1
+    elif 1 <= pixelValue <= 3.75:
+        return "#75baff"  # Label 1.01
+    elif 3.76 <= pixelValue <= 7.5:
+        return "#359aff"  # Label 3.75
+    elif 7.51 <= pixelValue <= 11.25:
+        return "#0087ff"  # Label 7.5
+    elif 11.26 <= pixelValue <= 15:
+        return "#0674C6"  # Label 11.25
+    elif 15.01 <= pixelValue <= 18.75:
+        return "#0C608D"  # Label 15
+    elif 18.76 <= pixelValue <= 22.5:
+        return "#148f1b"  # Label 18.75
+    elif 22.51 <= pixelValue <= 26.25:
+        return "#1acf05"  # Label 22.5
+    elif 26.26 <= pixelValue <= 30:
+        return "#63ed07"  # Label 26.25
+    elif 30.01 <= pixelValue <= 33.75:
+        return "#B1F119"  # Label 30
+    elif 33.76 <= pixelValue <= 37.5:
+        return "#d5f775"  # Label 33.75
+    elif 37.51 <= pixelValue <= 41.25:
+        return "#fff42b"  # Label 37.5
+    elif 41.26 <= pixelValue <= 45:
+        return "#ffcb4d"  # Label 41.25
+    elif 45.01 <= pixelValue <= 48.75:
+        return "#fb9a6f"  # Label 45
+    elif 48.76 <= pixelValue <= 52.5:
+        return "#f96d73"  # Label 48.75
+    elif 52.51 <= pixelValue <= 56.25:
+        return "#f84e78"  # Label 52.5
+    elif 56.26 <= pixelValue <= 60:
+        return "#f71e54"  # Label 56.25
+    elif 60.01 <= pixelValue <= 63.75:
+        return "#bf0000"  # Label 60
+    elif 63.76 <= pixelValue <= 67.5:
+        return "#880000"  # Label 63.75
+    elif 67.51 <= pixelValue <= 71.25:
+        return "#640000"  # Label 67.5
+    elif 71.26 <= pixelValue <= 75:
+        return "#2d0000"  # Label 71.25
+    elif pixelValue > 75:
+        return "#2d0000"  # Label 75 and above
     else:
-        return "none"
+        return "none"  # Default case for values not covered
 
 
 def color_percent(pixelValue:float) -> str:
