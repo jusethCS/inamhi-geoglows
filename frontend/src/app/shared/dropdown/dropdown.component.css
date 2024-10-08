@@ -1,0 +1,25 @@
+.expansion-panel{
+  background-color: transparent !important;
+  color: white !important;
+}
+.expansion-header{
+  min-height: 30px !important;
+  height: 45px !important;
+  -webkit-transition: 0.2s linear;
+	-moz-transition: 0.2s linear;
+	-ms-transition: 0.2s linear;
+	-o-transition: 0.2s linear;
+	transition: 0.2s linear;
+  padding-left: 10px !important;
+  margin-bottom: 8px !important;
+}
+.expansion-header:hover{
+  background: #1d4f71 !important;
+  border-left: 4px solid #3498db;
+}
+.panel-title{
+  color: white !important;
+  font-size: 16px;
+}
+.mat-expansion-panel:not([class*=mat-elevation-z]) {
+  box-shadow: none !important}
