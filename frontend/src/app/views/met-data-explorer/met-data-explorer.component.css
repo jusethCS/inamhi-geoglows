@@ -1,0 +1,125 @@
+.panel-container{
+  padding-left: 12px;
+  padding-right: 8px;
+  padding-top: 12px;
+}
+
+#map{
+  height: calc(100vh - 105px);
+  width: 100%;
+}
+
+::ng-deep .inamhi-logo{
+  width: 125px !important;
+  height: 58px !important;
+}
+
+::ng-deep .servir-logo{
+  width: 180px !important;
+  height: 30px !important;
+}
+
+::ng-deep .info-control{
+  min-width: 33px !important;
+  min-height: 33px !important;
+  border-radius: 4px;
+  font-size: 22px;
+  line-height: 1.5;
+  border: 2px solid rgba(0,0,0,0.2);
+  background-clip: padding-box;
+  background-color: white;
+  padding-top: 2px;
+  cursor: pointer;
+}
+
+.reprod-container{
+  height: 45px;
+  background-color: #162633;
+}
+
+.reprod-title{
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+}
+
+.reprod-panel-button{
+  min-width: 50px !important;
+  width: 250px;
+}
+.reprod-panel-save{
+  min-width: 50px !important;
+  width: 180px;
+}
+
+.reprod-button{
+  min-width: 35px !important;
+  width: 50px !important;
+  height: 30px !important;
+  font-size: 0.8rem !important;
+}
+
+.select{
+  width: 300px !important;
+}
+
+.scaled{
+  transform: scale(0.8) !important;
+  transform-origin: top left !important;
+}
+
+.scaled-text{
+  font-size: 0.8rem;
+}
+
+.mat-mdc-option{
+  min-height: 40px !important;
+}
+
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  min-height: 12px !important;
+  height: 12px !important;
+}
+
+.update-button{
+  font-size: 1rem;
+  width: 300px !important;
+  height: 50px !important;
+  background-color: rgba(255,255,255,0.2);
+}
+
+.modal-header-title{
+  font-size: 1.2rem;
+  font-weight:500;
+  margin-top: 12px;
+  margin-bottom: 10px;
+}
+
+.modal-header-content{
+  font-size: 0.8rem;
+}
+
+.panel-subtitle{
+  font-size: 0.8rem;
+  color: #FCBF10;
+  font-weight: bold;
+  padding-bottom: 6px;
+}
+
+.form-check{
+  padding-bottom: 6px;
+}
+.form-check-label{
+  font-size: 0.8rem;
+}
+
+.half-button{
+  width: 48%;
+  height: 45px;
+  font-size: 1rem;
+  background-color: rgba(255,255,255,0.2);
+}
+
+#shpFile{
+  font-size: 0.7rem;
+}

@@ -1,0 +1,61 @@
+<div class="app-header d-flex justify-content-between">
+
+  <div class="app-header-img d-flex align-items-center">
+    <div class="d-flex justify-content-start">
+      <div class="panel-button" (click)="togglePanel()">
+        <fa-icon [icon]="faBars"></fa-icon>
+      </div>
+      <img [src]="imageUrl" alt="Card image">
+      <div class="d-flex align-items-center ms-3">
+        <div class="app-header-title" style="text-transform: uppercase; font-size: 1.3rem;">
+          {{appName}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="app-header-title d-flex align-items-center">
+    <div class="d-flex justify-content-start">
+
+      <div class="header-button" (click)="showModalPanel()" >
+        <fa-icon [icon]="faChartColumn"></fa-icon>
+      </div>
+
+      @if(isAuth){
+        <div class="dropdown desktop-dropdown">
+          <button class="btn dropdown-toggle btn-custom" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <fa-icon [icon]="faUser"></fa-icon>
+            {{userFullName}}
+          </button>
+          <ul class="dropdown-menu">
+            <li (click)="logout()"><a class="dropdown-item" href="/">Cerrar sesión</a></li>
+          </ul>
+        </div>
+        <div class="dropdown smartphone-dropdown">
+          <button class="btn dropdown-toggle btn-custom" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <fa-icon [icon]="faUser"></fa-icon>
+          </button>
+          <ul class="dropdown-menu">
+            <li (click)="logout()"><a class="dropdown-item" href="/">Cerrar sesión</a></li>
+          </ul>
+        </div>
+      }@else {
+        <div class="header-login">
+          INICIAR SESIÓN
+        </div>
+
+      }
+
+
+
+      <div class="header-button" (click)="redirectToApps()">
+        <fa-icon [icon]="faXmark"></fa-icon>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+

@@ -1,0 +1,13 @@
+.card-app{
+  width: 190px;
+  padding: 30px;
+  margin-left: 10px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.card-name{
+  font-size: 1rem;
+  color: white;
+  padding-top: 1rem;
+}

@@ -1,0 +1,71 @@
+<h5 style="text-align: center">Porcentaje de ensambles que exceden los periodos de retorno</h5>
+<table id="returntable" align="center" style="width: 98%; border: 1px solid gray; border-collapse: collapse; font-size: 14px; text-align: center;">
+  <tbody>
+    <tr>
+      <th style="border: 1px solid gray; border-collapse: collapse; background-color: #E2E2E2;">Periodos<br>de retorno</th>
+      {% for day in days %}
+        <th style="border: 1px solid gray; border-collapse: collapse; background-color: #E2E2E2;">{{ day }}</th>
+      {% endfor %}
+    </tr>
+    <tr>
+      <td style="border: 1px solid gray; border-collapse: collapse; background-color: #E2E2E2;">2 años</td>
+      {% for r in r2 %}
+        {% if r != 0 %}
+          <td style="background-color: {{ colors['2 Year']}}; border: 1px solid gray; border-collapse: collapse;">{{ r }}%</td>
+        {% else %}
+          <td style="border: 1px solid gray; border-collapse: collapse;"></td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td style="border: 1px solid gray; border-collapse: collapse; background-color: #E2E2E2;">5 años</td>
+      {% for r in r5 %}
+        {% if r != 0 %}
+          <td style="background-color: {{ colors['5 Year']}}; border: 1px solid gray; border-collapse: collapse;">{{ r }}%</td>
+        {% else %}
+          <td style="border: 1px solid gray; border-collapse: collapse;"></td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td style="border: 1px solid gray; border-collapse: collapse; background-color: #E2E2E2;">10 años</td>
+      {% for r in r10 %}
+        {% if r != 0 %}
+          <td style="background-color: {{ colors['10 Year']}}; border: 1px solid gray; border-collapse: collapse;">{{ r }}%</td>
+        {% else %}
+          <td style="border: 1px solid gray; border-collapse: collapse;"></td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td style="border: 1px solid gray; border-collapse: collapse; background-color: #E2E2E2;">25 años</td>
+      {% for r in r25 %}
+        {% if r != 0 %}
+          <td style="background-color: {{ colors['25 Year']}}; border: 1px solid gray; border-collapse: collapse;">{{ r }}%</td>
+        {% else %}
+          <td style="border: 1px solid gray; border-collapse: collapse;"></td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td style="border: 1px solid gray; border-collapse: collapse; background-color: #E2E2E2;">50 años</td>
+      {% for r in r50 %}
+        {% if r != 0 %}
+          <td style="background-color: {{ colors['50 Year']}}; border: 1px solid gray; border-collapse: collapse;">{{ r }}%</td>
+        {% else %}
+          <td style="border: 1px solid gray; border-collapse: collapse;"></td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+    <tr>
+      <td style="border: 1px solid gray; border-collapse: collapse; background-color: #E2E2E2;">100 años</td>
+      {% for r in r100 %}
+        {% if r != 0 %}
+          <td style="background-color: {{ colors['100 Year']}}; border: 1px solid gray; border-collapse: collapse;">{{ r }}%</td>
+        {% else %}
+          <td style="border: 1px solid gray; border-collapse: collapse;"></td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+  </tbody>
+</table>
