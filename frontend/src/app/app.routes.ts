@@ -10,6 +10,7 @@ import { HydroviewerComponent } from './views/hydroviewer/hydroviewer.component'
 import { HistoricalValidationToolComponent } from './views/historical-validation-tool/historical-validation-tool.component';
 import { NationalWaterLevelForecastComponent } from './views/national-water-level-forecast/national-water-level-forecast.component';
 import { HydrometReportToolComponent } from './views/hydromet-report-tool/hydromet-report-tool.component';
+import { HydropowersComponent } from './views/hydropowers/hydropowers.component';
 
 export const routes: Routes = [
   // ----------------------------------------------------------------------- //
@@ -60,5 +61,9 @@ export const routes: Routes = [
   {
     path: "apps/hydromet-warning-tool",
     component: HydrometReportToolComponent,
+  },
+  {
+    path: "apps/hydropowers",
+    component: HydropowersComponent,
   },
 ];

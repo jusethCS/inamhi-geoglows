@@ -189,6 +189,21 @@ export class HydroviewerComponent {
   public comidFilteredOptions: Observable<string[]> | undefined;
 
 
+  // Basins
+  public isActiveBasinAgoyan:boolean = false;
+  public basinAgoyanLayer:any
+  public isActiveBasinCoca:boolean = false;
+  public basinCocaLayer:any
+  public isActiveBasinDelsintanisagua:boolean = false;
+  public basinDelsintanisaguaLayer:any
+  public isActiveBasinDue:boolean = false;
+  public basinDueLayer:any
+  public isActiveBasinJubones:boolean = false;
+  public basinJubonesLayer:any
+  public isActiveBasinPaute:boolean = false;
+  public basinPauteLayer:any
+
+
 
   constructor(private renderer: Renderer2) {}
 
@@ -414,12 +429,63 @@ export class HydroviewerComponent {
       zIndex: 1100,
     });
 
+    // Add layers
+    this.basinAgoyanLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:agoyan',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
+    this.basinCocaLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:coca',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
+    this.basinDelsintanisaguaLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:delsintanisagua',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
+    this.basinDueLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:due',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
+    this.basinJubonesLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:jubones',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
+    this.basinPauteLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:paute',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
     const overlayers = [
       this.cantonLayer, this.provinceLayer,
       this.protectedAreaLayer, this.waterRechargeLayer, this.conectivityCoLayer,
       this.humedalRamsarLayer, this.reservaBiosferaLayer, this.conservacionSocioBosqueLayer,
       this.bosqueProtectorLayer, this.SNAPLayer,
-      this.citiesLayer, this.hydropowers50Layer
+      this.citiesLayer, this.hydropowers50Layer,
+      this.basinAgoyanLayer, this.basinCocaLayer, this.basinDelsintanisaguaLayer,
+      this.basinDueLayer, this.basinJubonesLayer, this.basinPauteLayer
     ];
 
     this.map.on('layeradd', function(){
