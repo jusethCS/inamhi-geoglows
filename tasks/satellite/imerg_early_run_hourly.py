@@ -243,7 +243,7 @@ def sum_rasters(path1, path2, output_path):
 def to_geoserver(current_date):
     # Establish the path and process if it does not exists
     path = ("/usr/share/geoserver/data_dir/coverages/"
-            "imerg-early-run-daily/%Y%m%d%H00.tif")
+            "imerg_early_run_hourly/%Y%m%d%H00.tif")
     path = current_date.strftime(path)
     print(current_date.strftime("%Y-%m-%d %H:00"))
     if not os.path.isfile(path):
@@ -261,7 +261,7 @@ def to_geoserver(current_date):
         os.remove("temporal.nc")
         os.remove("temporal_0.tif")
         os.remove("temporal_30.tif")
-        os.system(f"chmod 777 {path}")
+        #os.system(f"chmod 777 {path}")
         print(f"Inserted data for: {path}")
 
 
@@ -290,10 +290,34 @@ dates = pd.date_range(start=start, end=end, freq='1H')
 for date in dates:
     try:
         to_geoserver(date)
-    except:
-        print(f"Failed to process: {date.strftime('%Y-%m-%d %H:00')}")
+    except Exception as e:
+        print(f"Failed to process: {date.strftime('%Y-%m-%d %H:00')} \n {e}")
 
 
 
 
 #http://ec2-54-234-81-180.compute-1.amazonaws.com/geoserver/web/wicket/bookmarkable/org.geoserver.web.data.layer.NewLayerPage?17
+
+
+
+
+
+import requests
+
+# Configuración
+geoserver_url = "http://ec2-54-234-81-180.compute-1.amazonaws.com/geoserver"
+workspace = "test"
+datastore = "imerg_early_run_hourly"
+auth = ('admin', 'geoserver')  # Usuario y contraseña de GeoServer
+
+# URL de recarga del DataStore
+url = f"{geoserver_url}/rest/workspaces/{workspace}/datastores/{datastore}/reload"
+
+# Solicitud POST para recargar el DataStore
+response = requests.post(url, auth=auth)
+
+# Verificar la respuesta
+if response.status_code == 200:
+    print("DataStore recargado exitosamente.")
+else:
+    print(f"Error al recargar DataStore: {response.status_code}")
