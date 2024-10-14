@@ -7,6 +7,7 @@ import rasterio
 import requests
 import subprocess
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 from geo.Geoserver import Geoserver
 from rasterio.transform import from_origin
@@ -88,7 +89,7 @@ def nc_to_tif(path:str, var:str, time:str, out_path:str = None) -> None:
     #
     # Read the netcdf file
     ds = xarray.open_dataset(path)
-    ds = ds.sel(time=time.replace(hour=0, minute=0, second=0, microsecond=0))
+    ds = ds.sel(time=ds['time'][0])
     #
     # Extract data
     data = ds[var].values
@@ -157,66 +158,38 @@ def mask(input_raster:str, bounds:tuple, correct_factor:float = 1) -> None:
             dst.write(data)
 
 
-def upload_to_geoserver(geo:Geoserver, layer_name:str, path:str, workspace:str,
-                          style_name:str) -> None:
-    """
-    Create and manage a coveragestore in GeoServer, and apply a style.
-
-    Parameters
-    ----------
-      - geo (Geoserver): object that contains GeoServer methods.
-      - layer_name (str): layer name for geoserver.
-      - path (str): Path to the tif file.
-      - workspace (str): GeoServer workspace .
-      - style_name (str): Style to apply.
-    """
-    
-    try:
-        geo.create_coveragestore(
-            layer_name=layer_name, 
-            path=path, 
-            workspace=workspace)
-        geo.publish_style(
-            layer_name=layer_name, 
-            style_name=style_name, 
-            workspace=workspace)
-    except:
-        geo.delete_coveragestore(
-            coveragestore_name=layer_name, 
-            workspace=workspace)
-        geo.create_coveragestore(
-            layer_name=layer_name, 
-            path=path, 
-            workspace=workspace)
-        geo.publish_style(
-            layer_name=layer_name, 
-            style_name=style_name, 
-            workspace=workspace)
+def min_code(date):
+    hora = date.hour
+    minuto = date.minute
+    codigo = hora * 60 + minuto
+    return f"{codigo:04d}"
 
 
-def process_and_upload_data(geo, current_date):
+
+def download_data(current_date, mins):
     """
-    Downloads GPM data from NASA OPeNDAP, processes it to GeoTIFF, masks the 
-    data, and uploads it to GeoServer.
+    Downloads GPM data from NASA OPeNDAP, processes it to GeoTIFF and mask it.
 
     Parameters:
-    geo -- object that contains GeoServer methods.
     current_date -- the date for which to download and process the data.
-    bounds -- geographic bounds to mask the GeoTIFF file.
+    mins -- Minute to process
     """
+    #Configure date
+    current_date = current_date.replace(minute=mins, second=0, microsecond=0)
     #
-    # Extract year, month, and day from the current date
-    year = current_date.strftime('%Y')
-    month = current_date.strftime('%m')
-    day = current_date.strftime('%d')
-    #
-    # Configure bounds
-    bounds = (-94, -7.5, -70, 4)
+    # Parameters
+    year = current_date.strftime("%Y")
+    actual = current_date.strftime("%Y%m%d")
+    code = min_code(current_date)
+    julian_day = current_date.strftime("%j")
+    end_date = current_date + datetime.timedelta(seconds=1799)
+    ss = current_date.strftime("%H%M00")
+    ee = end_date.strftime("%H%M59")
     #
     # Construct the URL for the GPM data
     url = (f"https://gpm1.gesdisc.eosdis.nasa.gov/opendap/hyrax/GPM_L3/"
-           f"GPM_3IMERGDE.07/{year}/{month}/3B-DAY-E.MS.MRG.3IMERG."
-           f"{year}{month}{day}-S000000-E235959.V07B.nc4.nc4?")
+        f"GPM_3IMERGHHE.07/{year}/{julian_day}/3B-HHR-E.MS.MRG.3IMERG."
+        f"{actual}-S{ss}-E{ee}.{code}.V07B.HDF5.nc4?")
     #
     # Download the data
     response = requests.get(url)
@@ -226,23 +199,72 @@ def process_and_upload_data(geo, current_date):
         # Save the downloaded content to a local file
         with open("temporal.nc", 'wb') as f:
             f.write(response.content)
+    #
+    nc_to_tif(path="temporal.nc", var="precipitation", time=current_date, 
+            out_path=f"temporal_{mins}.tif")
+    mask(f"temporal_{mins}.tif", bounds= (-94, -7.5, -70, 4), correct_factor=0.5)
+
+
+def sum_rasters(path1, path2, output_path):
+    """
+    Function to sum two raster files and save the result to a new file.
+
+    Parameters:
+    path1 (str): Path to the first raster file.
+    path2 (str): Path to the second raster file.
+    output_path (str): Path to save the output raster file.
+
+    Returns:
+    None: The function saves the resulting raster to the specified output path.
+    """
+    # Open the first raster file
+    with rasterio.open(path1) as src1:
+        # Read the data of the first raster (band 1)
+        raster1 = src1.read(1)
+        profile = src1.profile 
+    #
+    # Open the second raster file
+    with rasterio.open(path2) as src2:
+        # Read the data of the second raster (band 1)
+        raster2 = src2.read(1)
         #
-        # Convert the NetCDF to GeoTIFF and apply the mask
-        nc_to_tif(
-            path="temporal.nc", 
-            var="precipitation", 
-            time=current_date)
-        mask("temporal.tif", bounds)
+        # Check if the shapes of the two rasters match
+        if raster1.shape != raster2.shape:
+            raise ValueError("The dimensions of the two rasters do not match.")
+    #
+    # Sum the two raster arrays
+    suma = raster1 + raster2
+    #
+    # Save the resulting raster to a new file
+    with rasterio.open(output_path, 'w', **profile) as dst:
+        dst.write(suma, 1)  # Write the sum as the first band
+
+
+def to_geoserver(current_date):
+    # Establish the path and process if it does not exists
+    path = ("/usr/share/geoserver/data_dir/coverages/"
+            "imerg-early-run-daily/%Y%m%d%H00.tif")
+    path = current_date.strftime(path)
+    print(current_date.strftime("%Y-%m-%d %H:00"))
+    if not os.path.isfile(path):
+        # Download data
+        download_data(current_date, mins=0)
+        download_data(current_date, mins=30)
         #
-        # Upload the processed GeoTIFF to GeoServer
-        upload_to_geoserver(
-            geo=geo, 
-            layer_name=current_date.strftime('%Y-%m-%d'), 
-            path="temporal.tif", 
-            workspace="imerg-early-daily", 
-            style_name="precipitation_style_imerg_early_daily")
-    else:
-        print(f"Error downloading data for {current_date}:\n {response.status_code}")
+        # Verify if folder exists
+        #folder_path = os.path.dirname(path)
+        #if not os.path.exists(folder_path):
+        #    os.makedirs(folder_path)
+        #
+        # Create the coverage
+        sum_rasters("temporal_0.tif", "temporal_30.tif", path)
+        os.remove("temporal.nc")
+        os.remove("temporal_0.tif")
+        os.remove("temporal_30.tif")
+        os.system(f"chmod 777 {path}")
+        print(f"Inserted data for: {path}")
+
+
 
 
 ###############################################################################
@@ -251,19 +273,27 @@ def process_and_upload_data(geo, current_date):
 
 # Load enviromental
 load_dotenv("/home/ubuntu/inamhi-geoglows/.env")
-GEOSERVER_USER = os.getenv("GEOSERVER_USER")
-GEOSERVER_PASS = os.getenv("GEOSERVER_PASS")
 NASA_USER = os.getenv("NASA_USER")
 NASA_PASS = os.getenv("NASA_PASS")
 
+# Change work directory
+os.chdir("/home/ubuntu/data/process/imerg-early-run-daily")
+
 # Login
 earth_data_explorer_credential(NASA_USER, NASA_PASS)
-geo = Geoserver(
-        'https://inamhi.geoglows.org/geoserver', 
-        username=GEOSERVER_USER, 
-        password=GEOSERVER_PASS)
+
+# Download
+end = datetime.datetime.now() 
+start = end - datetime.timedelta(days=10)
+dates = pd.date_range(start=start, end=end, freq='1H')
+
+for date in dates:
+    try:
+        to_geoserver(date)
+    except:
+        print(f"Failed to process: {date.strftime('%Y-%m-%d %H:00')}")
 
 
 
-current_date = datetime.datetime.now() - datetime.timedelta(days=1)
 
+#http://ec2-54-234-81-180.compute-1.amazonaws.com/geoserver/web/wicket/bookmarkable/org.geoserver.web.data.layer.NewLayerPage?17
