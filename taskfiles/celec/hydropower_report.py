@@ -137,7 +137,7 @@ def join_images(img1, img2, name):
     plt.savefig(name)
 
 
-def plot_ec(raster, cor_factor, ec_gdf, points_gdf, color_fun, out_path, title):
+def plot_ec(raster, cor_factor, ec_gdf, points_gdf, color_fun, out_path, title, basins=False):
     # Abre el raster utilizando rasterio
     with rasterio.open(raster) as src:
         # Realiza el enmascaramiento del raster
@@ -160,6 +160,32 @@ def plot_ec(raster, cor_factor, ec_gdf, points_gdf, color_fun, out_path, title):
     ax = plt.gca()
     show(out_image, transform=out_transform, ax=plt.gca(), cmap=cmap_custom)
     ec_gdf.plot(ax=plt.gca(), color='none', edgecolor='black', linewidth=1)
+    #
+    # Graficar las cuencas
+    if basins:
+        assets_path = "/home/ubuntu/inamhi-geoglows/taskfiles/celec/assets"
+        #
+        agoyan = gpd.read_file(f"{assets_path}/agoyan.shp")
+        agoyan.plot(ax=plt.gca(), color='none', edgecolor='black', linewidth=1.5)
+        #
+        coca = gpd.read_file(f"{assets_path}/coca.shp")
+        coca.plot(ax=plt.gca(), color='none', edgecolor='black', linewidth=1.5)
+        #
+        delsintanisagua = gpd.read_file(f"{assets_path}/delsintanisagua.shp")
+        delsintanisagua.plot(ax=plt.gca(), color='none', edgecolor='black', linewidth=1.5)
+        #
+        due = gpd.read_file(f"{assets_path}/due.shp")
+        due.plot(ax=plt.gca(), color='none', edgecolor='black', linewidth=1.5)
+        #
+        jubones = gpd.read_file(f"{assets_path}/jubones.shp")
+        jubones.plot(ax=plt.gca(), color='none', edgecolor='black', linewidth=1.5)
+        #
+        paute = gpd.read_file(f"{assets_path}/paute.shp")
+        paute.plot(ax=plt.gca(), color='none', edgecolor='black', linewidth=1.5)
+        #
+        pucara = gpd.read_file(f"{assets_path}/pucara.shp")
+        pucara.plot(ax=plt.gca(), color='none', edgecolor='black', linewidth=1.5)
+    #
     # Graficar los puntos del GeoDataFrame de puntos
     points_gdf.plot(ax=ax, color='red', marker='o', markersize=50, alpha=0.7)
     #
@@ -509,7 +535,7 @@ url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}
 os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast-tomorrow.tif")
 forecast2 = extract_raster_values_to_points("forecast-tomorrow.tif", hydropowers, "Pronóstico de precipitación (mm)")
 forecast2.to_csv("/var/www/html/assets/reports/forecast-daily.csv", sep=",",index=False)
-plot_ec("forecast-tomorrow.tif", 1, prov, hydropowers, color_pacum, "/var/www/html/assets/reports/hydropowers-forecast-daily.png", "Pronóstico de precipitación (WRF)")
+plot_ec("forecast-tomorrow.tif", 1, prov, hydropowers, color_pacum, "/var/www/html/assets/reports/hydropowers-forecast-daily.png", "Pronóstico de precipitación (WRF)", True)
 os.remove("forecast-tomorrow.tif")
 
 
