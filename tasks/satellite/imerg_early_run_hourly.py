@@ -8,13 +8,14 @@ import requests
 import subprocess
 import numpy as np
 import pandas as pd
+import sqlalchemy as sql
 from dotenv import load_dotenv
-from geo.Geoserver import Geoserver
+from sqlalchemy import create_engine, text
 from rasterio.transform import from_origin
 
 
 ###############################################################################
-#                                    UTILS                                    #
+#                                   MODULES                                   #
 ###############################################################################
 def earth_data_explorer_credential(username:str, password:str) -> None:
     """
@@ -24,8 +25,8 @@ def earth_data_explorer_credential(username:str, password:str) -> None:
     
     Parameters
     ----------
-      - username: EarthData username for authentication.
-      - password: Password associated with the username.
+      - username (str): EarthData username for authentication.
+      - password (str): Password associated with the username.
     """
     # Generate Loggin
     auth_url = 'https://urs.earthdata.nasa.gov/login'
@@ -72,16 +73,15 @@ def earth_data_explorer_credential(username:str, password:str) -> None:
 
 
 
-def nc_to_tif(path:str, var:str, time:str, out_path:str = None) -> None:
+def nc_to_tif(path:str, var:str, out_path:str = None) -> None:
     """
     Parse a netcdf file to GeoTIFF and write it.
     
     Parameters
     ----------
-      - path: File path of the netcdf file
-      - var: Selected variable to write in the GeoTIFF file
-      - time: Selected timestamp (yyyy-mm-dd HH:MM) to write in the GeoTIFF
-      - out_path: Path where GeoTIFF will be write.
+      - path (str): File path of the netcdf file
+      - var (str): Selected variable to write in the GeoTIFF file
+      - out_path (str): Path where GeoTIFF will be write.
     """
     # Remove the extension
     if out_path==None:
@@ -158,7 +158,20 @@ def mask(input_raster:str, bounds:tuple, correct_factor:float = 1) -> None:
             dst.write(data)
 
 
-def min_code(date):
+
+def min_code(date:datetime.datetime) -> str:
+    """
+    Function to calculate the total number of minutes from the start of the day
+    based on a given datetime object, and return it as a zero-padded string.
+
+    Parameters:
+      - date (datetime.datetime): The datetime object for which the minute code
+            is calculated.
+
+    Returns:
+      - str: A string representing the total number of minutes from the start 
+            of the day, zero-padded to four digits.
+    """
     hora = date.hour
     minuto = date.minute
     codigo = hora * 60 + minuto
@@ -166,13 +179,15 @@ def min_code(date):
 
 
 
-def download_data(current_date, mins):
+def download_data(current_date:datetime.datetime, mins:float) -> None:
     """
     Downloads GPM data from NASA OPeNDAP, processes it to GeoTIFF and mask it.
 
     Parameters:
-    current_date -- the date for which to download and process the data.
-    mins -- Minute to process
+    -----------
+      - current_date (datetime.datetime): the date for which to download and 
+            process the data.
+      - mins (float): Minute to process
     """
     #Configure date
     current_date = current_date.replace(minute=mins, second=0, microsecond=0)
@@ -200,22 +215,25 @@ def download_data(current_date, mins):
         with open("temporal.nc", 'wb') as f:
             f.write(response.content)
     #
-    nc_to_tif(path="temporal.nc", var="precipitation", time=current_date, 
+    nc_to_tif(path="temporal.nc", var="precipitation",
             out_path=f"temporal_{mins}.tif")
     mask(f"temporal_{mins}.tif", bounds= (-94, -7.5, -70, 4), correct_factor=0.5)
 
 
-def sum_rasters(path1, path2, output_path):
+
+def sum_rasters(path1:str, path2:str, output_path:str) -> None:
     """
     Function to sum two raster files and save the result to a new file.
 
     Parameters:
-    path1 (str): Path to the first raster file.
-    path2 (str): Path to the second raster file.
-    output_path (str): Path to save the output raster file.
+    -----------
+     - path1 (str): Path to the first raster file.
+     - path2 (str): Path to the second raster file.
+     - output_path (str): Path to save the output raster file.
 
     Returns:
-    None: The function saves the resulting raster to the specified output path.
+    --------
+     - None: The function saves the resulting raster to the specified path.
     """
     # Open the first raster file
     with rasterio.open(path1) as src1:
@@ -240,84 +258,132 @@ def sum_rasters(path1, path2, output_path):
         dst.write(suma, 1)  # Write the sum as the first band
 
 
-def to_geoserver(current_date):
-    # Establish the path and process if it does not exists
+
+def update_geoserverDB(conn:sql.engine.Connection, table:str, 
+                       location:str, ingestion:str) -> None:
+    """
+    Function to insert a new record into a PostGIS table with a fixed 
+    'the_geom' value retrieved from the first record of the table, and 
+    specified 'location' and 'ingestion' values.
+
+    Parameters:
+    -----------
+      - conn (sqlalchemy.engine.Connection): Active connection to the 
+            PostgreSQL database using SQLAlchemy.
+      - table (str): Name of the PostGIS table where the record will be 
+            inserted.
+      - location (str): Path or identifier for the raster file being 
+            inserted (e.g., '202410030400.tif').
+      - ingestion (str): Ingestion timestamp for the record being inserted 
+            (e.g., '2024-10-03 04:00:00').
+
+    Returns:
+    --------
+      - None: The function commits the insertion directly into the specified 
+            database table.
+    """
+    # Query the geom record
+    result = conn.execute(text(f"SELECT the_geom FROM {table} LIMIT 1"))
+    the_geom = result.fetchone()[0]
+    #
+    # Insert data
+    insert_query = text(f"""
+        INSERT INTO {table} (the_geom, location, ingestion)
+        VALUES (:the_geom, :location, :ingestion)
+    """)
+    conn.execute(insert_query, {
+        'the_geom': the_geom, 
+        'location': location, 
+        'ingestion': ingestion
+    })
+    conn.commit()
+
+
+
+def to_geoserver(conn:sql.engine.Connection, table:str, 
+                 current_date:datetime.datetime) -> None:
+    """
+    Function to download raster data, create a GeoTIFF coverage, and insert 
+    metadata into a PostGIS table for Geoserver.
+
+    Parameters:
+    -----------
+      - conn (sqlalchemy.engine.Connection): Active connection to the PostgreSQL
+            database using SQLAlchemy.
+      - table (str): Name of the PostGIS table where the record will be inserted.
+      - current_date (datetime.datetime): The current date and time used to 
+            generate the file paths and metadata.
+
+    Returns:
+    --------
+      - None: The function processes the raster data, saves it as a GeoTIFF, and 
+            inserts metadata into the database.
+    """
+    # Establish the path and process if it does not exist
     path = ("/usr/share/geoserver/data_dir/coverages/"
-            "imerg_early_run_hourly/%Y%m%d%H00.tif")
+            f"{table}/%Y%m%d%H00.tif")
     path = current_date.strftime(path)
     print(current_date.strftime("%Y-%m-%d %H:00"))
+    #
     if not os.path.isfile(path):
-        # Download data
+        # Download data for minute 0 and minute 30
         download_data(current_date, mins=0)
         download_data(current_date, mins=30)
         #
-        # Verify if folder exists
-        #folder_path = os.path.dirname(path)
-        #if not os.path.exists(folder_path):
-        #    os.makedirs(folder_path)
-        #
-        # Create the coverage
+        # Create the coverage by summing the two raster files
         sum_rasters("temporal_0.tif", "temporal_30.tif", path)
         os.remove("temporal.nc")
         os.remove("temporal_0.tif")
         os.remove("temporal_30.tif")
-        #os.system(f"chmod 777 {path}")
         print(f"Inserted data for: {path}")
+        #
+        # Insert data into the ImageMosaic DB
+        location = current_date.strftime("%Y%m%d%H00.tif")
+        ingestion = current_date.strftime("%Y-%m-%d %H:00:00")
+        update_geoserverDB(conn, table, location, ingestion)
+
 
 
 
 
 ###############################################################################
-#                           ENVIROMENTAL VARIABLES                            #
+#                                MAIN ROUTINE                                 #
 ###############################################################################
 
 # Load enviromental
 load_dotenv("/home/ubuntu/inamhi-geoglows/.env")
 NASA_USER = os.getenv("NASA_USER")
 NASA_PASS = os.getenv("NASA_PASS")
+DB_USER = os.getenv("POSTGRES_USER")
+DB_PASS = os.getenv("POSTGRES_PASSWORD")
+DB_PORT = os.getenv("POSTGRES_PORT")
+DB_NAME = "geoserver"
+
+# Generate the conection token
+token = "postgresql+psycopg2://{0}:{1}@localhost:{2}/{3}"
+token = token.format(DB_USER, DB_PASS, DB_PORT, DB_NAME)
+db = create_engine(token)
+conn = db.connect()
 
 # Change work directory
-os.chdir("/home/ubuntu/data/process/imerg-early-run-daily")
+os.chdir("/home/ubuntu/data/geoserver/imerg_early_run_hourly")
 
-# Login
+# Login to NASA
 earth_data_explorer_credential(NASA_USER, NASA_PASS)
 
-# Download
+# Establish dates
 end = datetime.datetime.now() 
 start = end - datetime.timedelta(days=10)
 dates = pd.date_range(start=start, end=end, freq='1H')
 
+# Download and process data (update geoserverDB)
 for date in dates:
     try:
-        to_geoserver(date)
+        to_geoserver(conn, "imerg_early_run_hourly", date)
     except Exception as e:
         print(f"Failed to process: {date.strftime('%Y-%m-%d %H:00')} \n {e}")
 
+# Close connection
+conn.close()
 
 
-
-#http://ec2-54-234-81-180.compute-1.amazonaws.com/geoserver/web/wicket/bookmarkable/org.geoserver.web.data.layer.NewLayerPage?17
-
-
-
-
-
-import requests
-
-# Configuración
-geoserver_url = "http://ec2-54-234-81-180.compute-1.amazonaws.com/geoserver"
-workspace = "test"
-datastore = "imerg_early_run_hourly"
-auth = ('admin', 'geoserver')  # Usuario y contraseña de GeoServer
-
-# URL de recarga del DataStore
-url = f"{geoserver_url}/rest/workspaces/{workspace}/datastores/{datastore}/reload"
-
-# Solicitud POST para recargar el DataStore
-response = requests.post(url, auth=auth)
-
-# Verificar la respuesta
-if response.status_code == 200:
-    print("DataStore recargado exitosamente.")
-else:
-    print(f"Error al recargar DataStore: {response.status_code}")
