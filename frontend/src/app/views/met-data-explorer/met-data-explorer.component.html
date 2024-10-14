@@ -264,6 +264,39 @@
           [(ngModel)]="isActiveHydropowers50" (ngModelChange)="updateOverlayers(isActiveHydropowers50, hydropowers50Layer)">
         <label class="form-check-label" for="hidroelectricas-mayores">Hidroeléctricas mayores 50 MW</label>
       </div>
+
+      <div class="panel-subtitle pt-3">Cuencas hidrográficas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-paute"
+        [(ngModel)]="isActiveBasinPaute" (ngModelChange)="updateOverlayers(isActiveBasinPaute, basinPauteLayer)">
+        <label class="form-check-label" for="basin-paute">Complejo hidroeléctrico Paute</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-coca"
+          [(ngModel)]="isActiveBasinCoca" (ngModelChange)="updateOverlayers(isActiveBasinCoca, basinCocaLayer)">
+        <label class="form-check-label" for="basin-coca">Coca Codo Sinclair</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-jubones"
+        [(ngModel)]="isActiveBasinJubones" (ngModelChange)="updateOverlayers(isActiveBasinJubones, basinJubonesLayer)">
+        <label class="form-check-label" for="basin-jubones">Minas San Francisco</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-agoyan"
+          [(ngModel)]="isActiveBasinAgoyan" (ngModelChange)="updateOverlayers(isActiveBasinAgoyan, basinAgoyanLayer)">
+        <label class="form-check-label" for="basin-agoyan">Agoyán - San Francisco</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-zamora"
+        [(ngModel)]="isActiveBasinDelsintanisagua" (ngModelChange)="updateOverlayers(isActiveBasinDelsintanisagua, basinDelsintanisaguaLayer)">
+        <label class="form-check-label" for="basin-zamora">Delsintanisagua</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-due"
+          [(ngModel)]="isActiveBasinDue" (ngModelChange)="updateOverlayers(isActiveBasinDue, basinDueLayer)">
+        <label class="form-check-label" for="basin-due">Due</label>
+      </div>
+
       <!--
       <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" id="hidroelectricas-menores"

@@ -1,0 +1,116 @@
+<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.4.2/css/all.css">
+<link rel="stylesheet" href="https://kit-pro.fontawesome.com/releases/v6.4.2/css/pro.min.css">
+
+
+<app-app-template
+  #template
+  [imageUrl]="'/assets/img/hydropowers.png'"
+  [appName]="'HYDROPOWER'"
+  [appUrl]="'/apps/hydropowers'">
+
+
+  <div panelContainer class="panel-container">
+    <app-dropdown iconClass="fa-regular fa-layer-group" title="Capas e información" [expanded]="true">
+
+      <div class="panel-subtitle">Capas base</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="poblados"
+          [(ngModel)]="isActiveCities" (ngModelChange)="updateOverlayers(isActiveCities, citiesLayer)">
+        <label class="form-check-label" for="poblados">Ciudades principales</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="provincias"
+          [(ngModel)]="isActiveProvinces" (ngModelChange)="updateOverlayers(isActiveProvinces, provincesLayer)">
+        <label class="form-check-label" for="provincias">Delimitación provincial</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveCantons" (ngModelChange)="updateOverlayers(isActiveCantons, cantonsLayer)">
+        <label class="form-check-label" for="cantones">Delimitación cantonal</label>
+      </div>
+
+
+      <div class="panel-subtitle pt-3">Centrales hidroeléctricas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="hidroelectricas-mayores"
+          [(ngModel)]="isActiveHydropowers" (ngModelChange)="updateOverlayers(isActiveHydropowers, hydropowersLayer)">
+        <label class="form-check-label" for="hidroelectricas-mayores">Hidroeléctricas mayores 50 MW</label>
+      </div>
+
+      <div class="panel-subtitle pt-3">Cuencas hidrográficas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-paute"
+        [(ngModel)]="isActiveBasinPaute" (ngModelChange)="updateOverlayers(isActiveBasinPaute, basinPauteLayer)">
+        <label class="form-check-label" for="basin-paute">Complejo hidroeléctrico Paute</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-coca"
+          [(ngModel)]="isActiveBasinCoca" (ngModelChange)="updateOverlayers(isActiveBasinCoca, basinCocaLayer)">
+        <label class="form-check-label" for="basin-coca">Coca Codo Sinclair</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-jubones"
+        [(ngModel)]="isActiveBasinJubones" (ngModelChange)="updateOverlayers(isActiveBasinJubones, basinJubonesLayer)">
+        <label class="form-check-label" for="basin-jubones">Minas San Francisco</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-agoyan"
+          [(ngModel)]="isActiveBasinAgoyan" (ngModelChange)="updateOverlayers(isActiveBasinAgoyan, basinAgoyanLayer)">
+        <label class="form-check-label" for="basin-agoyan">Agoyán - San Francisco</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-zamora"
+        [(ngModel)]="isActiveBasinDelsintanisagua" (ngModelChange)="updateOverlayers(isActiveBasinDelsintanisagua, basinDelsintanisaguaLayer)">
+        <label class="form-check-label" for="basin-zamora">Delsintanisagua</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-due"
+          [(ngModel)]="isActiveBasinDue" (ngModelChange)="updateOverlayers(isActiveBasinDue, basinDueLayer)">
+        <label class="form-check-label" for="basin-due">Due</label>
+      </div>
+
+    </app-dropdown>
+  </div>
+
+  <div mapContainer>
+    <div id="map"></div>
+    <div class="reprod-container d-flex align-items-center justify-content-between px-3">
+      <div class="reprod-title">
+        <i class="fa-regular fa-sliders"></i>&nbsp;
+        Panel de control y animación
+      </div>
+      <div>
+        <div class="reprod-panel-button d-flex justify-content-between">
+          <button mat-stroked-button class="dark-mode reprod-button">
+            <i class="fa-solid fa-backward"></i>
+          </button>
+          <button mat-stroked-button class="dark-mode reprod-button">
+            @if(isPlay){
+              <i class="fa-solid fa-pause"></i>
+            }@else {
+              <i class="fa-solid fa-play"></i>
+            }
+          </button>
+          <button mat-stroked-button class="dark-mode reprod-button">
+            <i class="fa-solid fa-stop"></i>
+          </button>
+          <button mat-stroked-button class="dark-mode reprod-button">
+            <i class="fa-solid fa-forward"></i>
+          </button>
+        </div>
+      </div>
+      <div class="reprod-panel-save d-flex justify-content-between">
+        <button mat-stroked-button class="dark-mode reprod-button">
+          <i class="fa-regular fa-download"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode reprod-button">
+          <i class="fa-regular fa-camera-viewfinder"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode reprod-button">
+          <i class="fa-regular fa-video"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</app-app-template>
