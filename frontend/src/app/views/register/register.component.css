@@ -1,0 +1,307 @@
+/*---------------------------------------------------------------------------*/
+/*                               GENERAL STYLES                              */
+/*---------------------------------------------------------------------------*/
+.home-body{
+  line-height: 1.5;
+}
+
+.home-container{
+  width: 100vw;
+  height: 100vh;
+  background-image: url("/assets/img/background.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+.home-background{
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.home-about-container{
+  width: 100vw;
+  height: 55vh;
+  background-image: url("/assets/img/background2.webp");
+  background-size: cover;
+  background-color: #EAEAEA;
+}
+
+.home-about-background{
+  width: 100vw;
+  height: 55vh;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.home-content{
+  min-width: 250px;
+  max-width: 600px;
+}
+
+.home-title{
+  color: white;
+  font-weight: bold;
+}
+
+.home-subtitle{
+  color: #00315D;
+  font-weight: bold;
+}
+
+.home-description{
+  color: white;
+}
+
+.home-feature-title{
+  color: #00315D;
+  font-weight: bold;
+}
+
+.highlight{
+  color: #FCBF10 !important;
+}
+
+.home-btn{
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.home-btn-primary{
+  background-color: #00315D !important;
+}
+
+.home-btn-secondary{
+  background-color: white !important;
+}
+
+.home-btn-secondary:hover{
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+
+/*---------------------------------------------------------------------------*/
+/*                                 ANIMATIONS                                */
+/*---------------------------------------------------------------------------*/
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in-1 {
+  animation: fadeIn 1s ease-in;
+}
+.fade-in-2 {
+  animation: fadeIn 2s ease-in;
+}
+.fade-in-3 {
+  animation: fadeIn 3s ease-in;
+}
+
+
+/*-------------------------------------------------------------------*/
+/*                            SMARTPHONES                            */
+/*-------------------------------------------------------------------*/
+@media screen and (max-width: 576px) {
+  .home-title{
+    font-size: 1.7rem;
+  }
+  .home-subtitle{
+    font-size: 1.4rem;
+  }
+  .home-description{
+    font-size: 1rem;
+  }
+  .about-description{
+    font-size: 1rem;
+    color: white;
+  }
+  .home-btn{
+    font-size: 0.9rem;
+  }
+  .home-feature-title{
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  .home-feature-text{
+    font-size: 1rem;
+    text-align: center;
+  }
+  .feature-img{
+    width: 40%;
+    padding-bottom: 10px;
+  }
+  .servir-logo-v{
+    width: 80%;
+  }
+  .servir-logo-h{
+    display: none;
+  }
+  .servir-logo-v2{
+    width: 95%;
+  }
+  .servir-logo-h2{
+    display: none;
+  }
+  .home-about-container{
+    height: 90vh;
+  }
+  .home-about-background{
+    height: 90vh;
+  }
+}
+
+
+/*-------------------------------------------------------------------*/
+/*                              TABLETS                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 576px) and (max-width: 992px) {
+  .home-title{
+    font-size: 2.5rem;
+  }
+  .home-subtitle{
+    font-size: 1.5rem;
+  }
+  .home-description{
+    font-size: 1.5rem;
+  }
+  .about-description{
+    font-size: 1.5rem;
+    color: white;
+  }
+  .home-btn{
+    font-size: 1.1rem;
+  }
+  .home-feature-title{
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  .home-feature-text{
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  .feature-img{
+    width: 60%;
+    padding-bottom: 10px;
+  }
+  .servir-logo-v{
+    width: 55%;
+  }
+  .servir-logo-h{
+    display: none;
+  }
+  .servir-logo-v2{
+    width: 90%;
+  }
+  .servir-logo-h2{
+    display: none;
+  }
+}
+
+/*-------------------------------------------------------------------*/
+/*                              DESKTOP                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 992px) {
+  .home-title{
+    font-size:3rem;
+  }
+  .home-subtitle{
+    font-size: 1.3rem;
+  }
+  .home-description{
+    font-size: 1.3rem;
+  }
+  .about-description{
+    font-size: 1.1rem;
+    color: white;
+  }
+  .home-btn{
+    font-size: 0.9rem;
+  }
+  .home-feature-title{
+    font-size: 1.3rem;
+  }
+  .home-feature-text{
+    font-size: 1.1rem;
+  }
+  .feature-img{
+    width: 100px;
+    height: 100px;
+  }
+  .servir-logo-h{
+    width: 45%;
+  }
+  .servir-logo-v{
+    display: none;
+  }
+  .servir-logo-h2{
+    width: 80%;
+  }
+  .servir-logo-v2{
+    display: none;
+  }
+}
+
+
+
+/*---------------------------------------------------------------------------*/
+/*                               GENERAL STYLES                              */
+/*---------------------------------------------------------------------------*/
+.register-component{
+  width: 350px;
+}
+
+.register-component-2{
+  width: 170px;
+}
+
+.register-title{
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+::ng-deep {
+  .mat-form-field-infix {
+      border: 0px !important;
+  }
+  .mat-form-field-appearance-outline .mat-select-arrow-wrapper {
+      transform: none !important;
+  }
+}
+
+/*-------------------------------------------------------------------*/
+/*                            SMARTPHONES                            */
+/*-------------------------------------------------------------------*/
+@media screen and (max-width: 576px) {
+  .register-component{
+    width: 100%;
+  }
+  .register-component-2{
+    width: 48%;
+  }
+
+
+}
+
+/*-------------------------------------------------------------------*/
+/*                              TABLETS                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 576px) and (max-width: 992px) {
+
+
+}
+
+/*-------------------------------------------------------------------*/
+/*                              TABLETS                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 992px) {
+
+
+}
+

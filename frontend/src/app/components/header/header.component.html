@@ -1,0 +1,74 @@
+<div class="header">
+
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark"
+        [ngClass]="{'custom-navbar': !scrolled, 'custom-navbar-scrolled': scrolled}">
+    <div class="container d-flex justify-content-between">
+
+      <!--------------------------------------------------------------------------->
+      <!--                             INAMHI LOGO                               -->
+      <!--------------------------------------------------------------------------->
+      <a class="navbar-brand" href="https://servicios.inamhi.gob.ec/">
+        <img
+          src="assets/img/inamhi-white-logo.png"
+          width="125"
+          class="d-inline-block align-top">
+      </a>
+
+      <!--------------------------------------------------------------------------->
+      <!--                            TOGGLER BUTTON                             -->
+      <!--------------------------------------------------------------------------->
+      <button class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarToggle"
+              aria-controls="navbarToggle"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!--------------------------------------------------------------------------->
+      <!--                          NAVIGATION OPTIONS                           -->
+      <!--------------------------------------------------------------------------->
+      <div
+        class="collapse navbar-collapse justify-content-end"
+        id="navbarToggle"
+        data-bs-theme="dark">
+          <div class="bg-dark" style="background-color: transparent !important;">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link text-center" href="/">INICIO</a>
+              </li>
+              <li class="nav-item text-center">
+                <a class="nav-link" href="/apps">APLICACIONES</a>
+              </li>
+              <li class="nav-item text-center">
+                <a class="nav-link" href="#">ACERCA DE</a>
+              </li>
+              @if (isAuth) {
+                <li class="nav-item dropdown text-center custom-nav-item">
+                  <a class="nav-link dropdown-toggle"
+                        href="#" role="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    <i class="fa-light fa-user"></i>
+                    {{userFullName}}
+                  </a>
+                  <ul class="dropdown-menu custom-dropdown-menu" style="border: none;">
+                    <li class="text-center"><a class="dropdown-item" href="#" (click)="logout()">CERRAR SESION</a></li>
+                  </ul>
+                </li>
+              } @else {
+                <li class="nav-item text-center custom-nav-item">
+                  <a class="nav-link nav-link-custom" (click)="redirectLogin()">INICIAR SESIÓN</a>
+                </li>
+              }
+            </ul>
+          </div>
+      </div>
+
+    </div>
+  </nav>
+
+</div>
+
+
