@@ -88,5 +88,8 @@
   .servir-logo-v{
     display: none;
   }
+  .home-content{
+    max-width: 90%;
+  }
 }
 
