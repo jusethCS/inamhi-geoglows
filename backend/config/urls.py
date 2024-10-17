@@ -9,4 +9,5 @@ urlpatterns = [
     ###############################################
     path('api/national-water-level-forecast/', include('app_national_water_level_forecast.urls')),
     path('api/historical-validation-tool/', include('app_historical_validation_tool.urls')),
+    path('api/hydromet-report-tool/', include('app_hydromet_report_tool.urls')),
 ]
