@@ -1,0 +1,11 @@
+__pycache__/*
+config.sh
+activate.bat
+*.env
+*data.csv
+*.sqlite3
+*.pyc
+inamhi-geoglows.pem
+connect.bat
+crontab.sh
+scripts/*

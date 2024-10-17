@@ -1,0 +1,568 @@
+<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.4.2/css/all.css">
+<link rel="stylesheet" href="https://kit-pro.fontawesome.com/releases/v6.4.2/css/pro.min.css">
+
+<app-app-template
+  #template
+  [imageUrl]="'/assets/img/met-data-explorer.png'"
+  [appName]="'MET DATA EXPLORER'"
+  [appUrl]="'/apps/climate-trends'"
+  (panelActivate)="resizeMap()">
+
+  <div panelContainer class="panel-container">
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                          SATELLITE BASED PRODUCT - PANEL                          -->
+    <!--------------------------------------------------------------------------------------->
+    <app-dropdown iconClass="fa-regular fa-satellite" title="Datos satelitales">
+      <!-- Variable -->
+      <mat-form-field class="select scaled" appearance="outline" style="padding-top: 12px;">
+        <mat-label>Variable:</mat-label>
+        <mat-select [(ngModel)]="selectedSatelliteVariable" (selectionChange)="updateSatelliteProduct()">
+          <mat-option class="scaled-text" *ngFor="let variable of satelliteVariable" [value]="variable">
+            {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Producto:</mat-label>
+        <mat-select [(ngModel)]="selectedSatelliteProduct" (selectionChange)="updateSatelliteTemporal()">
+          <mat-option class="scaled-text" *ngFor="let product of satelliteProducts" [value]="product">
+            {{ product }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Temporalidad:</mat-label>
+        <mat-select [(ngModel)]="selectedSatelliteTemporal">
+          <mat-option class="scaled-text" *ngFor="let temporal of satelliteTemporal" [value]="temporal">
+            {{ temporal }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Rango de fechas:</mat-label>
+        <mat-date-range-input
+          [formGroup]="satelliteDateRange"
+          [rangePicker]="picker"
+          [min]="satelliteMinDate"
+          [max]="satelliteMaxDate">
+          <input matStartDate formControlName="start" placeholder="Start date">
+          <input matEndDate formControlName="end" placeholder="End date">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+
+      <button mat-stroked-button class="dark-mode update-button scaled" (click)="updateSatelliteLayer()">
+        <i class="fa-solid fa-arrows-rotate"></i>
+        Actualizar datos
+      </button>
+      <br>
+    </app-dropdown>
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                          METEOROLOGICAL FORECAST - PANEL                          -->
+    <!--------------------------------------------------------------------------------------->
+    <app-dropdown iconClass="fa-regular fa-cloud-bolt-sun" title="Pronóstico meteorológico">
+      <mat-form-field class="select scaled" appearance="outline" style="padding-top: 12px;">
+        <mat-label>Modelo:</mat-label>
+        <mat-select [(ngModel)]="selectedForecastModel" (selectionChange)="updateForecatVariable()">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let model of forecastModels" [value]="model">
+              {{ model }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Variable:</mat-label>
+        <mat-select [(ngModel)]="selectedForecastVariable" (selectionChange)="updateForecastTemporal()">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of forecastVariables" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Temporalidad:</mat-label>
+        <mat-select [(ngModel)]="selectedForecastTemporal">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let temp of forecastTemporals" [value]="temp">
+              {{ temp }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button class="dark-mode update-button scaled" (click)="updateForecastLayer()">
+        <i class="fa-solid fa-arrows-rotate"></i>
+        Actualizar pronóstico
+      </button>
+      <br>
+    </app-dropdown>
+
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                             GOES MONITORING - PANEL                               -->
+    <!--------------------------------------------------------------------------------------->
+    <app-dropdown iconClass="fa-regular fa-earth-americas" title="Monitoreo GOES">
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Producto:</mat-label>
+        <mat-select [(ngModel)]="selectedGoesProduct" (selectionChange)="updateGoesBand()">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of goesProducts" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Banda:</mat-label>
+        <mat-select [(ngModel)]="selectedGoesBand">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of goesBands" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button class="dark-mode update-button scaled" (click)="updateGoesLayer()">
+        <i class="fa-solid fa-arrows-rotate"></i>
+        Actualizar producto
+      </button>
+      <div class="form-check form-switch pt-2">
+        <input class="form-check-input" type="checkbox" id="auto-update-goes" [(ngModel)]="isAutoUpdateGoes" (ngModelChange)="autoUpdateGoes()">
+        <label class="form-check-label" for="auto-update-goes">Actualización automática</label>
+      </div>
+    </app-dropdown>
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                           FOREST FIRE FORECAST - PANEL                            -->
+    <!--------------------------------------------------------------------------------------->
+    <app-dropdown iconClass="fa-regular fa-fire" title="Incendios forestales">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="pacum24"
+          [(ngModel)]="isActivePacum24" (ngModelChange)="updatePacum24()">
+        <label class="form-check-label" for="pacum24">Precipitación diaria</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="drougth-days"
+          [(ngModel)]="isActiveNoRain"  (ngModelChange)="updateNoRain()">
+        <label class="form-check-label" for="drougth-days">Días consecutivos sin lluvia</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="soilmoisture"
+          [(ngModel)]="isActiveSoilMoisture"  (ngModelChange)="updateSoilMoisture()">
+        <label class="form-check-label" for="soilmoisture">Humedad del suelo</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="fire-viirs-24"
+          [(ngModel)]="isActiveFireVIIRS24" (ngModelChange)="updateFireVIIRS()">
+        <label class="form-check-label" for="fire-viirs-24">Focos de calor MODIS/VIIRS</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="haines"
+          [(ngModel)]="isActiveHaines" (ngModelChange)="updateHaines()">
+        <label class="form-check-label" for="haines">Indice de Haines</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="fire-goes"
+          [(ngModel)]="isActiveFireGOES" (ngModelChange)="autoUpdateFireGOES()">
+        <label class="form-check-label" for="fire-goes">Fire Temperature GOES</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="goes-hotspots"
+          [(ngModel)]="isActiveGOESHotspots" (ngModelChange)="autoUpdateGOESHotspots()">
+        <label class="form-check-label" for="goes-hotspots">Focos de calor en tiempo real (GOES)</label>
+      </div>
+    </app-dropdown>
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                                  LAYERS - PANEL                                   -->
+    <!--------------------------------------------------------------------------------------->
+    <app-dropdown iconClass="fa-regular fa-layer-group" title="Capas e información">
+      <div class="panel-subtitle">Advertencias meteorológicas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="pacum-wanring"
+          [(ngModel)]="isActiveWarningPacum" (ngModelChange)="updateWarningPacum()">
+        <label class="form-check-label" for="pacum-wanring">Alertas por lluvias y tormentas</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="temp-warning"
+          [(ngModel)]="isActiveWarningTemp" (ngModelChange)="updateWarningTemp()">
+        <label class="form-check-label" for="pacum-wanring">Alertas por altas temperaturas</label>
+      </div>
+
+      <div class="panel-subtitle pt-3">Capas base</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="poblados"
+          [(ngModel)]="isActiveCitiesLayer" (ngModelChange)="updateOverlayers(isActiveCitiesLayer, citiesLayer)">
+        <label class="form-check-label" for="poblados">Ciudades principales</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="provincias"
+          [(ngModel)]="isActiveProvinceLayer" (ngModelChange)="updateOverlayers(isActiveProvinceLayer, provinceLayer)">
+        <label class="form-check-label" for="provincias">Delimitación provincial</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveCantonLayer" (ngModelChange)="updateOverlayers(isActiveCantonLayer, cantonLayer)">
+        <label class="form-check-label" for="cantones">Delimitación cantonal</label>
+      </div>
+
+      <div class="panel-subtitle pt-3">Áreas protegidas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="provincias"
+          [(ngModel)]="isActiveConectivityCo" (ngModelChange)="updateOverlayers(isActiveConectivityCo, conectivityCoLayer)">
+        <label class="form-check-label" for="provincias">Corredor de conectividad</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="poblados"
+          [(ngModel)]="isActiveWaterRecharge" (ngModelChange)="updateOverlayers(isActiveWaterRecharge, waterRechargeLayer)">
+        <label class="form-check-label" for="poblados">Zona de recarga hídrica</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveProtectedArea" (ngModelChange)="updateOverlayers(isActiveProtectedArea, protectedAreaLayer)">
+        <label class="form-check-label" for="cantones">Áreas de protección hídrica</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveHumedalRamsar" (ngModelChange)="updateOverlayers(isActiveHumedalRamsar, humedalRamsarLayer)">
+        <label class="form-check-label" for="cantones">Humedal Ramsar</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveReservaBiosfera" (ngModelChange)="updateOverlayers(isActiveReservaBiosfera, reservaBiosferaLayer)">
+        <label class="form-check-label" for="cantones">Reserva de biósfera</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveConservacionSocioBosque" (ngModelChange)="updateOverlayers(isActiveConservacionSocioBosque, conservacionSocioBosqueLayer)">
+        <label class="form-check-label" for="cantones">Áreas de conservación PSB</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveBosqueProtector" (ngModelChange)="updateOverlayers(isActiveBosqueProtector, bosqueProtectorLayer)">
+        <label class="form-check-label" for="cantones">Bosque y vegetación protectora</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="cantones"
+          [(ngModel)]="isActiveSNAP" (ngModelChange)="updateOverlayers(isActiveSNAP, SNAPLayer)">
+        <label class="form-check-label" for="cantones">Sistema Nacional de Áreas Protegidas</label>
+      </div>
+
+      <div class="panel-subtitle pt-3">Centrales hidroeléctricas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="hidroelectricas-mayores"
+          [(ngModel)]="isActiveHydropowers50" (ngModelChange)="updateOverlayers(isActiveHydropowers50, hydropowers50Layer)">
+        <label class="form-check-label" for="hidroelectricas-mayores">Hidroeléctricas mayores 50 MW</label>
+      </div>
+
+      <div class="panel-subtitle pt-3">Cuencas hidrográficas</div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-paute"
+        [(ngModel)]="isActiveBasinPaute" (ngModelChange)="updateOverlayers(isActiveBasinPaute, basinPauteLayer)">
+        <label class="form-check-label" for="basin-paute">Complejo hidroeléctrico Paute</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-coca"
+          [(ngModel)]="isActiveBasinCoca" (ngModelChange)="updateOverlayers(isActiveBasinCoca, basinCocaLayer)">
+        <label class="form-check-label" for="basin-coca">Coca Codo Sinclair</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-jubones"
+        [(ngModel)]="isActiveBasinJubones" (ngModelChange)="updateOverlayers(isActiveBasinJubones, basinJubonesLayer)">
+        <label class="form-check-label" for="basin-jubones">Minas San Francisco</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-agoyan"
+          [(ngModel)]="isActiveBasinAgoyan" (ngModelChange)="updateOverlayers(isActiveBasinAgoyan, basinAgoyanLayer)">
+        <label class="form-check-label" for="basin-agoyan">Agoyán - San Francisco</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-zamora"
+        [(ngModel)]="isActiveBasinDelsintanisagua" (ngModelChange)="updateOverlayers(isActiveBasinDelsintanisagua, basinDelsintanisaguaLayer)">
+        <label class="form-check-label" for="basin-zamora">Delsintanisagua</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-due"
+          [(ngModel)]="isActiveBasinDue" (ngModelChange)="updateOverlayers(isActiveBasinDue, basinDueLayer)">
+        <label class="form-check-label" for="basin-due">Due</label>
+      </div>
+
+      <!--
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="hidroelectricas-menores"
+          [(ngModel)]="isActiveHydropowers" (ngModelChange)="updateOverlayers(isActiveHydropowers, hydropowerLayer)">
+        <label class="form-check-label" for="hidroelectricas-menores">Hidroeléctricas menores 50 MW</label>
+      </div>
+      -->
+    </app-dropdown>
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                             FILTER AND PLOT - PANEL                               -->
+    <!--------------------------------------------------------------------------------------->
+    <app-dropdown iconClass="fa-regular fa-filter" title="Filtrar y graficar">
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Provincia:</mat-label>
+        <mat-select [(ngModel)]="selectedProvince" (selectionChange)="updateCanton()">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let province of provinces" [value]="province">
+              {{ province }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Canton:</mat-label>
+        <mat-select [(ngModel)]="selectedCanton">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let canton of cantons" [value]="canton">
+              {{ canton }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="d-flex justify-content-between select scaled">
+        <button mat-stroked-button class="dark-mode half-button" (click)="displayArea()" >
+          <i class="fa-solid fa-arrows-rotate"></i>
+          Actualizar
+        </button>
+        <button mat-stroked-button class="dark-mode half-button" (click)="getAreaInfo()">
+          <i class="fa-solid fa-chart-column"></i>
+          Graficar
+        </button>
+      </div>
+    </app-dropdown>
+
+    <app-dropdown iconClass="fa-regular fa-upload" title="Cargar capa">
+      <div class="panel-subtitle">Área geográfica</div>
+      <input class="form-control" type="file" id="shpFile" accept=".shp">
+      <div style="color:white; font-size:0.7rem; width: 95%; padding-top: 5px">
+        El archivo shapefile debe estar proyectado en EPSG:4326 (Coordenadas geográficas)
+      </div>
+      <div class="d-flex justify-content-between select scaled pt-3">
+        <button mat-stroked-button class="dark-mode half-button">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          Actualizar
+        </button>
+        <button mat-stroked-button class="dark-mode half-button">
+          <i class="fa-solid fa-chart-column"></i>
+          Graficar
+        </button>
+      </div>
+    </app-dropdown>
+
+
+  </div>
+
+  <div mapContainer>
+    <div id="map"></div>
+    <div class="reprod-container d-flex align-items-center justify-content-between px-3">
+      <div class="reprod-title">
+        <i class="fa-regular fa-sliders"></i>&nbsp;
+        Panel de control y animación
+      </div>
+      <div>
+        <div class="reprod-panel-button d-flex justify-content-between">
+          <button mat-stroked-button class="dark-mode reprod-button" (click)="previousTimeControl()">
+            <i class="fa-solid fa-backward"></i>
+          </button>
+          <button mat-stroked-button class="dark-mode reprod-button" (click)="playTimeControl()">
+            @if(isPlay){
+              <i class="fa-solid fa-pause"></i>
+            }@else {
+              <i class="fa-solid fa-play"></i>
+            }
+          </button>
+          <button mat-stroked-button class="dark-mode reprod-button" (click)="stopTimeControl()">
+            <i class="fa-solid fa-stop"></i>
+          </button>
+          <button mat-stroked-button class="dark-mode reprod-button" (click)="nextTimeControl()">
+            <i class="fa-solid fa-forward"></i>
+          </button>
+        </div>
+      </div>
+      <div class="reprod-panel-save d-flex justify-content-between">
+        <button mat-stroked-button class="dark-mode reprod-button" (click)="downloadRaster()">
+          <i class="fa-regular fa-download"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode reprod-button" (click)="captureMap()">
+          <i class="fa-regular fa-camera-viewfinder"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode reprod-button" (click)="captureVideo()">
+          <i class="fa-regular fa-video"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div dataModalHeader>
+    <div class="container">
+      @if(plotClass === "satellite"){
+        <div class="modal-header-title"> MONITOREO SATELITAL </div>
+        <div class="row modal-header-content">
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Variable:</b> {{selectedSatelliteVariable.toUpperCase()}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Producto:</b> {{selectedSatelliteProduct.toUpperCase()}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Temporalidad:</b> {{selectedSatelliteTemporal.toUpperCase()}}
+          </div>
+          @if(isPointPlotClass){
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Latitud:</b> {{latC}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Longitud:</b> {{lonC}}
+            </div>
+          } @else {
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Provincia:</b> {{selectedProvince}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Canton:</b> {{selectedCanton}}
+            </div>
+          }
+        </div>
+      }
+      @if(plotClass === "goes"){
+        <div class="modal-header-title"> MONITOREO GOES </div>
+        <div class="row modal-header-content">
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Producto:</b> {{selectedGoesProduct}}
+          </div>
+          <div class="col-sm-12 col-md-8 py-1">
+            <b>Banda:</b> {{selectedGoesBand}}
+          </div>
+          @if(isPointPlotClass){
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Latitud:</b> {{latC}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Longitud:</b> {{lonC}}
+            </div>
+          } @else {
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Provincia:</b> {{selectedProvince}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Canton:</b> {{selectedCanton}}
+            </div>
+          }
+        </div>
+      }
+      @if(plotClass === "forecast"){
+        <div class="modal-header-title"> PRONÓSTICO METEOROLÓGICO </div>
+        <div class="row modal-header-content">
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Modelo:</b> {{selectedForecastModel}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Variable:</b> {{selectedForecastVariable}}
+          </div>
+          <div class="col-sm-12 col-md-4 py-1">
+            <b>Temporalidad:</b> {{selectedForecastTemporal}}
+          </div>
+          @if(isPointPlotClass){
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Latitud:</b> {{latC}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Longitud:</b> {{lonC}}
+            </div>
+          } @else {
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Provincia:</b> {{selectedProvince}}
+            </div>
+            <div class="col-sm-12 col-md-4 py-1">
+              <b>Canton:</b> {{selectedCanton}}
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div dataModalBody>
+    <div class="w-100">
+      @if(isReadyData){
+        @if(plotClass==="satellite"){
+          @if(selectedSatelliteVariable==="Precipitación"){
+            <plotly-plot [data]="precPlot.data" [layout]="precPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }
+        }
+        @if(plotClass==="goes"){
+          @if(!goesBTemp){
+            <plotly-plot [data]="goesBTPlot.data" [layout]="goesBTPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }@else{
+            <plotly-plot [data]="goesGrayPlot.data" [layout]="goesGrayPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }
+        }
+        @if(plotClass==="forecast"){
+          @if(selectedForecastVariable === "Precipitación"){
+            <plotly-plot [data]="precPlot.data" [layout]="precPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }
+          @if(selectedForecastVariable === "Temperatura"){
+            <plotly-plot [data]="tempPlot.data" [layout]="tempPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }
+          @if(selectedForecastVariable === "Humedad relativa"){
+            <plotly-plot [data]="humPlot.data" [layout]="humPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }
+          @if(selectedForecastVariable === "Velocidad del viento"){
+            <plotly-plot [data]="windPlot.data" [layout]="windPlot.layout"
+              [useResizeHandler]="true" [style]="{position: 'relative', height: '400px'}"
+              [theme]="'simple_white'">
+            </plotly-plot>
+          }
+        }
+        <button type="button" class="btn btn-primary btn-sm" (click)="downloadData()">
+          <i class="fa-regular fa-download"></i>
+          &nbsp; Descargar
+        </button>
+      }
+      @else {
+        <app-loading></app-loading>
+      }
+    </div>
+  </div>
+
+
+  <div videoProgress>
+    <div class="videoLoader">
+      <app-loading-video></app-loading-video>
+      <div class="d-flex justify-content-center pb-3">
+        {{videoLoaderText}}
+      </div>
+    </div>
+  </div>
+
+
+</app-app-template>

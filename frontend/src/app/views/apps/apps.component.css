@@ -1,0 +1,92 @@
+/*---------------------------------------------------------------------------*/
+/*                               GENERAL STYLES                              */
+/*---------------------------------------------------------------------------*/
+.home-body{
+  line-height: 1.5;
+}
+
+.home-container{
+  width: 100vw;
+  height: 100vh;
+  background-image: url("/assets/img/background.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+.home-background{
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.home-about-container{
+  width: 100vw;
+  height: 55vh;
+  background-image: url("/assets/img/background2.webp");
+  background-size: cover;
+  background-color: #EAEAEA;
+}
+
+.home-about-background{
+  width: 100vw;
+  height: 55vh;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+
+/*-------------------------------------------------------------------*/
+/*                            SMARTPHONES                            */
+/*-------------------------------------------------------------------*/
+@media screen and (max-width: 576px) {
+  .title{
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
+  }
+  .servir-logo-v{
+    width: 80%;
+  }
+  .servir-logo-h{
+    display: none;
+  }
+  .custom-container{
+    max-height: 65vh;
+    overflow-y: scroll;
+  }
+}
+
+
+/*-------------------------------------------------------------------*/
+/*                              TABLETS                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 576px) and (max-width: 992px) {
+  .title{
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+  }
+  .servir-logo-v{
+    width: 55%;
+  }
+  .servir-logo-h{
+    display: none;
+  }
+}
+
+/*-------------------------------------------------------------------*/
+/*                              DESKTOP                              */
+/*-------------------------------------------------------------------*/
+@media screen and (min-width: 992px) {
+  .title{
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: white;
+  }
+  .servir-logo-h{
+    width: 45%;
+  }
+  .servir-logo-v{
+    display: none;
+  }
+}
+

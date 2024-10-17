@@ -1,0 +1,173 @@
+/*---------------------------------------------------------------------------*/
+/*                               GENERAL STYLES                              */
+/*---------------------------------------------------------------------------*/
+:host{
+  --primary-background-color: #162633;
+  --primary-font-color: white;
+  --header-heigth: 60px;
+  --panel-width: 315px;
+  --panel-background-color:#2f3640 ;
+
+}
+
+/*  #2f3640   #1f384d #192B3B */
+.template-container{
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}
+
+.app-header{
+  width: 100vw;
+  height: var(--header-heigth);
+  color: var(--primary-font-color);
+  background-color: var(--primary-background-color);
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.app-header img {
+  height: 36px;
+  width: 36px;
+}
+
+.btn-custom{
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border: 0;
+  margin-left: 8px;
+}
+
+.btn-custom:hover{
+  background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.header-button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.375rem;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  width: 36px;
+  height: 36px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.header-login{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.375rem;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  width: 125px;
+  height: 36px;
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.panel-button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.375rem;
+  background-color:rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.header-button:hover{
+  background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.smartphone-dropdown{
+  display: none;
+}
+
+.img-log{
+  width: 500px !important;
+}
+
+
+/* State 1 */
+.panel-active{
+  width: var(--panel-width);
+  height: calc(100vh - var(--header-heigth) );
+  overflow: auto;
+  background-color: var(--panel-background-color);
+  transition: all 200ms;
+  z-index: 100;
+}
+.map-partial{
+  width: calc(100vw - var(--panel-width));
+}
+
+/* State 2 */
+.panel-deactivate{
+  display: none !important;
+}
+.map-full{
+  width: 100vw;
+  height: 100%;
+}
+
+.reproductor{
+  background-color: var(--primary-background-color);
+  width: var(--panel-width);
+}
+
+@media screen and (max-width: 576px) {
+  .img-log{
+    width: 95% !important;
+  }
+}
+
+
+@media screen and (max-width: 760px) {
+  .smartphone-dropdown{
+    display: block;
+  }
+  .desktop-dropdown{
+    display: none;
+  }
+
+}
+
+@media screen and (max-width: 560px) {
+  .smartphone-dropdown{
+    display: block;
+  }
+  .desktop-dropdown{
+    display: none;
+  }
+  .app-header-title{
+    display: none;
+  }
+}
+
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--app-primary-color);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #C8C8C8;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: white;
+}

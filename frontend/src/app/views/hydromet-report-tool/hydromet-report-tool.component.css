@@ -1,0 +1,33 @@
+.panel-container{
+  padding-left: 12px;
+  padding-right: 8px;
+  padding-top: 12px;
+}
+
+.contentDiv{
+  height: calc(100vh - 60px);
+  overflow-y: scroll;
+}
+
+.report-title{
+  padding-top: 20px;
+  font-size: 24px;
+  color: #1F497D;
+  font-weight: bold;
+}
+
+
+table {
+  border-collapse: collapse;
+  min-width: 50%;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 4px;
+  text-align: center;
+}
+
+th {
+  background-color: #d3d3d3; /* Gris claro */
+}
