@@ -535,7 +535,7 @@ url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}
 os.system(f"gdalwarp -tr 0.01 0.01 -r bilinear {url} forecast-tomorrow.tif")
 forecast2 = extract_raster_values_to_points("forecast-tomorrow.tif", hydropowers, "Pronóstico de precipitación (mm)")
 forecast2.to_csv("/var/www/html/assets/reports/forecast-daily.csv", sep=",",index=False)
-plot_ec("forecast-tomorrow.tif", 1, prov, hydropowers, color_pacum, "/var/www/html/assets/reports/hydropowers-forecast-daily.png", "Pronóstico de precipitación (WRF)")
+plot_ec("forecast-tomorrow.tif", 1, prov, hydropowers, color_pacum, "/var/www/html/assets/reports/hydropowers-forecast-daily.png", "Pronóstico de precipitación (WRF)", True)
 os.remove("forecast-tomorrow.tif")
 
 
