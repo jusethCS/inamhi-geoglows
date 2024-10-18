@@ -167,7 +167,7 @@ def plot_daily_forecast(raster:str) -> plt.Figure:
     # Crea una figura de Matplotlib y muestra el raster enmascarado
     fig, ax = plt.subplots(figsize=(8, 8))
     plt.margins(0)
-    plt.subplots_adjust(left=5, right=1, top=3, bottom=5)
+    plt.subplots_adjust(left=0.05, right=0.98, top=0.95, bottom=0.05)
     show(out_image, transform=out_transform, ax=ax, cmap=cmap_custom)
     ec.plot(ax=ax, color='none', edgecolor='black', linewidth=1)
     

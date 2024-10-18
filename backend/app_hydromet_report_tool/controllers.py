@@ -16,7 +16,7 @@ def get_hydropower_daily_forecast(request):
         url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
         fig = plot_daily_forecast(url)
     except:
-        now = dt.datetime.now() - dt.timedelta(days=1)
+        now = dt.datetime.now() - dt.timedelta(days=2)
         tomorrow = now + dt.timedelta(days=2)
         a = now.strftime("%Y-%m-%d00Z-24H-")
         b = tomorrow.strftime("%Y%m%d07h00")
