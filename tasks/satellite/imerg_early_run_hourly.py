@@ -373,7 +373,7 @@ earth_data_explorer_credential(NASA_USER, NASA_PASS)
 
 # Establish dates
 end = datetime.datetime.now() 
-start = end - datetime.timedelta(days=10)
+start = datetime.datetime(2000, 6, 1, 0, 0, 0) #end - datetime.timedelta(days=10)
 dates = pd.date_range(start=start, end=end, freq='1H')
 
 # Download and process data (update geoserverDB)

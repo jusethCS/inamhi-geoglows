@@ -22,17 +22,19 @@ import { ImageComponent } from "../../components/image/image.component";
   styleUrl: './hydromet-report-tool.component.css'
 })
 
+
 export class HydrometReportToolComponent {
+  // Control variables
   public isAuth: boolean;
   public appUrl:string = '/apps/hydromet-report-tool';
 
+  // State variables for panel activation
   public isActiveHydropowerDaily: boolean = true;
   public isActiveHydropowerWeekly: boolean = false;
 
-  public datesDaily:string[] = [];
-  public forecastDaily:string[] = [];
-
-  // Daily
+  // Hydropower daily forecast
+  public datesHydropowerDailyForecast:string[] = [];
+  public hydropowerDailyForecast:string[] = [];
   @ViewChild('mazarDaily', { static: false}) mazarDaily!: ElementRef;
   @ViewChild("pauteDaily", {static: false}) pauteDaily!: ElementRef;
   @ViewChild("sopladoraDaily", {static: false}) sopladoraDaily!: ElementRef;
@@ -43,17 +45,13 @@ export class HydrometReportToolComponent {
   @ViewChild("delsitanisaguaDaily", {static: false}) delsitanisaguaDaily!: ElementRef;
 
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-  ){
+  constructor(private authService: AuthService, private router: Router){
     this.isAuth = this.authService.isAuth();
     console.log(this.isAuth);
     if (!this.isAuth) {
       this.router.navigateByUrl(`/login?next=${this.appUrl}`);
     }
-    this.datesDaily = this.formatDates(new Date());
-
+    this.datesHydropowerDailyForecast = this.formatDates(new Date());
   }
 
 
@@ -63,7 +61,10 @@ export class HydrometReportToolComponent {
   }
 
   public formatDates(date: Date): string[] {
-    const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    const months = [
+      "enero", "febrero", "marzo", "abril", "mayo", "junio",
+      "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ];
     const day = date.getDate();
     const month = months[date.getMonth()];
     const year = date.getFullYear();

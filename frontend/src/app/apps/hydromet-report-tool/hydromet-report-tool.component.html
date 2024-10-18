@@ -26,8 +26,8 @@
       <div class="d-flex justify-content-center">
         <div style="width: 70%;">
           <div class="text-center report-title">Boletín Hidrometeorológico: Centrales hidroeléctricas</div>
-          <div class="text-center pt-2 pb-1"><b>Hora y fecha de emision:</b> {{datesDaily[0]}}</div>
-          <div class="text-center pt-1 pb-1"><b>Vigencia:</b> {{datesDaily[1]}}</div>
+          <div class="text-center pt-2 pb-1"><b>Hora y fecha de emision:</b> {{datesHydropowerDailyForecast[0]}}</div>
+          <div class="text-center pt-1 pb-1"><b>Vigencia:</b> {{datesHydropowerDailyForecast[1]}}</div>
           <div class="text-center pt-2">
             La <b>DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI</b>, basándose en la información
             obtenida de la <b>plataforma INAMHI GEOGLOWS</b> emite el siguiente boletín de vigilancia satelital y predicción de precipitación en
@@ -35,15 +35,13 @@
           </div>
           <div class="d-flex justify-content-center">
             <img src="https://inamhi.geoglows.org/api/hydromet-report-tool/get-hydropower-daily-forecast" width="400">
-
-
           </div>
           <div class="d-flex justify-content-center">
             <img src="/assets/legends/P_Diaria.png" width="400">
           </div>
 
           <div class="text-justify pt-4 pb-3">
-            El <b>pronóstico de precipitación</b>, {{datesDaily[2]}}, son obtenidos del modelo WRF de INAMHI.
+            El <b>pronóstico de precipitación</b>, {{datesHydropowerDailyForecast[2]}}, son obtenidos del modelo WRF de INAMHI.
           </div>
 
           <div class="d-flex justify-content-center">
@@ -57,35 +55,35 @@
               <tbody class="text-center">
                 <tr>
                   <td>Mazar</td>
-                  <td contenteditable="true" #mazarDaily>{{forecastDaily[5]}}</td>
+                  <td contenteditable="true" #mazarDaily>{{hydropowerDailyForecast[5]}}</td>
                 </tr>
                 <tr>
                   <td>Paute-Molino</td>
-                  <td contenteditable="true" #pauteDaily>{{forecastDaily[4]}}</td>
+                  <td contenteditable="true" #pauteDaily>{{hydropowerDailyForecast[4]}}</td>
                 </tr>
                 <tr>
                   <td>Sopladora</td>
-                  <td contenteditable="true" #sopladoraDaily>{{forecastDaily[7]}}</td>
+                  <td contenteditable="true" #sopladoraDaily>{{hydropowerDailyForecast[7]}}</td>
                 </tr>
                 <tr>
                   <td>Coca-Codo Sinclair</td>
-                  <td contenteditable="true" #cocacodoDaily>{{forecastDaily[9]}}</td>
+                  <td contenteditable="true" #cocacodoDaily>{{hydropowerDailyForecast[9]}}</td>
                 </tr>
                 <tr>
                   <td>Pucará</td>
-                  <td contenteditable="true" #pucaraDaily>{{forecastDaily[1]}}</td>
+                  <td contenteditable="true" #pucaraDaily>{{hydropowerDailyForecast[1]}}</td>
                 </tr>
                 <tr>
                   <td>Agoyán</td>
-                  <td contenteditable="true" #agoyanDaily>{{forecastDaily[0]}}</td>
+                  <td contenteditable="true" #agoyanDaily>{{hydropowerDailyForecast[0]}}</td>
                 </tr>
                 <tr>
                   <td>Minas San Francisco</td>
-                  <td contenteditable="true" #minasDaily>{{forecastDaily[6]}}</td>
+                  <td contenteditable="true" #minasDaily>{{hydropowerDailyForecast[6]}}</td>
                 </tr>
                 <tr>
                   <td>Delsitanisagua</td>
-                  <td contenteditable="true" #delsitanisaguaDaily>{{forecastDaily[12]}}</td>
+                  <td contenteditable="true" #delsitanisaguaDaily>{{hydropowerDailyForecast[12]}}</td>
                 </tr>
               </tbody>
             </table>
