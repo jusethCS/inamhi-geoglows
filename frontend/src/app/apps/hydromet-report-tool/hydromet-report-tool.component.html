@@ -34,10 +34,10 @@
             centrales hidroeléctricas con generación mayor a 50 MW:
           </div>
           <div class="d-flex justify-content-center">
-            <img src="https://inamhi.geoglows.org/api/hydromet-report-tool/get-hydropower-daily-forecast" width="400">
+            <img src="/assets/report/hydropower-daily-forecast.png" width="400">
           </div>
           <div class="d-flex justify-content-center">
-            <img src="/assets/legends/P_Diaria.png" width="400">
+            <img src="/assets/legend/daily_precipitation.png" width="400">
           </div>
 
           <div class="text-justify pt-4 pb-3">
@@ -97,8 +97,81 @@
         </button>
       </div>
     }
+
     @if(isActiveHydropowerWeekly){
-      MAPA SEMANAL
+      <div class="d-flex justify-content-center">
+        <div style="width: 70%;">
+          <div class="text-center report-title">Boletín Hidrometeorológico: Centrales hidroeléctricas</div>
+          <div class="text-center pt-2 pb-1"><b>Hora y fecha de emision:</b> {{datesHydropowerWeeklyForecast[0]}}</div>
+          <div class="text-center pt-1 pb-1"><b>Vigencia:</b> {{datesHydropowerWeeklyForecast[1]}}</div>
+          <div class="text-center pt-2">
+            La <b>DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS DEL INAMHI</b>, basándose en la información
+            obtenida de la <b>plataforma INAMHI GEOGLOWS</b> emite el siguiente boletín de vigilancia satelital y predicción de precipitación en
+            centrales hidroeléctricas con generación mayor a 50 MW:
+          </div>
+          <div class="d-flex justify-content-center">
+            <img src="/assets/report/hydropower-weekly-forecast.png" width="400">
+          </div>
+          <div class="d-flex justify-content-center">
+            <img src="/assets/legend/weekly_precipitation.png" width="400">
+          </div>
+
+          <div class="text-justify pt-4 pb-3">
+            El <b>pronóstico de precipitación</b>, {{datesHydropowerWeeklyForecast[2]}}, son obtenidos del modelo WRF de INAMHI.
+          </div>
+
+          <div class="d-flex justify-content-center">
+            <table border="1">
+              <thead>
+                <tr class="text-center">
+                  <th>Hidroeléctrica</th>
+                  <th>Pronóstico de precipitación WRF (mm)</th>
+                </tr>
+              </thead>
+              <tbody class="text-center">
+                <tr>
+                  <td>Mazar</td>
+                  <td contenteditable="true" #mazarWeekly>{{hydropowerWeeklyForecast[5]}}</td>
+                </tr>
+                <tr>
+                  <td>Paute-Molino</td>
+                  <td contenteditable="true" #pauteWeekly>{{hydropowerWeeklyForecast[4]}}</td>
+                </tr>
+                <tr>
+                  <td>Sopladora</td>
+                  <td contenteditable="true" #sopladoraWeekly>{{hydropowerWeeklyForecast[7]}}</td>
+                </tr>
+                <tr>
+                  <td>Coca-Codo Sinclair</td>
+                  <td contenteditable="true" #cocacodoWeekly>{{hydropowerWeeklyForecast[9]}}</td>
+                </tr>
+                <tr>
+                  <td>Pucará</td>
+                  <td contenteditable="true" #pucaraWeekly>{{hydropowerWeeklyForecast[1]}}</td>
+                </tr>
+                <tr>
+                  <td>Agoyán</td>
+                  <td contenteditable="true" #agoyanWeekly>{{hydropowerWeeklyForecast[0]}}</td>
+                </tr>
+                <tr>
+                  <td>Minas San Francisco</td>
+                  <td contenteditable="true" #minasWeekly>{{hydropowerWeeklyForecast[6]}}</td>
+                </tr>
+                <tr>
+                  <td>Delsitanisagua</td>
+                  <td contenteditable="true" #delsitanisaguaWeekly>{{hydropowerWeeklyForecast[12]}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+      <div class="reprod-container d-flex align-items-center justify-content-center p-4">
+        <button mat-stroked-button class="dark-mode reprod-button" (click)="generateHydropowerWeeklyReport()">
+          Generar reporte PDF
+        </button>
+      </div>
     }
   </div>
 

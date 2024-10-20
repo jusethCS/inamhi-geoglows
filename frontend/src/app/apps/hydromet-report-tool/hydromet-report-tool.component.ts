@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ImageComponent } from "../../components/image/image.component";
+import { formatDates, buildUrl, formatDatesWeekly } from './hydromet-report-tool.utils';
 
 
 @Component({
@@ -44,52 +45,50 @@ export class HydrometReportToolComponent {
   @ViewChild("minasDaily", {static: false}) minasDaily!: ElementRef;
   @ViewChild("delsitanisaguaDaily", {static: false}) delsitanisaguaDaily!: ElementRef;
 
+  // Hydropower weekly forecast
+  public datesHydropowerWeeklyForecast:string[] = [];
+  public hydropowerWeeklyForecast:string[] = [];
+  @ViewChild('mazarWeekly', { static: false}) mazarWeekly!: ElementRef;
+  @ViewChild("pauteWeekly", {static: false}) pauteWeekly!: ElementRef;
+  @ViewChild("sopladoraWeekly", {static: false}) sopladoraWeekly!: ElementRef;
+  @ViewChild("cocacodoWeekly", {static: false}) cocacodoWeekly!: ElementRef;
+  @ViewChild("pucaraWeekly", {static: false}) pucaraWeekly!: ElementRef;
+  @ViewChild("agoyanWeekly", {static: false}) agoyanWeekly!: ElementRef;
+  @ViewChild("minasWeekly", {static: false}) minasWeekly!: ElementRef;
+  @ViewChild("delsitanisaguaWeekly", {static: false}) delsitanisaguaWeekly!: ElementRef;
+
 
   constructor(private authService: AuthService, private router: Router){
     this.isAuth = this.authService.isAuth();
-    console.log(this.isAuth);
     if (!this.isAuth) {
       this.router.navigateByUrl(`/login?next=${this.appUrl}`);
     }
-    this.datesHydropowerDailyForecast = this.formatDates(new Date());
-  }
 
+    // HYDROPOWER DAILY FORECAST
+    this.datesHydropowerDailyForecast = formatDates(new Date());
+    fetch("https://inamhi.geoglows.org/api/hydromet-report-tool/hydropower-daily-forecast")
+      .then(response => response.json())
+      .then(response => {
+        this.hydropowerDailyForecast = response.forecasts.map(
+          (forecast: { forecast: any; }) => forecast.forecast
+        )
+      })
+
+    // HYDROPOWER WEEKLY FORECAST
+    this.datesHydropowerWeeklyForecast = formatDatesWeekly(new Date());
+    fetch("https://inamhi.geoglows.org/api/hydromet-report-tool/hydropower-weekly-forecast")
+      .then(response => response.json())
+      .then(response => {
+        this.hydropowerWeeklyForecast = response.forecasts.map(
+          (forecast: { forecast: any; }) => forecast.forecast
+        )
+      })
+
+  }
 
   public updateReport(param:string){
     param !== "hydropowers-daily" && (this.isActiveHydropowerDaily = false);
     param !== "hydropowers-weekly" && (this.isActiveHydropowerWeekly = false);
-  }
-
-  public formatDates(date: Date): string[] {
-    const months = [
-      "enero", "febrero", "marzo", "abril", "mayo", "junio",
-      "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-    ];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const format1 = `${day} de ${month} del ${year}, ${hours}:${minutes}`;
-    date.setDate(date.getDate() + 1);
-    const startDay = date.getDate();
-    const startMonth = months[date.getMonth()];
-    const startYear = date.getFullYear();
-    const endDate = new Date(date);
-    endDate.setDate(date.getDate() + 1);
-    const endDay = endDate.getDate();
-    const endMonth = months[endDate.getMonth()];
-    const endYear = endDate.getFullYear();
-    const format2 = `desde las 07:00 del ${startDay} de ${startMonth} hasta las 07:00 del ${endDay} de ${endMonth} del ${endYear}`;
-    const format3 = `desde el ${startDay} de ${startMonth} del ${startYear} (07H00) hasta el ${endDay} de ${endMonth} del ${endYear} (07H00)`;
-    return [format1, format2, format3];
-  }
-
-  public buildUrl(baseUrl: string, params: any): string {
-    const queryString = Object.keys(params)
-      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-      .join('&');
-    return `${baseUrl}?${queryString}`;
   }
 
 
@@ -104,8 +103,24 @@ export class HydrometReportToolComponent {
       minas: this.minasDaily.nativeElement.innerText,
       delsitanisagua: this.delsitanisaguaDaily.nativeElement.innerText
     }
-    const link = "https://inamhi.geoglows.org/api/geoglows/retrieve-daily-hydropower-report"
-    const url = this.buildUrl(link, params)
+    const link = "https://inamhi.geoglows.org/api/hydromet-report-tool/hydropower-daily-forecast-report"
+    const url = buildUrl(link, params)
+    window.location.href = url
+  }
+
+  public generateHydropowerWeeklyReport(){
+    const params = {
+      mazar : this.mazarWeekly.nativeElement.innerText,
+      paute: this.pauteWeekly.nativeElement.innerText,
+      sopladora: this.sopladoraWeekly.nativeElement.innerText,
+      cocacodo: this.cocacodoWeekly.nativeElement.innerText,
+      pucara: this.pucaraWeekly.nativeElement.innerText,
+      agoyan: this.agoyanWeekly.nativeElement.innerText,
+      minas: this.minasWeekly.nativeElement.innerText,
+      delsitanisagua: this.delsitanisaguaWeekly.nativeElement.innerText
+    }
+    const link = "https://inamhi.geoglows.org/api/hydromet-report-tool/hydropower-weekly-forecast-report"
+    const url = buildUrl(link, params)
     window.location.href = url
   }
 
