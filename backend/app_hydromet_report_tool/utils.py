@@ -254,10 +254,8 @@ def extract_raster_values_to_points(raster_path:str) -> pd.DataFrame:
             # Store the value along with the point coordinates and 
             # the 'NombreCent' field
             data.append({
-                'Hydropower': name, 
-                "Daily Forecast": round(value, 1)
+                'hydropower': name, 
+                "forecast": round(value, 1)
             })
     
-    # Convert the list to a Pandas DataFrame
-    df = pd.DataFrame(data)
-    return df
+    return data

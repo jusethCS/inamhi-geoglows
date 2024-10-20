@@ -3,7 +3,7 @@ import datetime as dt
 from io import BytesIO, StringIO
 import matplotlib.pyplot as plt
 from .utils import plot_daily_forecast, extract_raster_values_to_points
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 
 def get_hydropower_daily_forecast(request):
@@ -48,12 +48,5 @@ def get_hydropower_daily_forecast_csv(request):
         url = f"/usr/share/geoserver/data_dir/data/wrf-precipitation/{datestr}/{datestr}.geotiff"
         data = extract_raster_values_to_points(url)
 
-    # Create a CSV in memory
-    csv_buffer = StringIO()
-    data.to_csv(csv_buffer, index=False)
-    csv_buffer.seek(0)
-
-    # Create a HttpResponse object with CSV data
-    response = HttpResponse(csv_buffer, content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename=hydropower_daily_forecast.csv'
-    return response
+    response_data = {'forecasts': data}
+    return JsonResponse(response_data)
