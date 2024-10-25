@@ -3,4 +3,96 @@
   [imageUrl]="'/assets/img/met-data-explorer.png'"
   [appName]="'MET DATA EXPLORER'"
   [appUrl]="'/apps/met-data-explorer'"
-></app-app-template>
+>
+  <div panelContainer class="panel-container">
+
+    <!--------------------------------------------------------------------------------------->
+    <!--                             GOES MONITORING - PANEL                               -->
+    <!--------------------------------------------------------------------------------------->
+    <app-dropdown iconClass="fa-regular fa-earth-americas" title="Monitoreo GOES">
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Producto:</mat-label>
+        <mat-select [(ngModel)]="selectedGoesProduct" (selectionChange)="updateGoesBand()">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of goesProducts" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Banda:</mat-label>
+        <mat-select [(ngModel)]="selectedGoesBand">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of goesBands" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="select scaled" appearance="outline">
+        <mat-label>Capa sobrepuesta:</mat-label>
+        <mat-select [(ngModel)]="selectedGoesOverlay">
+          <mat-option
+            class="scaled-text"
+            *ngFor="let variable of goesOverlay" [value]="variable">
+              {{ variable }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button class="dark-mode update-button scaled" (click)="updateGoesLayer()">
+        <i class="fa-solid fa-arrows-rotate"></i>
+        Actualizar producto
+      </button>
+
+
+    </app-dropdown>
+
+
+  </div>
+
+  <div mapContainer>
+    <app-map #map></app-map>
+    <div class="reprod-container d-flex align-items-center justify-content-between px-3">
+      <div class="reprod-title">
+        <i class="fa-regular fa-sliders"></i>&nbsp;
+        Panel de animación
+      </div>
+      <div>
+        <div class="reprod-panel-button d-flex justify-content-between">
+          <button mat-stroked-button class="dark-mode reprod-button" (click)="previousTimeControl()">
+            <i class="fa-solid fa-backward"></i>
+          </button>
+          <button mat-stroked-button class="dark-mode reprod-button" (click)="playTimeControl()">
+            @if(isPlay){
+              <i class="fa-solid fa-pause"></i>
+            }@else {
+              <i class="fa-solid fa-play"></i>
+            }
+          </button>
+          <button mat-stroked-button class="dark-mode reprod-button" (click)="stopTimeControl()">
+            <i class="fa-solid fa-stop"></i>
+          </button>
+          <button mat-stroked-button class="dark-mode reprod-button" (click)="nextTimeControl()">
+            <i class="fa-solid fa-forward"></i>
+          </button>
+        </div>
+      </div>
+      <div class="reprod-panel-save d-flex justify-content-between">
+        <button mat-stroked-button class="dark-mode reprod-button">
+          <i class="fa-regular fa-download"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode reprod-button">
+          <i class="fa-regular fa-camera-viewfinder"></i>
+        </button>
+        <button mat-stroked-button class="dark-mode reprod-button">
+          <i class="fa-regular fa-video"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</app-app-template>

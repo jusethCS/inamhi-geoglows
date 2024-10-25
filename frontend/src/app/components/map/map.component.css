@@ -1,0 +1,9 @@
+#map{
+  height: calc(100vh - 105px);
+  width: 100%;
+}
+
+::ng-deep .inamhi-logo{
+  width: 125px !important;
+  height: 58px !important;
+}
