@@ -5,7 +5,6 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ImageComponent } from "../../components/image/image.component";
 import { formatDates, buildUrl, formatDatesWeekly } from './hydromet-report-tool.utils';
 
 
@@ -16,8 +15,7 @@ import { formatDates, buildUrl, formatDatesWeekly } from './hydromet-report-tool
     AppTemplateComponent,
     DropdownComponent,
     CommonModule,
-    FormsModule,
-    ImageComponent
+    FormsModule
   ],
   templateUrl: './hydromet-report-tool.component.html',
   styleUrl: './hydromet-report-tool.component.css'

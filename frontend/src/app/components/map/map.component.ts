@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import * as L from 'leaflet';
 
 @Component({
@@ -14,6 +15,10 @@ export class MapComponent {
   public map!: L.Map;
 
   // Overlays
+  public isActiveNationalLayer: boolean = true;
+  public nationalLayer: any;
+  public isActiveProvinceLayer: boolean = true;
+  public provinceLayer: any;
 
 
 
@@ -39,6 +44,27 @@ export class MapComponent {
 
     // Resize the map
     this.resizeMap();
+
+    //
+    this.nationalLayer = L.tileLayer.wms(`http://ec2-54-234-81-180.compute-1.amazonaws.com/geoserver/ecuador/wms?`, {
+      layers: 'ecuador:nacional',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1000
+    });
+    this.nationalLayer.addTo(this.map);
+
+    this.provinceLayer = L.tileLayer.wms(`http://ec2-54-234-81-180.compute-1.amazonaws.com/geoserver/ecuador/wms?`, {
+      layers: 'ecuador:provincial',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1000
+    });
+    this.provinceLayer.addTo(this.map);
+
+    //${environment.urlGeoserver}
   }
 
   public resizeMap(): void {
