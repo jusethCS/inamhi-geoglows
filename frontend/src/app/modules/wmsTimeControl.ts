@@ -60,7 +60,7 @@ export class WMSTimeControl {
       // Establecer la opacidad de las capas visibles
       this.layers[this.currentDateIndex].setOpacity(1);
       if (this.overlays && this.overlays.length > 0) {
-        this.overlays[this.currentDateIndex].setOpacity(0.5);
+        this.overlays[this.currentDateIndex].setOpacity(1);
       }
 
       this.updateLegend();
@@ -75,7 +75,7 @@ export class WMSTimeControl {
     this.layers[this.currentDateIndex]?.setOpacity(1);
     if (this.overlays && this.overlays.length > 0) {
       this.overlays.map((layer) => { layer.setOpacity(0)});
-      this.overlays[this.currentDateIndex]?.setOpacity(0.5);
+      this.overlays[this.currentDateIndex]?.setOpacity(1);
     }
     this.updateLegend();
   }
@@ -85,7 +85,7 @@ export class WMSTimeControl {
     this.layers[this.currentDateIndex]?.setOpacity(1);
     if (this.overlays && this.overlays.length > 0) {
       this.overlays[this.currentDateIndex - 1]?.setOpacity(0);
-      this.overlays[this.currentDateIndex]?.setOpacity(0.5);
+      this.overlays[this.currentDateIndex]?.setOpacity(1);
     }
     this.updateLegend();
   }
@@ -107,7 +107,7 @@ export class WMSTimeControl {
     this.layers[this.currentDateIndex]?.setOpacity(1);
     if (this.overlays && this.overlays.length > 0) {
       this.overlays[this.currentDateIndex + 1]?.setOpacity(0);
-      this.overlays[this.currentDateIndex]?.setOpacity(0.5);
+      this.overlays[this.currentDateIndex]?.setOpacity(1);
     }
     this.updateLegend();
   }

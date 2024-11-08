@@ -84,13 +84,30 @@ export class MetDataExplorerComponent {
 
   public async updateGoesLayer(){
     this.isPlay = false;
-    const layerCode = this.goesData.filter(
-      (item) =>
-        item.Product === this.selectedGoesProduct &&
-        item.Band === this.selectedGoesBand
-    )[0].Code;
+    const workspace = "satellite_data";
+    const store = "goes_abi_l2_cmipf_13";
+    const url = `${environment.urlGeoserver}/${workspace}/wms`;
+    const layers = await this.geoserver.getAvailableDatesFromImageMosaic(url, store);
+    const dates = parseGOESDatetime(layers);
+    const wmsLayers = layers.map((layer) => this.geoserver.getWMSFromImageMosaic(url, `${workspace}:${store}`, layer))
+    console.log(wmsLayers);
 
-    const url = `${environment.urlGeoserver}/${layerCode}/wms`;
+
+
+
+    if (this.selectedGoesOverlay !== "None"){
+      const overlay = this.goesData.filter(
+        (item) => item.Product === this.selectedGoesOverlay)[0].Code;
+      const wmsOverlays = layers.map((layer) => this.geoserver.getWMSFromImageMosaic(url, `${workspace}:${overlay}`, layer))
+      this.timeControl?.destroy();
+      this.timeControl = new WMSTimeControl(this.map.map, wmsLayers, wmsOverlays, "", dates, true);
+
+    }else{
+      this.timeControl?.destroy();
+      this.timeControl = new WMSTimeControl(this.map.map, wmsLayers, undefined, "", dates, true);
+    }
+
+    /**
     const layers = await this.geoserver.getLastLayers(`${url}?service=WMS&request=GetCapabilities`, 10);
     const wmsLayers = layers.map((layer) => this.geoserver.getWMSLayer(url, layer));
     let img = layerCode === "GOES-RGB-TRUE-COLOR" ? undefined : `assets/legend/${layerCode}.png`;
@@ -124,6 +141,8 @@ export class MetDataExplorerComponent {
       this.timeControl?.destroy();
       this.timeControl = new WMSTimeControl(this.map.map, wmsLayers, undefined, img, legendText, true)
     }
+  */
+
   }
 
 
