@@ -201,6 +201,18 @@ export class MetDataExplorerComponent {
     public isActiveBasinPaute:boolean = false;
     public basinPauteLayer:any
 
+    public isActiveBasinToachi:boolean = false;
+    public basinToachiLayer:any;
+
+    public isActiveBasinManduriacu:boolean = false;
+    public basinManduriacuLayer:any;
+
+    public isActiveBasinMarcel:boolean = false;
+    public basinMarcelLayer:any;
+
+    public isActiveBasinPucara:boolean = false;
+    public basinPucaraLayer:any;
+
   constructor(private formBuilder: FormBuilder){}
 
   ngOnInit() {
@@ -415,6 +427,38 @@ export class MetDataExplorerComponent {
       zIndex: 1100,
     });
 
+    this.basinToachiLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:toachi',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
+    this.basinManduriacuLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:manduriacu',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
+    this.basinMarcelLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:marcel_laniado',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
+    this.basinPucaraLayer = L.tileLayer.wms(`${environment.urlGeoserver}/ecuador-limits/wms?`, {
+      layers: 'ecuador-limits:pucara',
+      format: 'image/svg',
+      transparent: true,
+      version: '1.1.0',
+      zIndex: 1100,
+    });
+
     const overlayers = [
       this.cantonLayer, this.provinceLayer,
       this.protectedAreaLayer, this.waterRechargeLayer, this.conectivityCoLayer,
@@ -422,7 +466,9 @@ export class MetDataExplorerComponent {
       this.bosqueProtectorLayer, this.SNAPLayer,
       this.citiesLayer, this.hydropowers50Layer,
       this.basinAgoyanLayer, this.basinCocaLayer, this.basinDelsintanisaguaLayer,
-      this.basinDueLayer, this.basinJubonesLayer, this.basinPauteLayer
+      this.basinDueLayer, this.basinJubonesLayer, this.basinPauteLayer,
+      this.basinToachiLayer, this.basinManduriacuLayer, this.basinMarcelLayer,
+      this.basinPucaraLayer
     ];
 
     this.map.on('layeradd', function(){

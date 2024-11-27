@@ -297,6 +297,30 @@
         <label class="form-check-label" for="basin-due">Due</label>
       </div>
 
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-manduriacu"
+          [(ngModel)]="isActiveBasinManduriacu" (ngModelChange)="updateOverlayers(isActiveBasinManduriacu, basinManduriacuLayer)">
+        <label class="form-check-label" for="basin-manduriacu">Manduriacu</label>
+      </div>
+
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-toachi"
+          [(ngModel)]="isActiveBasinToachi" (ngModelChange)="updateOverlayers(isActiveBasinToachi, basinToachiLayer)">
+        <label class="form-check-label" for="basin-toachi">Toachi Pilatón</label>
+      </div>
+
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-marcel"
+          [(ngModel)]="isActiveBasinMarcel" (ngModelChange)="updateOverlayers(isActiveBasinMarcel, basinMarcelLayer)">
+        <label class="form-check-label" for="basin-marcel">Marcel Laniado</label>
+      </div>
+
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="basin-pucara"
+          [(ngModel)]="isActiveBasinPucara" (ngModelChange)="updateOverlayers(isActiveBasinPucara, basinPucaraLayer)">
+        <label class="form-checkpucara" for="basin-marcel">Pucará</label>
+      </div>
+
       <!--
       <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" id="hidroelectricas-menores"

@@ -1,8 +1,9 @@
 from django.urls import path
-from .controllers import get_hydropower_daily_forecast, get_hydropower_daily_forecast_csv
-urlpatterns = [
-    path('get-hydropower-daily-forecast', get_hydropower_daily_forecast,  name="get-hydropower-daily-forecast"),
-    path('get-hydropower-daily-forecast-csv', get_hydropower_daily_forecast_csv,  name="get-hydropower-daily-forecast-csv"),
-]
+from .controllers import *
 
-# https://inamhi.geoglows.org/api/hydromet-report-tool/get-hydropower-daily-forecast
+urlpatterns = [
+    path('hydropower-daily-forecast', get_hydropower_daily_forecast,  name="hydropower-daily-forecast"),
+    path('hydropower-weekly-forecast', get_hydropower_weekly_forecast,  name="hydropower-weekly-forecast"),
+    path('hydropower-daily-forecast-report', get_hydropower_daily_forecast_report,  name="hydropower-daily-forecast-report"),
+    path('hydropower-weekly-forecast-report', get_hydropower_weekly_forecast_report,  name="hydropower-weekly-forecast-report"),
+]
