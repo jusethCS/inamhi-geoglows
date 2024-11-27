@@ -39,6 +39,7 @@ export class HydrometReportToolComponent {
   @ViewChild("agoyanDaily", {static: false}) agoyanDaily!: ElementRef;
   @ViewChild("minasDaily", {static: false}) minasDaily!: ElementRef;
   @ViewChild("delsitanisaguaDaily", {static: false}) delsitanisaguaDaily!: ElementRef;
+  @ViewChild("toachiDaily", {static: false}) toachiDaily!: ElementRef;
 
   // -------------------------------------------------------------------- //
   //                            CONSTRUCTOR                               //
@@ -118,7 +119,8 @@ export class HydrometReportToolComponent {
       pucara: this.pucaraDaily.nativeElement.innerText,
       agoyan: this.agoyanDaily.nativeElement.innerText,
       minas: this.minasDaily.nativeElement.innerText,
-      delsitanisagua: this.delsitanisaguaDaily.nativeElement.innerText
+      delsitanisagua: this.delsitanisaguaDaily.nativeElement.innerText,
+      toachi: this.toachiDaily.nativeElement.innerText
     }
     const link = "https://inamhi.geoglows.org/api/geoglows/retrieve-daily-hydropower-report"
     const url = this.buildUrl(link, params)
