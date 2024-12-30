@@ -298,7 +298,7 @@ export class HydroviewerComponent {
   public initializeMap() {
     // Base maps
     const osm = L.tileLayer(
-      'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+      'https://abcd.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
          zIndex: -1
       });
     const carto = L.tileLayer(
