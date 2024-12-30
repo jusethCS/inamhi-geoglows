@@ -346,7 +346,7 @@ export class HydroviewerComponent {
 
   public initializeOverlays(){
     this.citiesLayer = L.tileLayer(
-      'https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png', {
+      'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
         zIndex: 1100
       });
     //this.citiesLayer.addTo(this.map);
